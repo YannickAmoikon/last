@@ -1,5 +1,5 @@
 "use client"
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
 import {Button} from '@/components/ui/button';
@@ -13,6 +13,18 @@ import {
 import {Edit, MoreHorizontal, Trash2Icon} from 'lucide-react';
 import {useGetRapprochementsQuery, useDeleteRapprochementMutation} from '@/lib/services/rapprochementsApi';
 import {useToast} from '@/hooks/use-toast';
+import CreateRapprochementDialog from "@/components/forms&dialogs/rapprochementDialog";
+
+function convertirTempsTraitement(tempsEnSecondes: number): string {
+	const heures = Math.floor(tempsEnSecondes / 3600);
+	const minutes = Math.floor((tempsEnSecondes % 3600) / 60);
+
+	if (heures > 0) {
+		return `${heures}h ${minutes}min`;
+	} else {
+		return `${minutes}min`;
+	}
+}
 
 export default function Rapprochements() {
 	const [page, setPage] = useState(1);
@@ -32,6 +44,15 @@ export default function Rapprochements() {
 
 	const [deleteRapprochement] = useDeleteRapprochementMutation();
 
+	const filteredRapprochements = useMemo(() => {
+		if (!rapprochements) return [];
+		return rapprochements.items.filter(rapprochement =>
+			rapprochement.banque.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			rapprochement.statut.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			rapprochement.etape_actuelle.toLowerCase().includes(searchTerm.toLowerCase())
+		);
+	}, [rapprochements, searchTerm]);
+
 	const handleDelete = async (id: string) => {
 		try {
 			await deleteRapprochement(id).unwrap();
@@ -39,8 +60,8 @@ export default function Rapprochements() {
 				title: "Suppression réussie",
 				description: "Le rapprochement a été supprimé avec succès.",
 			});
-			refetch(); // Rafraîchir la liste
-		} catch (error) {
+			refetch();
+		} catch (error: any) {
 			toast({
 				title: "Erreur",
 				description: "Une erreur est survenue lors de la suppression.",
@@ -69,6 +90,14 @@ export default function Rapprochements() {
 		});
 	};
 
+	const handleRapprochementCreated = () => {
+		refetch();
+		toast({
+			title: "Rapprochement créé",
+			description: "Le nouveau rapprochement a été ajouté avec succès.",
+		});
+	};
+
 	return (
 		<main className="flex flex-1 py-4 items-start justify-center">
 			<div className="grid flex-1 gap-4 p-8 sm:px-6 sm:py-0 md:gap-8">
@@ -87,6 +116,7 @@ export default function Rapprochements() {
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 							/>
+							<CreateRapprochementDialog onRapprochementCreated={handleRapprochementCreated}/>
 						</div>
 						<Table>
 							<TableHeader>
@@ -109,13 +139,13 @@ export default function Rapprochements() {
 										<TableCell colSpan={6} className="text-center text-red-500">Une erreur est survenue</TableCell>
 									</TableRow>
 								) : (
-									rapprochements?.items.map((rapprochement) => (
+									filteredRapprochements.map((rapprochement) => (
 										<TableRow key={rapprochement.id}>
 											<TableCell>{formatDate(rapprochement.date)}</TableCell>
 											<TableCell>{rapprochement.banque.nom}</TableCell>
-											<TableCell>{rapprochement.status}</TableCell>
+											<TableCell>{rapprochement.statut}</TableCell>
 											<TableCell>{rapprochement.etape_actuelle}</TableCell>
-											<TableCell>{rapprochement.temps_traitement}</TableCell>
+											<TableCell>{convertirTempsTraitement(rapprochement.temps_traitement)}</TableCell>
 											<TableCell className="text-right">
 												<DropdownMenu>
 													<DropdownMenuTrigger asChild>
@@ -126,12 +156,11 @@ export default function Rapprochements() {
 													<DropdownMenuContent align="end">
 														<DropdownMenuItem
 															onClick={() => {
-																// Navigation vers la page d'édition
-																window.location.href = `/rapprochements/${rapprochement.id}/edit`;
+																window.location.href = `/rapprochements/${rapprochement.id}`;
 															}}
 														>
 															<Edit className="mr-2 h-4 w-4"/>
-															Modifier
+															Details
 														</DropdownMenuItem>
 														<DropdownMenuItem
 															className="text-red-600"
@@ -151,7 +180,7 @@ export default function Rapprochements() {
 					</CardContent>
 					<CardFooter className="flex justify-between items-center">
 						<div className="text-xs text-muted-foreground">
-							{rapprochements && `Affichage ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, rapprochements.total)} sur ${rapprochements.total} rapprochements`}
+							{rapprochements && `Affichage ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRapprochements.length)} sur ${filteredRapprochements.length} rapprochements`}
 						</div>
 						<div className="flex gap-2">
 							<Button

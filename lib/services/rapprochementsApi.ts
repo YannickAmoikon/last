@@ -1,19 +1,21 @@
-// lib/services/rapprochementsApi.ts
 import {apiSlice} from './api';
+
+// Interfaces
+interface Banque {
+	id: string;
+	nom: string;
+}
 
 interface Rapprochement {
 	user_id: string;
 	banque_id: string;
 	date: string;
-	status: string;
+	statut: string;
 	id: string;
 	etape_actuelle: string;
 	commentaire: string;
 	temps_traitement: string;
-	banque: {
-		id: string;
-		nom: string;
-	}
+	banque: Banque;
 }
 
 interface RapprochementsResponse {
@@ -24,69 +26,94 @@ interface RapprochementsResponse {
 	total_pages: number;
 }
 
-interface GetRapprochementsParams {
+// Types pour les requêtes
+type GetRapprochementsParams = {
 	page?: number;
 	page_size?: number;
-}
+};
 
-// Étendre l'API Slice existant avec les endpoints des rapprochements
+type CreateRapprochementRequest = {
+	banque_id: number;
+	compte_id: number;
+	date: string;
+	releve_bancaire: File;
+	grand_livre: File;
+	balance: File;
+	edr: File;
+};
+
+// Constantes
+const RAPPROCHEMENTS_URL = '/rapprochements';
+const RAPPROCHEMENTS_TAG = 'Rapprochements';
+
+// Fonctions utilitaires
+const createFormData = (body: CreateRapprochementRequest): FormData => {
+	const formData = new FormData();
+	Object.entries(body).forEach(([key, value]) => {
+		if (value instanceof File) {
+			formData.append(key, value, value.name);
+		} else {
+			formData.append(key, value.toString());
+		}
+	});
+	return formData;
+};
+
+// Slice API
 export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 	endpoints: (builder) => ({
 		getRapprochements: builder.query<RapprochementsResponse, GetRapprochementsParams | void>({
 			query: (params = {page: 1, page_size: 10}) => ({
-				url: '/rapprochements',
+				url: RAPPROCHEMENTS_URL,
 				method: 'GET',
-				params: params,
+				params,
 			}),
-			transformResponse: (response: RapprochementsResponse) => {
-				return {
-					...response,
-					items: response.items.map(item => ({
-						...item,
-						date: new Date(item.date).toISOString(), // Assure que la date est bien formatée
-					})),
-				};
-			},
+			transformResponse: (response: RapprochementsResponse) => ({
+				...response,
+				items: response.items.map(item => ({
+					...item,
+					date: new Date(item.date).toISOString(),
+				})),
+			}),
 			providesTags: (result) =>
 				result
 					? [
-						...result.items.map(({id}) => ({type: 'Rapprochements' as const, id})),
-						{type: 'Rapprochements', id: 'LIST'},
+						...result.items.map(({id}) => ({type: RAPPROCHEMENTS_TAG, id})),
+						{type: RAPPROCHEMENTS_TAG, id: 'LIST'},
 					]
-					: [{type: 'Rapprochements', id: 'LIST'}],
+					: [{type: RAPPROCHEMENTS_TAG, id: 'LIST'}],
 		}),
 
-		// Ajouter un rapprochement
-		addRapprochement: builder.mutation<Rapprochement, Partial<Rapprochement>>({
+		addRapprochement: builder.mutation<Rapprochement, CreateRapprochementRequest>({
 			query: (body) => ({
-				url: '/rapprochements',
+				url: RAPPROCHEMENTS_URL,
 				method: 'POST',
-				body,
+				body: createFormData(body),
+				formData: true,
 			}),
-			invalidatesTags: [{type: 'Rapprochements', id: 'LIST'}],
+			invalidatesTags: [{type: RAPPROCHEMENTS_TAG, id: 'LIST'}],
 		}),
 
-		// Mettre à jour un rapprochement
 		updateRapprochement: builder.mutation<Rapprochement, { id: string; body: Partial<Rapprochement> }>({
 			query: ({id, body}) => ({
-				url: `/rapprochements/${id}`,
+				url: `${RAPPROCHEMENTS_URL}/${id}`,
 				method: 'PUT',
 				body,
 			}),
-			invalidatesTags: (result, error, {id}) => [{type: 'Rapprochements', id}],
+			invalidatesTags: (result, error, {id}) => [{type: RAPPROCHEMENTS_TAG, id}],
 		}),
 
-		// Supprimer un rapprochement
 		deleteRapprochement: builder.mutation<void, string>({
 			query: (id) => ({
-				url: `/rapprochements/${id}`,
+				url: `${RAPPROCHEMENTS_URL}/${id}`,
 				method: 'DELETE',
 			}),
-			invalidatesTags: (result, error, id) => [{type: 'Rapprochements', id}],
+			invalidatesTags: (result, error, id) => [{type: RAPPROCHEMENTS_TAG, id}],
 		}),
 	}),
 });
 
+// Hooks exportés
 export const {
 	useGetRapprochementsQuery,
 	useAddRapprochementMutation,
