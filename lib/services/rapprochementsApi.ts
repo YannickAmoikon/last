@@ -192,6 +192,17 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 					]
 					: [{ type: RAPPROCHEMENTS_TAG, id: `LIST_${arg.rapprochement_id}` }],
 		}),
+
+		validerLigneRapprochement: builder.mutation<{ message: string, ligne_id: number }, { rapprochement_id: number, ligne_id: number }>({
+			query: ({ rapprochement_id, ligne_id }) => ({
+				url: `${RAPPROCHEMENTS_URL}/${rapprochement_id}/lignes/${ligne_id}/valider`,
+				method: 'POST',
+			}),
+			// @ts-ignore
+			invalidatesTags: (result, error, { rapprochement_id }) => [
+				{ type: RAPPROCHEMENTS_TAG, id: `LIST_${rapprochement_id}` },
+			],
+		}),
 	}),
 });
 
@@ -202,4 +213,5 @@ export const {
 	useUpdateRapprochementMutation,
 	useDeleteRapprochementMutation,
 	useGetRapprochementLignesQuery,
+	useValiderLigneRapprochementMutation,
 } = rapprochementsApiSlice;

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -18,8 +18,10 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Eye, Merge, Loader2, Info } from 'lucide-react';
-import { useGetRapprochementLignesQuery } from '@/lib/services/rapprochementsApi';
+import { ChevronLeft, ChevronRight, Eye, Merge, Loader2, Info, Check, X } from 'lucide-react';
+import { useGetRapprochementLignesQuery, useValiderLigneRapprochementMutation } from '@/lib/services/rapprochementsApi';
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
   <Card className="bg-gray-100 border shadow-sm">
@@ -225,31 +227,54 @@ const Releve = ({ releve }: { releve: any }) => (
   </Card>
 );
 
-const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: string }) => {
+const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLivres: any[], releveId: string, onMatchSuccess: () => void }) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [validerLigneRapprochement] = useValiderLigneRapprochementMutation();
+  const { toast } = useToast()
 
-  const handleCheckboxChange = (id: string) => {
+  const handleCheckboxChange = useCallback((id: string) => {
     setSelectedItems(prev => 
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
-  };
+  }, []);
 
-  const handleMatchSelected = () => {
-    console.log("Matching selected items:", selectedItems);
-    setIsDialogOpen(false);
+  const handleMatchSelected = async () => {
+    setIsLoading(true);
+    try {
+      await validerLigneRapprochement({ rapprochement_id: parseInt(releveId), ligne_id: parseInt(selectedItems[0]) });
+      console.log("Matching réussi pour les éléments:", selectedItems); 
+      setIsDialogOpen(false);
+      setSelectedItems([]);
+      onMatchSuccess(); // Appel de la fonction pour rafraîchir les données
+      toast({
+        title: "Matching réussi",
+        description: `${selectedItems.length} élément(s) ont été matchés avec succès.`,
+        className: "bg-green-600 text-white"
+      })
+    } catch (error) {
+      console.error("Erreur lors du matching:", error);
+      toast({
+        title: "Erreur de matching",
+        description: "Une erreur est survenue lors du matching.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative">
       {grandLivres.map((grandLivre, idx) => (
         <Card key={idx} className="w-full rounded-none mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500">
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
               <input
                 type="checkbox"
-                checked={selectedItems.includes(grandLivre.grand_livre.id)}
-                onChange={() => handleCheckboxChange(grandLivre.grand_livre.id)}
+                checked={selectedItems.includes(grandLivre.id)}
+                onChange={() => handleCheckboxChange(grandLivre.id)}
                 className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
             </div>
@@ -285,29 +310,49 @@ const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: 
           </div>
         </Card>
       ))}
-     
+      
       <div className="flex justify-center mt-4">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button 
               size="sm" 
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-              disabled={selectedItems.length === 0}
+              className="bg-blue-600 my-2 hover:bg-blue-700 text-white"
+              disabled={selectedItems.length === 0 || isLoading}
             >
-				<Merge className="mr-1" size={14} />
+              <Merge className="mr-1" size={14} />
               Matcher {selectedItems.length} élément{selectedItems.length > 1 ? 's' : ''}
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-white">
             <DialogHeader>
-              <DialogTitle className="text-blue-700">Faire un matching</DialogTitle>
+              <DialogTitle>Faire un matching</DialogTitle>
             </DialogHeader>
             <DialogDescription className="text-gray-600">
-              Matcher le Grand Livre {grandLivres[0].grand_livre.id} au Relevé {releveId} ?
+              Êtes-vous sûr de vouloir matcher {selectedItems.length} élément(s) au Relevé {releveId} ?
             </DialogDescription>
+            <div className="flex justify-end space-x-2 mt-4">
+              <Button size="sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
+                <X className="mr-1" size={14} />
+                Annuler
+              </Button>
+              <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white" onClick={handleMatchSelected} disabled={isLoading}>
+                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                <Check className="mr-1" size={14} />
+                Oui
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
+      {(isDialogOpen || isLoading) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40" aria-hidden="true">
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -316,7 +361,7 @@ const Rapprochement = ({ rapprochement }: { rapprochement: any }) => (
   <div className="border-2 border-gray-200 p-4 rounded-md w-full">
     <span className="text-gray-600 text-xs">{`#${rapprochement.id}`}</span>
     <Releve releve={rapprochement} />
-    <GrandLivres grandLivres={rapprochement.lignes_rapprochement} releveId={rapprochement.id} />
+    <GrandLivres grandLivres={rapprochement.lignes_rapprochement} releveId={rapprochement.id} onMatchSuccess={() => {}} />
   </div>
 );
 
@@ -327,7 +372,7 @@ export default function RapprochementDetails() {
 
   const rapprochementId = 1;
 
-  const { data, error, isLoading } = useGetRapprochementLignesQuery({
+  const { data, error, isLoading, refetch } = useGetRapprochementLignesQuery({
     statut: "Rapprochement partiel",
     rapprochement_id: rapprochementId,
     page: currentPage,
@@ -341,6 +386,11 @@ export default function RapprochementDetails() {
   const handleNext = () => {
     setCurrentPage(prev => (prev < (data?.total_pages || 1) ? prev + 1 : prev));
   };
+
+  const handleMatchSuccess = useCallback(() => {
+    // Rafraîchir les données
+    refetch();
+  }, [refetch]);
 
   if (isLoading) {
     return (
@@ -361,22 +411,22 @@ export default function RapprochementDetails() {
 
   return (
     <div className="flex flex-col flex-1 w-full p-1 space-y-4 bg-gray-50">
+      <Toaster />
       <Card className="w-full shadow-md border border-gray-200">
         <CardHeader className="border-b border-gray-200">
           <CardTitle className="text-lg font-bold text-gray-900">Détails du Rapprochement {rapprochementId}</CardTitle>
           <CardDescription className="text-gray-600">Informations générales et statistiques</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-6">
-          <div className="grid grid-cols-3 gap-4">
-            <StatCard title="Total Lignes" value={data?.total.toString() || "0"} />
-            <StatCard title="Taux de matchs positifs" value="98%" />
-            <StatCard title="Taux de matchs négatifs" value="2%" />
+          <div className="grid grid-cols-4 gap-4">
+            <StatCard title="Total de lignes" value={data?.total_ligne.toString() || "0"} />
+            <StatCard title="Total de matchs" value={data?.total_match.toString() || "0"} />
+            <StatCard title="En attente de validation" value={data?.total.toString() || "0"} />
+            <StatCard 
+              title="Taux de progression" 
+              value={`${(((data?.total_ligne - data?.total) / data?.total_ligne) * 100).toFixed(1)}%`}
+            />
           </div>
-
-          {/* {data && data.items.length > 0 && (
-            <Rapprochement rapprochement={data.items[currentRapprochementIndex]} />
-          )} */}
-
           {data?.items.map((rapprochement, idx) => (
             <Rapprochement rapprochement={rapprochement} key={idx} />
           ))}
