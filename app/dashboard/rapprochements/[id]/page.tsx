@@ -182,7 +182,7 @@ const TransactionCard = ({
 
 const Releve = ({ releve }: { releve: any }) => (
   <TransactionCard 
-    title="RELEVE"
+    title={`RELEVE : ${releve.id}`}
     description={`Compte: ${releve.numero_compte}`}
     details={[
       { 
@@ -202,7 +202,7 @@ const GrandLivres = ({ grandLivres }: { grandLivres: any[] }) => (
     {grandLivres.map((grandLivre, idx) => (
       <TransactionCard 
         key={idx}
-        title={`Grand Livre ${idx + 1}`}
+        title={`Grand Livre : ${grandLivre.grand_livre.id}`}
         description={grandLivre.grand_livre.libelle}
         details={[
           {
