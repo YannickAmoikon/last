@@ -21,8 +21,8 @@ export default function DashboardLayout({
 	if (status === "loading") {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<div className="text-center">
-					<div className="text-lg">Chargement...</div>
+				<div className="loader">
+					<div className="loader-inner"></div>
 				</div>
 			</div>
 		);

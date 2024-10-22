@@ -10,10 +10,11 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {Edit, MoreHorizontal, Trash2Icon} from 'lucide-react';
+import {Edit, MoreHorizontal, Trash2Icon, Loader2} from 'lucide-react';
 import {useGetRapprochementsQuery, useDeleteRapprochementMutation} from '@/lib/services/rapprochementsApi';
 import {useToast} from '@/hooks/use-toast';
 import CreateRapprochementDialog from "@/components/forms&dialogs/rapprochementDialog";
+import Link from 'next/link';
 
 function convertirTempsTraitement(tempsEnSecondes: number): string {
 	const heures = Math.floor(tempsEnSecondes / 3600);
@@ -132,11 +133,13 @@ export default function Rapprochements() {
 							<TableBody>
 								{isLoading ? (
 									<TableRow>
-										<TableCell colSpan={6} className="text-center">Chargement...</TableCell>
+										<TableCell colSpan={6} className="h-24 text-center">
+											<Loader2 className="h-8 w-8 animate-spin mx-auto" />
+										</TableCell>
 									</TableRow>
 								) : error ? (
 									<TableRow>
-										<TableCell colSpan={6} className="text-center text-red-500">Une erreur est survenue</TableCell>
+										<TableCell colSpan={6} className="h-24 text-center text-red-500">Une erreur est survenue</TableCell>
 									</TableRow>
 								) : (
 									filteredRapprochements.map((rapprochement) => (
@@ -154,13 +157,11 @@ export default function Rapprochements() {
 														</Button>
 													</DropdownMenuTrigger>
 													<DropdownMenuContent align="end">
-														<DropdownMenuItem
-															onClick={() => {
-																window.location.href = `/rapprochements/${rapprochement.id}`;
-															}}
-														>
-															<Edit className="mr-2 h-4 w-4"/>
-															Details
+														<DropdownMenuItem asChild>
+															<Link href={`/dashboard/rapprochements/${rapprochement.id}`}>
+																<Edit className="mr-2 h-4 w-4"/>
+																Details
+															</Link>
 														</DropdownMenuItem>
 														<DropdownMenuItem
 															className="text-red-600"

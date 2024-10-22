@@ -42,6 +42,52 @@ type CreateRapprochementRequest = {
 	edr: File;
 };
 
+interface RapprochementLignesResponse {
+	items: RapprochementLigne[];
+	total: number;
+	page: number;
+	page_size: number;
+	total_pages: number;
+  };
+  interface RapprochementLigne {
+	rapprochement_id: number;
+	date_operation: string;
+	numero_compte: string;
+	description: string;
+	reference: string;
+	date_valeur: string;
+	devise: string;
+	debit: number;
+	credit: number;
+	solde_courant: number;
+	id: string;
+	lignes_rapprochement: LigneRapprochement[];
+  };
+  interface GrandLivre {
+	rapprochement_id: number;
+	numero_piece: string;
+	date_ecriture: string;
+	libelle: string;
+	debit: number;
+	credit: number;
+	cpte_alt: string;
+	exercice: string;
+	compte: string;
+	cpte_gen: string;
+	id: string;
+  }
+  
+  interface LigneRapprochement {
+	id: number;
+	rapprochement_id: number;
+	statut: string;
+	type_match: string;
+	commentaire: string;
+	decision: string;
+	flag: string;
+	grand_livre: GrandLivre;
+  }
+
 // Constantes
 const RAPPROCHEMENTS_URL = '/rapprochements';
 const RAPPROCHEMENTS_TAG = 'Rapprochements';
@@ -110,6 +156,36 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 			}),
 			invalidatesTags: (result, error, id) => [{type: RAPPROCHEMENTS_TAG, id}],
 		}),
+
+		getRapprochementLignes: builder.query<RapprochementLignesResponse, { rapprochement_id: number, statut?: string, page?: number, page_size?: number }>({
+			query: ({ rapprochement_id, statut, page = 1, page_size = 10 }) => ({
+				url: `${RAPPROCHEMENTS_URL}/${rapprochement_id}/lignes`,
+				method: 'GET',
+				params: { statut, page, page_size },
+			}),
+			transformResponse: (response: RapprochementLignesResponse) => ({
+				...response,
+				items: response.items.map(item => ({
+					...item,
+					date_operation: new Date(item.date_operation).toISOString(),
+					date_valeur: new Date(item.date_valeur).toISOString(),
+					lignes_rapprochement: item.lignes_rapprochement.map(ligne => ({
+						...ligne,
+						grand_livre: {
+							...ligne.grand_livre,
+							date_ecriture: new Date(ligne.grand_livre.date_ecriture).toISOString(),
+						},
+					})),
+				})),
+			}),
+			providesTags: (result, error, arg) => 
+				result
+					? [
+						...result.items.map(({ id }) => ({ type: RAPPROCHEMENTS_TAG, id })),
+						{ type: RAPPROCHEMENTS_TAG, id: `LIST_${arg.rapprochement_id}` },
+					]
+					: [{ type: RAPPROCHEMENTS_TAG, id: `LIST_${arg.rapprochement_id}` }],
+		}),
 	}),
 });
 
@@ -119,4 +195,5 @@ export const {
 	useAddRapprochementMutation,
 	useUpdateRapprochementMutation,
 	useDeleteRapprochementMutation,
+	useGetRapprochementLignesQuery,
 } = rapprochementsApiSlice;
