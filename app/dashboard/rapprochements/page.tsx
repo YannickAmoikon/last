@@ -99,6 +99,23 @@ export default function Rapprochements() {
 		});
 	};
 
+	if (isLoading) {
+		return (
+			<div className="flex flex-col items-center justify-center min-h-screen">
+				<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+				<p className="mt-2 text-gray-600">Chargement des rapprochements...</p>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="flex flex-col items-center justify-center min-h-screen">
+				<p className="text-red-500">Une erreur est survenue lors du chargement des rapprochements.</p>
+			</div>
+		);
+	}
+
 	return (
 		<main className="flex flex-1 py-4 items-start justify-center">
 			<div className="grid flex-1 gap-4 p-8 sm:px-6 sm:py-0 md:gap-8">
@@ -131,52 +148,40 @@ export default function Rapprochements() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{isLoading ? (
-									<TableRow>
-										<TableCell colSpan={6} className="h-24 text-center">
-											<Loader2 className="h-8 w-8 animate-spin mx-auto" />
+								{filteredRapprochements.map((rapprochement) => (
+									<TableRow key={rapprochement.id}>
+										<TableCell>{formatDate(rapprochement.date)}</TableCell>
+										<TableCell>{rapprochement.banque.nom}</TableCell>
+										<TableCell>{rapprochement.statut}</TableCell>
+										<TableCell>{rapprochement.etape_actuelle}</TableCell>
+										{/* @ts-ignore */}
+										<TableCell>{convertirTempsTraitement(rapprochement.temps_traitement)}</TableCell>
+										<TableCell className="text-right">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button variant="ghost" className="h-8 w-8 p-0">
+														<MoreHorizontal className="h-4 w-4"/>
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="end">
+													<DropdownMenuItem asChild>
+														<Link href={`/dashboard/rapprochements/${rapprochement.id}`}>
+															<ListCollapse className="mr-1" size={14} />
+															Details
+														</Link>
+													</DropdownMenuItem>
+													<DropdownMenuItem
+														className="text-red-600"
+														onClick={() => handleDelete(rapprochement.id)}
+													>
+														<Trash2Icon className="mr-2 h-4 w-4"/>
+														Supprimer
+													</DropdownMenuItem>
+												</DropdownMenuContent>
+											</DropdownMenu>
 										</TableCell>
 									</TableRow>
-								) : error ? (
-									<TableRow>
-										<TableCell colSpan={6} className="h-24 text-center text-red-500">Une erreur est survenue</TableCell>
-									</TableRow>
-								) : (
-									filteredRapprochements.map((rapprochement) => (
-										<TableRow key={rapprochement.id}>
-											<TableCell>{formatDate(rapprochement.date)}</TableCell>
-											<TableCell>{rapprochement.banque.nom}</TableCell>
-											<TableCell>{rapprochement.statut}</TableCell>
-											<TableCell>{rapprochement.etape_actuelle}</TableCell>
-											{/* @ts-ignore */}
-											<TableCell>{convertirTempsTraitement(rapprochement.temps_traitement)}</TableCell>
-											<TableCell className="text-right">
-												<DropdownMenu>
-													<DropdownMenuTrigger asChild>
-														<Button variant="ghost" className="h-8 w-8 p-0">
-															<MoreHorizontal className="h-4 w-4"/>
-														</Button>
-													</DropdownMenuTrigger>
-													<DropdownMenuContent align="end">
-														<DropdownMenuItem asChild>
-															<Link href={`/dashboard/rapprochements/${rapprochement.id}`}>
-																<ListCollapse className="mr-1" size={14} />
-																Details
-															</Link>
-														</DropdownMenuItem>
-														<DropdownMenuItem
-															className="text-red-600"
-															onClick={() => handleDelete(rapprochement.id)}
-														>
-															<Trash2Icon className="mr-2 h-4 w-4"/>
-															Supprimer
-														</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
-											</TableCell>
-										</TableRow>
-									))
-								)}
+								))}
 							</TableBody>
 						</Table>
 					</CardContent>

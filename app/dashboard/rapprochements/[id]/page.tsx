@@ -19,18 +19,30 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Eye, Merge } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Merge, Loader2 } from 'lucide-react';
 import { useGetRapprochementLignesQuery } from '@/lib/services/rapprochementsApi';
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
-  <Card className="">
+  <Card className="bg-white border-l-4 border-l-orange-500 shadow-sm">
     <CardHeader className="pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
+      <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
     </CardHeader>
     <CardContent>
-      <div className="text-lg font-bold">{value}</div>
+      <div className="text-lg font-bold text-orange-600">{value}</div>
     </CardContent>
   </Card>
+);
+
+const DetailButton = ({ onClick }: { onClick: () => void }) => (
+  <Button 
+    size="sm" 
+    variant="outline" 
+    onClick={onClick}
+    className="text-xs py-1.5 px-3 h-7 bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200"
+  >
+    <Eye className="mr-1" size={14} />
+    Voir les détails
+  </Button>
 );
 
 const DetailDialog = ({ title, entity }: { title: string, entity: any }) => {
@@ -63,10 +75,7 @@ const DetailDialog = ({ title, entity }: { title: string, entity: any }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-7">
-			<Eye className="mr-1" size={14} />
-			Voir les détails
-		</Button>
+        <DetailButton onClick={() => {}} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
@@ -124,10 +133,7 @@ const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-7">
-			<Eye className="mr-1" size={14} />
-			Voir les détails
-		</Button>
+        <DetailButton onClick={() => {}} />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
@@ -189,19 +195,19 @@ const TransactionCard = ({
 );
 
 const Releve = ({ releve }: { releve: any }) => (
-  <Card className="w-full mb-2 bg-blue-50 shadow-md border border-blue-200">
+  <Card className="w-full mb-2 bg-white shadow-sm border-l-4 border-l-green-500">
     <div className="flex items-center ml-8 h-28">
       <div className="flex-grow h-full flex flex-col justify-center py-4 px-4">
-        <CardTitle className="text-sm font-semibold text-black">{`RELEVE : ${releve.id}`}</CardTitle>
+        <CardTitle className="text-sm font-semibold text-green-700">{`Relevé : ${releve.id}`}</CardTitle>
         <CardDescription className="text-xs mt-1 text-gray-600">{`Compte: ${releve.numero_compte}`}</CardDescription>
         <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
           <div>
             <span className="text-gray-600">Date: </span>
-            <span className="font-medium text-black">{new Date(releve.date_operation).toLocaleDateString()}</span>
+            <span className="font-medium text-gray-900">{new Date(releve.date_operation).toLocaleDateString()}</span>
           </div>
           <div>
             <span className="text-gray-600">Montant: </span>
-            <span className="font-medium text-black">
+            <span className="font-medium text-gray-900">
               {releve.debit ? `-${releve.debit.toFixed(2)} FCFA` : 
                releve.credit ? `${releve.credit.toFixed(2)} FCFA` : 
                "0.00 FCFA"}
@@ -209,7 +215,7 @@ const Releve = ({ releve }: { releve: any }) => (
           </div>
           <div>
             <span className="text-gray-600">Statut: </span>
-            <span className="font-medium text-black">{releve.description}</span>
+            <span className="font-medium text-gray-900">{releve.description}</span>
           </div>
         </div>
       </div>
@@ -238,27 +244,27 @@ const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: 
   return (
     <div className="space-y-4">
       {grandLivres.map((grandLivre, idx) => (
-        <Card key={idx} className="w-full mb-2 shadow-md bg-green-50 border border-green-200">
+        <Card key={idx} className="w-full mb-2 shadow-sm bg-white border-l-4 border-l-blue-500">
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
               <input
                 type="checkbox"
                 checked={selectedItems.includes(grandLivre.grand_livre.id)}
                 onChange={() => handleCheckboxChange(grandLivre.grand_livre.id)}
-                className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
             </div>
             <div className="flex-grow h-full flex flex-col justify-center py-3">
-              <CardTitle className="text-sm font-semibold text-black">{`Grand Livre : ${grandLivre.grand_livre.id}`}</CardTitle>
+              <CardTitle className="text-sm font-semibold text-blue-700">{`Grand Livre : ${grandLivre.grand_livre.id}`}</CardTitle>
               <CardDescription className="text-xs mt-1 text-gray-600">{grandLivre.grand_livre.libelle}</CardDescription>
               <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                 <div>
                   <span className="text-gray-600">Date: </span>
-                  <span className="font-medium text-black">{new Date(grandLivre.grand_livre.date_ecriture).toLocaleDateString()}</span>
+                  <span className="font-medium text-gray-900">{new Date(grandLivre.grand_livre.date_ecriture).toLocaleDateString()}</span>
                 </div>
                 <div>
                   <span className="text-gray-600">Montant: </span>
-                  <span className="font-medium text-black">
+                  <span className="font-medium text-gray-900">
                     {grandLivre.grand_livre.debit ? 
                       `-${grandLivre.grand_livre.debit.toFixed(2)} FCFA` : 
                       `${grandLivre.grand_livre.credit.toFixed(2)} FCFA`}
@@ -266,7 +272,7 @@ const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: 
                 </div>
                 <div>
                   <span className="text-gray-600">Statut: </span>
-                  <span className="font-medium text-black">{grandLivre.statut}</span>
+                  <span className="font-medium text-gray-900">{grandLivre.statut}</span>
                 </div>
               </div>
             </div>
@@ -286,21 +292,20 @@ const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: 
           <DialogTrigger asChild>
             <Button 
               size="sm" 
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               disabled={selectedItems.length === 0}
             >
 				<Merge className="mr-1" size={14} />
               Matcher {selectedItems.length} élément{selectedItems.length > 1 ? 's' : ''}
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="bg-white">
             <DialogHeader>
-              <DialogTitle>Faire un matching</DialogTitle>
+              <DialogTitle className="text-blue-700">Faire un matching</DialogTitle>
             </DialogHeader>
-            <DialogDescription>
+            <DialogDescription className="text-gray-600">
               Matcher le Grand Livre {grandLivres[0].grand_livre.id} au Relevé {releveId} ?
             </DialogDescription>
-          
           </DialogContent>
         </Dialog>
       </div>
@@ -336,14 +341,31 @@ export default function RapprochementDetails() {
     setCurrentPage(prev => (prev < (data?.total_pages || 1) ? prev + 1 : prev));
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <p className="mt-2 text-gray-600">Chargement des données...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <p className="text-red-500">Une erreur est survenue lors du chargement des données.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 w-full p-1 space-y-4 bg-background">
-      <Card className="w-full shadow-lg">
-        <CardHeader>
-          <CardTitle className="text-lg font-bold">Détails du Rapprochement {rapprochementId}</CardTitle>
-          <CardDescription>Informations générales et statistiques</CardDescription>
+    <div className="flex flex-col flex-1 w-full p-1 space-y-4 bg-gray-50">
+      <Card className="w-full shadow-md border border-gray-200">
+        <CardHeader className="border-b border-gray-200">
+          <CardTitle className="text-lg font-bold text-gray-900">Détails du Rapprochement {rapprochementId}</CardTitle>
+          <CardDescription className="text-gray-600">Informations générales et statistiques</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           <div className="grid grid-cols-3 gap-4">
             <StatCard title="Total Lignes" value={data?.total.toString() || "0"} />
             <StatCard title="Taux de matchs positifs" value="98%" />
@@ -354,15 +376,15 @@ export default function RapprochementDetails() {
             <Rapprochement rapprochement={data.items[currentRapprochementIndex]} />
           )}
         </CardContent>
-        <CardFooter className="flex justify-between items-center">
-          <Button size="sm" variant="outline" onClick={handlePrevious} disabled={currentPage === 1}>
+        <CardFooter className="flex justify-between p-4 items-center bg-gray-50 border-t border-gray-200">
+          <Button size="sm" variant="outline" onClick={handlePrevious} disabled={currentPage === 1} className="text-gray-600 border-gray-300 hover:bg-gray-100">
             <ChevronLeft className="h-4 w-4 mr-2" />
             Précédent
           </Button>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-gray-600">
             Affichage {currentPage} - {data?.total_pages || 1}
           </div>
-          <Button size="sm" variant="outline" onClick={handleNext} disabled={currentPage === (data?.total_pages || 1)}>
+          <Button size="sm" variant="outline" onClick={handleNext} disabled={currentPage === (data?.total_pages || 1)} className="text-gray-600 border-gray-300 hover:bg-gray-100">
             Suivant
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>

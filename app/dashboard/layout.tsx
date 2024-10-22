@@ -5,6 +5,7 @@ import {useSession} from "next-auth/react";
 import {redirect} from "next/navigation";
 import SideBar from "@/components/blocks/SideBar";
 import Header from "@/components/blocks/Header";
+import { Loader2 } from 'lucide-react';
 
 export default function DashboardLayout({
 																					children,
@@ -20,10 +21,9 @@ export default function DashboardLayout({
 
 	if (status === "loading") {
 		return (
-			<div className="min-h-screen flex items-center justify-center">
-				<div className="loader">
-					<div className="loader-inner"></div>
-				</div>
+			<div className="flex flex-col items-center justify-center min-h-screen">
+				<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+				<p className="mt-2 text-gray-600">Chargement...</p>
 			</div>
 		);
 	}

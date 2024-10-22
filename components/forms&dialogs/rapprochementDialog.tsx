@@ -33,6 +33,7 @@ import {
 import {useGetBanquesWithComptesQuery} from "@/lib/services/banksApi"
 import {useAddRapprochementMutation} from "@/lib/services/rapprochementsApi"
 import {useToast} from "@/hooks/use-toast"
+import { Plus } from "lucide-react"
 
 const formSchema = z.object({
 	banque_id: z.string().min(1, {message: "Veuillez sélectionner une banque"}),
@@ -51,6 +52,7 @@ interface CreateRapprochementDialogProps {
 export default function CreateRapprochementDialog({onRapprochementCreated}: CreateRapprochementDialogProps) {
 	const [open, setOpen] = useState(false)
 	const {data: banques, isLoading: isBanquesLoading} = useGetBanquesWithComptesQuery()
+	// @ts-ignore
 	const [selectedBanque, setSelectedBanque] = useState<typeof banques[number] | null>(null)
 	const [addRapprochement] = useAddRapprochementMutation()
 	const {toast} = useToast()
@@ -84,11 +86,13 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 			})
 
 			console.log("FormData entries:");
+			// @ts-ignore
 			for (const [key, value] of formData.entries()) {
 				console.log(key, value instanceof File ? `File: ${value.name}` : value);
 			}
 
 			console.log("Envoi des données au serveur...");
+			// @ts-ignore
 			const result = await addRapprochement(formData).unwrap()
 			console.log("Réponse du serveur:", result);
 
@@ -117,7 +121,10 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline">Créer un rapprochement</Button>
+				<Button variant="outline">
+					<Plus className="mr-1" size={14} />
+					Créer un rapprochement
+				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[800px] w-full">
 				<DialogHeader>
@@ -178,6 +185,7 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
+												{/* @ts-ignore */}
 												{selectedBanque?.comptes.map((compte) => (
 													<SelectItem key={compte.id} value={compte.id.toString()}>
 														{compte.numero_compte}
