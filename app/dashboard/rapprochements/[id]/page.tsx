@@ -404,7 +404,7 @@ const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLivres: a
               </div>
               {item.commentaire && (
                 <div className="mt-2 flex items-center text-xs text-gray-600">
-                  <Info size={14} className="mr-1 text-blue-500" />
+                  <Info size={14} className="mr-1 text-blue-700" />
                   <span>{item.commentaire}</span>
                 </div>
               )}
