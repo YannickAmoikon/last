@@ -48,6 +48,8 @@ interface RapprochementLignesResponse {
 	page: number;
 	page_size: number;
 	total_pages: number;
+	total_ligne: number;
+	total_match: number;
   };
   interface RapprochementLigne {
 	rapprochement_id: number;
