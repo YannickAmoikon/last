@@ -15,6 +15,7 @@ import {useGetRapprochementsQuery, useDeleteRapprochementMutation} from '@/lib/s
 import {useToast} from '@/hooks/use-toast';
 import CreateRapprochementDialog from "@/components/forms&dialogs/rapprochementDialog";
 import Link from 'next/link';
+import { Toaster } from '@/components/ui/toaster';
 
 function convertirTempsTraitement(tempsEnSecondes: number): string {
 	const heures = Math.floor(tempsEnSecondes / 3600);
@@ -127,6 +128,7 @@ export default function Rapprochements() {
 
 	return (
 		<main className="flex flex-1 py-4 items-start justify-center">
+			<Toaster />
 			<div className="grid flex-1 gap-4 p-8 sm:px-6 sm:py-0 md:gap-8">
 				<Card>
 					<CardHeader>

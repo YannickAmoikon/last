@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select"
 import {useGetBanquesWithComptesQuery} from "@/lib/services/banksApi"
 import {useAddRapprochementMutation} from "@/lib/services/rapprochementsApi"
-import { Plus, Loader2 } from "lucide-react"
+import { Plus, Loader2, Save } from "lucide-react"
 
 const formSchema = z.object({
 	banque_id: z.string().min(1, {message: "Veuillez sélectionner une banque"}),
@@ -137,9 +137,9 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
-				<Button variant="outline">
+				<Button size="sm" className="bg-secondary border duration-500 hover:text-white hover:bg-green-600" variant="outline">
 					<Plus className="mr-1" size={14} />
-					Créer un rapprochement
+					Nouveau rapprochement
 				</Button>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[800px] w-full">
@@ -222,6 +222,7 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 									<FormLabel>Date</FormLabel>
 									<FormControl>
 										<Input
+											disabled
 											type="datetime-local"
 											{...field}
 											className="w-[365px]"
@@ -300,14 +301,15 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 							/>
 						</div>
 						<DialogFooter>
-							<Button type="submit" disabled={isCreating}>
+							<Button className="bg-green-600 text-white hover:bg-green-600" size="sm" type="submit" disabled={isCreating}>
+								<Save className="mr-1" size={14} />
 								{isCreating ? (
 									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										<Loader2 className="mr-1 h-4 w-4 animate-spin" />
 										Création en cours...
 									</>
 								) : (
-									'Créer le rapprochement'
+									"Enregistrer"
 								)}
 							</Button>
 						</DialogFooter>
