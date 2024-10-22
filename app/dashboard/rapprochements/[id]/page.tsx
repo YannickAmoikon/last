@@ -19,7 +19,7 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Eye, Merge, Loader2, Info, Check, X, Filter, ChevronDown, CheckSquare, Square, AlertTriangle, ListFilter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Merge, Loader2, Info, Check, X, Filter, ListFilter } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useValiderLigneRapprochementMutation, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
 import { toast, useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -77,22 +77,31 @@ const DetailDialog = ({ title, entity }: { title: string, entity: any }) => {
   const formatValue = (value: any) => {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
-    if (typeof value === "number") return value.toLocaleString();
-    if (value instanceof Date) return value.toLocaleString();
+    if (typeof value === "number") return formatMontant(value);
+    if (value instanceof Date) return value.toLocaleDateString();
     return String(value);
   };
 
   const renderReleveDetails = (releve: any) => {
     const releveKeys = [
-      'rapprochement_id', 'date_operation', 'numero_compte', 'description',
-      'reference', 'date_valeur', 'devise', 'debit', 'credit', 'solde_courant', 'id'
+      { key: 'rapprochement_id', label: 'ID Rapprochement' },
+      { key: 'date_operation', label: 'Date Opération' },
+      { key: 'numero_compte', label: 'Numéro de Compte' },
+      { key: 'description', label: 'Description' },
+      { key: 'reference', label: 'Référence' },
+      { key: 'date_valeur', label: 'Date Valeur' },
+      { key: 'devise', label: 'Devise' },
+      { key: 'debit', label: 'Débit' },
+      { key: 'credit', label: 'Crédit' },
+      { key: 'solde_courant', label: 'Solde Courant' },
+      { key: 'id', label: 'ID' }
     ];
 
     return (
       <div className="grid gap-2">
-        {releveKeys.map(key => (
+        {releveKeys.map(({ key, label }) => (
           <div key={key} className="grid grid-cols-3 gap-2 items-center">
-            <span className="text-sm font-medium text-gray-600">{key}:</span>
+            <span className="text-sm font-medium text-gray-600">{label}:</span>
             <span className="col-span-2 text-sm">{formatValue(releve[key])}</span>
           </div>
         ))}
@@ -118,27 +127,47 @@ const DetailDialog = ({ title, entity }: { title: string, entity: any }) => {
 };
 
 const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any }) => {
-  const formatValue = (value: any) => {
+  const formatValue = (value: any, isAmount: boolean = false) => {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
-    if (typeof value === "number") return value.toLocaleString();
-    if (value instanceof Date) return value.toLocaleString();
+    if (typeof value === "number") return isAmount ? `${formatMontant(value)} F CFA` : value.toString();
+    if (value instanceof Date) return value.toLocaleDateString();
     return String(value);
   };
 
-  const renderGrandLivreDetails = (grandLivre: any) => {
-    const rapprochementKeys = ['id', 'rapprochement_id', 'statut', 'type_match', 'commentaire', 'decision', 'flag'];
-    const grandLivreKeys = ['rapprochement_id', 'numero_piece', 'date_ecriture', 'libelle', 'debit', 'credit', 'cpte_alt', 'exercice', 'compte', 'cpte_gen', 'id'];
+  const renderGrandLivreDetails = (item: any) => {
+    const ligneRapprochementKeys = [
+      { key: 'id', label: 'ID' },
+      { key: 'rapprochement_id', label: 'ID Rapprochement' },
+      { key: 'statut', label: 'Statut' },
+      { key: 'type_match', label: 'Type de Match' },
+      { key: 'commentaire', label: 'Commentaire' },
+      { key: 'decision', label: 'Décision' },
+      { key: 'flag', label: 'Flag' }
+    ];
+    const grandLivreKeys = [
+      { key: 'rapprochement_id', label: 'ID Rapprochement' },
+      { key: 'numero_piece', label: 'Numéro de Pièce' },
+      { key: 'date_ecriture', label: 'Date Écriture' },
+      { key: 'libelle', label: 'Libellé' },
+      { key: 'debit', label: 'Débit', isAmount: true },
+      { key: 'credit', label: 'Crédit', isAmount: true },
+      { key: 'cpte_alt', label: 'Compte Alternatif', isAmount: true },
+      { key: 'exercice', label: 'Exercice' },
+      { key: 'compte', label: 'Compte' },
+      { key: 'cpte_gen', label: 'Compte Général' },
+      { key: 'id', label: 'ID' }
+    ];
 
     return (
       <div className="grid gap-4">
         <div>
-          <h3 className="text-lg font-semibold mb-2">Informations de rapprochement</h3>
+          <h3 className="text-lg font-semibold mb-2">Informations de la ligne rapprochement</h3>
           <div className="grid gap-2">
-            {rapprochementKeys.map(key => (
+            {ligneRapprochementKeys.map(({ key, label }) => (
               <div key={key} className="grid grid-cols-3 gap-2 items-center">
-                <span className="text-sm font-medium text-gray-600">{key}:</span>
-                <span className="col-span-2 text-sm">{formatValue(grandLivre[key])}</span>
+                <span className="text-sm font-medium text-gray-600">{label}:</span>
+                <span className="col-span-2 text-sm">{formatValue(item[key])}</span>
               </div>
             ))}
           </div>
@@ -146,10 +175,10 @@ const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any 
         <div>
           <h3 className="text-lg font-semibold mb-2">Détails du Grand Livre</h3>
           <div className="grid gap-2">
-            {grandLivreKeys.map(key => (
+            {grandLivreKeys.map(({ key, label, isAmount }) => (
               <div key={key} className="grid grid-cols-3 gap-2 items-center">
-                <span className="text-sm font-medium text-gray-600">{key}:</span>
-                <span className="col-span-2 text-sm">{formatValue(grandLivre.grand_livre[key])}</span>
+                <span className="text-sm font-medium text-gray-600">{label}:</span>
+                <span className="col-span-2 text-sm">{formatValue(item.grand_livre[key], isAmount)}</span>
               </div>
             ))}
           </div>
@@ -294,45 +323,47 @@ const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLivres: a
 
   return (
     <div className="space-y-2 relative">
-      {grandLivres.map((grandLivre, idx) => (
+      {grandLivres.map((item, idx) => (
         <Card key={idx} className="w-full rounded-none mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500">
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
               <input
                 type="checkbox"
-                checked={selectedItems.includes(grandLivre.id)}
-                onChange={() => handleCheckboxChange(grandLivre.id)}
+                checked={selectedItems.includes(item.id.toString())}
+                onChange={() => handleCheckboxChange(item.id.toString())}
                 className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
             </div>
             <div className="flex-grow h-full flex flex-col justify-center py-3">
-              <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${grandLivre.grand_livre.id}`}</CardTitle>
-              <CardDescription className="text-xs mt-1 text-gray-600">{grandLivre.grand_livre.libelle}</CardDescription>
+              <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${item.grand_livre.id}`}</CardTitle>
+              <CardDescription className="text-xs mt-1 text-gray-600">{item.grand_livre.libelle}</CardDescription>
               <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                 <div>
                   <span className="text-gray-600">Date: </span>
-                  <span className="font-medium text-gray-900">{new Date(grandLivre.grand_livre.date_ecriture).toLocaleDateString()}</span>
-                  <span className="text-gray-600 flex items-center mt-2">
-                    <Info className="mr-1 text-orange-500" size={14} />
-                    {grandLivre.commentaire}
-                    </span>
+                  <span className="font-medium text-gray-900">{new Date(item.grand_livre.date_ecriture).toLocaleDateString()}</span>
                 </div>
                 <div>
                   <span className="text-gray-600">Montant: </span>
                   <span className="font-medium text-gray-900">
-                    {grandLivre.grand_livre.debit ? 
-                      `-${formatMontant(grandLivre.grand_livre.debit)}` : 
-                      formatMontant(grandLivre.grand_livre.credit)}
+                    {item.grand_livre.debit ? 
+                      `-${formatMontant(item.grand_livre.debit)}` : 
+                      formatMontant(item.grand_livre.credit)}
                   </span>
                 </div>
                 <div>
                   <span className="text-gray-600">Statut: </span>
-                  <span className="font-medium text-gray-900">{grandLivre.statut}</span>
+                  <span className="font-medium text-gray-900">{item.statut}</span>
                 </div>
               </div>
+              {item.commentaire && (
+                <div className="mt-2 flex items-center text-xs text-gray-600">
+                  <Info size={14} className="mr-1 text-blue-500" />
+                  <span>{item.commentaire}</span>
+                </div>
+              )}
             </div>
             <div className="p-4 h-full flex items-center">
-              <GrandLivreDetailDialog title={`Grand Livre : ${grandLivre.grand_livre.id}`} entity={grandLivre} />
+              <GrandLivreDetailDialog title={`Grand Livre : ${item.grand_livre.id}`} entity={item} />
             </div>
           </div>
         </Card>
