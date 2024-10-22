@@ -134,15 +134,15 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 					: [{type: RAPPROCHEMENTS_TAG, id: 'LIST'}],
 		}),
 
-		addRapprochement: builder.mutation<Rapprochement, CreateRapprochementRequest>({
+		addRapprochement: builder.mutation<Rapprochement, FormData>({
 			query: (body) => ({
 				url: RAPPROCHEMENTS_URL,
 				method: 'POST',
-				body: createFormData(body),
+				body,
 				formData: true,
 			}),
 			// @ts-ignore
-			invalidatesTags: [{type: RAPPROCHEMENTS_TAG, id: 'LIST'}],
+			invalidatesTags: [{ type: RAPPROCHEMENTS_TAG, id: 'LIST' }],
 		}),
 
 		updateRapprochement: builder.mutation<Rapprochement, { id: string; body: Partial<Rapprochement> }>({
@@ -217,3 +217,4 @@ export const {
 	useGetRapprochementLignesQuery,
 	useValiderLigneRapprochementMutation,
 } = rapprochementsApiSlice;
+

@@ -32,8 +32,7 @@ import {
 } from "@/components/ui/select"
 import {useGetBanquesWithComptesQuery} from "@/lib/services/banksApi"
 import {useAddRapprochementMutation} from "@/lib/services/rapprochementsApi"
-import {useToast} from "@/hooks/use-toast"
-import { Plus } from "lucide-react"
+import { Plus, Loader2 } from "lucide-react"
 
 const formSchema = z.object({
 	banque_id: z.string().min(1, {message: "Veuillez sélectionner une banque"}),
@@ -46,7 +45,7 @@ const formSchema = z.object({
 })
 
 interface CreateRapprochementDialogProps {
-	onRapprochementCreated?: () => void;
+	onRapprochementCreated?: (success: boolean, message: string) => void;
 }
 
 export default function CreateRapprochementDialog({onRapprochementCreated}: CreateRapprochementDialogProps) {
@@ -54,17 +53,42 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 	const {data: banques, isLoading: isBanquesLoading} = useGetBanquesWithComptesQuery()
 	// @ts-ignore
 	const [selectedBanque, setSelectedBanque] = useState<typeof banques[number] | null>(null)
-	const [addRapprochement] = useAddRapprochementMutation()
-	const {toast} = useToast()
+	const [addRapprochement, { isLoading: isCreating }] = useAddRapprochementMutation()
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			banque_id: "",
 			compte_id: "",
-			date: new Date().toISOString().slice(0, 10),
+			date: new Date().toISOString().slice(0, 16), // Format: "YYYY-MM-DDTHH:mm"
+			releve_bancaire: undefined,
+			grand_livre: undefined,
+			balance: undefined,
+			edr: undefined,
 		},
 	})
+
+	// Fonction pour réinitialiser le formulaire
+	const resetForm = () => {
+		form.reset({
+			banque_id: "",
+			compte_id: "",
+			date: new Date().toISOString().slice(0, 16),
+			releve_bancaire: undefined,
+			grand_livre: undefined,
+			balance: undefined,
+			edr: undefined,
+		});
+		setSelectedBanque(null);
+	};
+
+	// Gérer l'ouverture/fermeture de la modal
+	const handleOpenChange = (newOpen: boolean) => {
+		setOpen(newOpen);
+		if (!newOpen) {
+			resetForm();
+		}
+	};
 
 	useEffect(() => {
 		if (selectedBanque) {
@@ -73,53 +97,45 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 	}, [selectedBanque, form])
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		console.log("Valeurs du formulaire:", values);
+		const formData = new FormData();
+		Object.entries(values).forEach(([key, value]) => {
+			if (key === 'date') {
+				//@ts-ignore
+				const date = new Date(value);
+				const datetimeString = date.toISOString();
+				formData.append(key, datetimeString);
+			} else if (value instanceof File) {
+				formData.append(key, value);
+			} else if (value !== undefined && value !== null) {
+				formData.append(key, value.toString());
+			}
+		});
+
+		console.log("FormData entries:");
+		//@ts-ignore
+		for (const [key, value] of formData.entries()) {
+			console.log(key, value instanceof File ? `File: ${value.name}` : value);
+		}
 
 		try {
-			const formData = new FormData()
-			Object.entries(values).forEach(([key, value]) => {
-				if (value instanceof File) {
-					formData.append(key, value)
-				} else {
-					formData.append(key, value.toString())
-				}
-			})
-
-			console.log("FormData entries:");
-			// @ts-ignore
-			for (const [key, value] of formData.entries()) {
-				console.log(key, value instanceof File ? `File: ${value.name}` : value);
-			}
-
-			console.log("Envoi des données au serveur...");
-			// @ts-ignore
-			const result = await addRapprochement(formData).unwrap()
-			console.log("Réponse du serveur:", result);
-
-			toast({
-				title: "Rapprochement créé",
-				description: "Le rapprochement a été créé avec succès.",
-			})
+			await addRapprochement(formData).unwrap();
 			if (onRapprochementCreated) {
-				onRapprochementCreated()
+				onRapprochementCreated(true, "Le rapprochement a été créé avec succès.");
 			}
-			setOpen(false)
-			form.reset()
+			handleOpenChange(false);
 		} catch (error: any) {
 			console.error("Erreur détaillée:", error);
 			if (error.data) {
 				console.error("Données d'erreur:", error.data);
 			}
-			toast({
-				title: "Erreur",
-				description: error.data?.detail || "Une erreur est survenue lors de la création du rapprochement.",
-				variant: "destructive",
-			})
+			if (onRapprochementCreated) {
+				onRapprochementCreated(false, error.data?.detail || "Une erreur est survenue lors de la création du rapprochement.");
+			}
 		}
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
 				<Button variant="outline">
 					<Plus className="mr-1" size={14} />
@@ -206,9 +222,9 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 									<FormLabel>Date</FormLabel>
 									<FormControl>
 										<Input
-											type="date"
+											type="datetime-local"
 											{...field}
-											className="w-[365px]" // Ajustez cette valeur selon vos besoins
+											className="w-[365px]"
 										/>
 									</FormControl>
 									<FormMessage/>
@@ -284,7 +300,16 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 							/>
 						</div>
 						<DialogFooter>
-							<Button type="submit">Créer le rapprochement</Button>
+							<Button type="submit" disabled={isCreating}>
+								{isCreating ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										Création en cours...
+									</>
+								) : (
+									'Créer le rapprochement'
+								)}
+							</Button>
 						</DialogFooter>
 					</form>
 				</Form>

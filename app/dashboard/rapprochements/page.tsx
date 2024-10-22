@@ -91,12 +91,21 @@ export default function Rapprochements() {
 		});
 	};
 
-	const handleRapprochementCreated = () => {
-		refetch();
-		toast({
-			title: "Rapprochement créé",
-			description: "Le nouveau rapprochement a été ajouté avec succès.",
-		});
+	const handleRapprochementCreated = (success: boolean, message: string) => {
+		if (success) {
+			toast({
+				title: "Rapprochement créé avec succès",
+				description: message,
+				className: "bg-green-600 text-white",
+			});
+			refetch();
+		} else {
+			toast({
+				title: "Erreur",
+				description: message,
+				variant: "destructive",
+			});
+		}
 	};
 
 	if (isLoading) {
