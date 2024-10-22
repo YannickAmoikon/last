@@ -16,6 +16,7 @@ import {useToast} from '@/hooks/use-toast';
 import CreateRapprochementDialog from "@/components/forms&dialogs/rapprochementDialog";
 import Link from 'next/link';
 import { Toaster } from '@/components/ui/toaster';
+import { Badge } from "@/components/ui/badge";
 
 function convertirTempsTraitement(tempsEnSecondes: number): string {
 	const heures = Math.floor(tempsEnSecondes / 3600);
@@ -163,7 +164,45 @@ export default function Rapprochements() {
 									<TableRow key={rapprochement.id}>
 										<TableCell>{formatDate(rapprochement.date)}</TableCell>
 										<TableCell>{rapprochement.banque.nom}</TableCell>
-										<TableCell>{rapprochement.statut}</TableCell>
+										<TableCell className="w-32">
+											<div className="flex justify-start">
+												{(() => {
+													switch (rapprochement.statut) {
+														case "En cours de traitement":
+															return (
+																<Badge variant="secondary" className="text-blue-600 w-24 justify-center">
+																	<Loader2 className="mr-1 h-3 w-3 animate-spin" />
+																	En cours
+																</Badge>
+															);
+														case "Terminé":
+															return (
+																<Badge variant="secondary" className="text-green-600 w-24 justify-center">
+																	Terminé
+																</Badge>
+															);
+														case "Erreur":
+															return (
+																<Badge variant="secondary" className="text-red-600 w-24 justify-center">
+																	Erreur
+																</Badge>
+															);
+														case "En attente":
+															return (
+																<Badge variant="secondary" className="text-yellow-600 w-24 justify-center">
+																	En attente
+																</Badge>
+															);
+														default:
+															return (
+																<Badge variant="secondary" className="text-gray-600 w-24 justify-center">
+																	{rapprochement.statut}
+																</Badge>
+															);
+														}
+													})()}
+											</div>
+										</TableCell>
 										<TableCell>{rapprochement.etape_actuelle}</TableCell>
 										{/* @ts-ignore */}
 										<TableCell>{convertirTempsTraitement(rapprochement.temps_traitement)}</TableCell>

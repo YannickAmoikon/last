@@ -375,17 +375,17 @@ const Rapprochement = ({ rapprochement }: { rapprochement: any }) => (
   </div>
 );
 
-export default function RapprochementDetails() {
+export default function RapprochementDetails({params}: {params: {id: string}}) {
   const [currentRapprochementIndex, setCurrentRapprochementIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
-  const rapprochementId = 1;
+  const rapprochementId = params.id;
 
   const { data, error, isLoading, refetch } = useGetRapprochementLignesQuery({
     statut: statusFilter || "Rapprochement partiel",
-    rapprochement_id: rapprochementId,
+    rapprochement_id: parseInt(rapprochementId),
     page: currentPage,
     page_size: pageSize
   });
