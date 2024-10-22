@@ -31,10 +31,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { FileDown, FileSpreadsheet } from 'lucide-react';
 
-// Définir le type d'exportation
+// Types et fonctions utilitaires
 type ExportType = 'Pas_rapproche' | 'Rapprochement_Match' | null;
 
-// Fonction utilitaire pour formater le nom du fichier
 const getExportFileName = (type: ExportType): string => {
   const date = new Date().toISOString().split('T')[0];
   const typeLabel = type === 'Pas_rapproche' ? 'non-rapproche' : 'rapprochement-match';
@@ -50,8 +49,9 @@ const formatMontant = (montant: number): string => {
   }).format(montant);
 };
 
+// Composants
 const StatCard = ({ title, value }: { title: string, value: string }) => (
-  <Card className="bg-gray-100 border shadow-sm">
+  <Card className="bg-gray-100 rounded-none border shadow-sm">
     <CardHeader className="pb-2">
       <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
     </CardHeader>
@@ -69,7 +69,7 @@ const DetailButton = ({ onClick }: { onClick: () => void }) => (
     className="text-xs py-1.5 px-3 h-7 bg-white text-gray-600 border-gray-300 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200"
   >
     <Eye className="mr-1" size={14} />
-    Voir les détails
+    Détails
   </Button>
 );
 
@@ -423,7 +423,9 @@ const Rapprochement = ({ rapprochement }: { rapprochement: any }) => (
   </div>
 );
 
+// Composant principal
 export default function RapprochementDetails({params}: {params: {id: string}}) {
+  // États
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -431,6 +433,7 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
 
   const rapprochementId = parseInt(params.id);
 
+  // Requêtes API
   const { data, error, isLoading, refetch } = useGetRapprochementLignesQuery({
     statut: statusFilter || "Rapprochement partiel",
     rapprochement_id: rapprochementId,
@@ -443,6 +446,7 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
     { skip: !exportType }
   );
 
+  // Gestionnaires d'événements
   const handlePrevious = () => {
     setCurrentPage(prev => (prev > 1 ? prev - 1 : prev));
   };
@@ -464,10 +468,11 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
     setExportType(type);
   };
 
+  // Effets
   useEffect(() => {
     if (rapportData && exportType) {
       const fileName = getExportFileName(exportType);
-      saveAs(rapportData, fileName); // rapportData est déjà un Blob, pas besoin de le convertir
+      saveAs(rapportData, fileName);
       setExportType(null);
       toast({
         title: "Export réussi",
@@ -488,6 +493,7 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
     }
   }, [rapportError]);
 
+  // Rendu conditionnel pour le chargement et les erreurs
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
@@ -505,6 +511,7 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
     );
   }
 
+  // Rendu principal
   return (
     <div className="flex flex-col flex-1 w-full p-1 space-y-4 bg-gray-50">
       <Toaster />
@@ -516,7 +523,7 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline" className="ml-auto">
+              <Button size="sm" variant="secondary" className="ml-auto border">
                 <ListFilter className="mr-1" size={14} />
                 Filtrer
               </Button>
@@ -526,23 +533,19 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
                 <Filter className="mr-2 h-4 w-4" />
                 <span>Tous les statuts</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement partiel")}>
-                <Filter className="mr-2 h-4 w-4" />
-                <span>Rapprochement partiel</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement total")}>
-                <Filter className="mr-2 h-4 w-4" />
-                <span>Rapprochement total</span>
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleStatusFilter("Non rapproché")}>
                 <Filter className="mr-2 h-4 w-4" />
                 <span>Non rapproché</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement total")}>
+                <Filter className="mr-2 h-4 w-4" />
+                <span>Rapprochement match</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline" className="ml-2" disabled={isExporting}>
+              <Button size="sm" variant="secondary" className="ml-2 border" disabled={isExporting}>
                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-1" size={14} />}
                 Exporter
               </Button>
@@ -554,7 +557,7 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleExportClick('Rapprochement_Match')} disabled={isExporting}>
                 <FileSpreadsheet className="mr-2 h-4 w-4" />
-                <span>Rapprochement Match</span>
+                <span>Rapprochement match</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -563,7 +566,7 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
           <div className="grid grid-cols-4 gap-4">
             <StatCard title="Total de lignes" value={data?.total_ligne.toString() || "0"} />
             <StatCard title="Total de matchs" value={data?.total_match.toString() || "0"} />
-            <StatCard title="En attente de validation" value={data?.total.toString() || "0"} />
+            <StatCard title="Total en attente de validation" value={data?.total.toString() || "0"} />
             <StatCard 
               title="Taux de progression" 
               //@ts-ignore
