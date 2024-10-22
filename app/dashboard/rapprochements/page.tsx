@@ -10,7 +10,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {MoreHorizontal, Trash2Icon, Loader2, ListCollapse} from 'lucide-react';
+import {MoreHorizontal, Trash2Icon, Loader2, ListCollapse, RefreshCcw} from 'lucide-react';
 import {useGetRapprochementsQuery, useDeleteRapprochementMutation} from '@/lib/services/rapprochementsApi';
 import {useToast} from '@/hooks/use-toast';
 import CreateRapprochementDialog from "@/components/forms&dialogs/rapprochementDialog";
@@ -23,9 +23,9 @@ function convertirTempsTraitement(tempsEnSecondes: number): string {
 	const minutes = Math.floor((tempsEnSecondes % 3600) / 60);
 
 	if (heures > 0) {
-		return `${heures}h ${minutes}min`;
+		return `${heures}h ${minutes} min`;
 	} else {
-		return `${minutes}min`;
+		return `${minutes} min`;
 	}
 }
 
@@ -121,8 +121,23 @@ export default function Rapprochements() {
 
 	if (error) {
 		return (
-			<div className="flex flex-col items-center justify-center min-h-screen">
-				<p className="text-red-500">Une erreur est survenue lors du chargement des rapprochements.</p>
+			<div className="flex items-center justify-center flex-1 h-full bg-gray-50">
+				<div className="text-center">
+					<svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+					</svg>
+					<h2 className="mt-2 text-lg font-semibold text-gray-900">Erreur de chargement</h2>
+					<p className="mt-2 text-sm text-gray-500">Impossible de charger les rapprochements. Veuillez réessayer.</p>
+					<div className="mt-6">
+						<Button
+							onClick={() => window.location.reload()}
+							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300"
+						>
+							<RefreshCcw className="mr-1" size={14} />
+							Réessayer
+						</Button>
+					</div>
+				</div>
 			</div>
 		);
 	}
