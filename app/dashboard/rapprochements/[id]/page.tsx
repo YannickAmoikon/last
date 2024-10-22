@@ -74,35 +74,58 @@ const DetailButton = ({ onClick }: { onClick: () => void }) => (
 );
 
 const DetailDialog = ({ title, entity }: { title: string, entity: any }) => {
-  const formatValue = (value: any) => {
+  const formatValue = (value: any, isAmount: boolean = false, isDate: boolean = false) => {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
-    if (typeof value === "number") return formatMontant(value);
-    if (value instanceof Date) return value.toLocaleDateString();
+    
+    if (isDate) {
+      const date = new Date(value);
+      return date.toLocaleDateString('fr-FR', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+    
+    if (isAmount) {
+      const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^\d.-]/g, '')) : value;
+      if (!isNaN(numValue)) {
+        const formattedValue = new Intl.NumberFormat('fr-FR', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(numValue);
+        return `${formattedValue} F CFA`;
+      }
+      return `${value} F CFA`;
+    }
+    
     return String(value);
   };
 
   const renderReleveDetails = (releve: any) => {
     const releveKeys = [
       { key: 'rapprochement_id', label: 'ID Rapprochement' },
-      { key: 'date_operation', label: 'Date Opération' },
+      { key: 'date_operation', label: 'Date Opération', isDate: true },
       { key: 'numero_compte', label: 'Numéro de Compte' },
       { key: 'description', label: 'Description' },
       { key: 'reference', label: 'Référence' },
-      { key: 'date_valeur', label: 'Date Valeur' },
+      { key: 'date_valeur', label: 'Date Valeur', isDate: true },
       { key: 'devise', label: 'Devise' },
-      { key: 'debit', label: 'Débit' },
-      { key: 'credit', label: 'Crédit' },
-      { key: 'solde_courant', label: 'Solde Courant' },
+      { key: 'debit', label: 'Débit', isAmount: true },
+      { key: 'credit', label: 'Crédit', isAmount: true },
+      { key: 'solde_courant', label: 'Solde Courant', isAmount: true },
       { key: 'id', label: 'ID' }
     ];
 
     return (
       <div className="grid gap-2">
-        {releveKeys.map(({ key, label }) => (
+        {releveKeys.map(({ key, label, isAmount, isDate }) => (
           <div key={key} className="grid grid-cols-3 gap-2 items-center">
             <span className="text-sm font-medium text-gray-600">{label}:</span>
-            <span className="col-span-2 text-sm">{formatValue(releve[key])}</span>
+            <span className="col-span-2 text-sm">{formatValue(releve[key], isAmount, isDate)}</span>
           </div>
         ))}
       </div>
@@ -127,11 +150,35 @@ const DetailDialog = ({ title, entity }: { title: string, entity: any }) => {
 };
 
 const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any }) => {
-  const formatValue = (value: any, isAmount: boolean = false) => {
+  const formatValue = (value: any, isAmount: boolean = false, isDate: boolean = false) => {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
-    if (typeof value === "number") return isAmount ? `${formatMontant(value)} F CFA` : value.toString();
-    if (value instanceof Date) return value.toLocaleDateString();
+    
+    if (isDate) {
+      // Formater la date
+      const date = new Date(value);
+      return date.toLocaleDateString('fr-FR', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+    
+    if (isAmount) {
+      const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^\d.-]/g, '')) : value;
+      if (!isNaN(numValue)) {
+        const formattedValue = new Intl.NumberFormat('fr-FR', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(numValue);
+        return `${formattedValue} F CFA`;
+      }
+      return `${value} F CFA`;
+    }
+    
     return String(value);
   };
 
@@ -148,7 +195,7 @@ const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any 
     const grandLivreKeys = [
       { key: 'rapprochement_id', label: 'ID Rapprochement' },
       { key: 'numero_piece', label: 'Numéro de Pièce' },
-      { key: 'date_ecriture', label: 'Date Écriture' },
+      { key: 'date_ecriture', label: 'Date Écriture', isDate: true },
       { key: 'libelle', label: 'Libellé' },
       { key: 'debit', label: 'Débit', isAmount: true },
       { key: 'credit', label: 'Crédit', isAmount: true },
@@ -175,10 +222,10 @@ const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any 
         <div>
           <h3 className="text-lg font-semibold mb-2">Détails du Grand Livre</h3>
           <div className="grid gap-2">
-            {grandLivreKeys.map(({ key, label, isAmount }) => (
+            {grandLivreKeys.map(({ key, label, isAmount, isDate }) => (
               <div key={key} className="grid grid-cols-3 gap-2 items-center">
                 <span className="text-sm font-medium text-gray-600">{label}:</span>
-                <span className="col-span-2 text-sm">{formatValue(item.grand_livre[key], isAmount)}</span>
+                <span className="col-span-2 text-sm">{formatValue(item.grand_livre[key], isAmount, isDate)}</span>
               </div>
             ))}
           </div>
