@@ -16,8 +16,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Merge } from 'lucide-react';
 import { useGetRapprochementLignesQuery } from '@/lib/services/rapprochementsApi';
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
@@ -61,7 +63,10 @@ const DetailDialog = ({ title, entity }: { title: string, entity: any }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-7">Voir les détails</Button>
+        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-7">
+			<Eye className="mr-1" size={14} />
+			Voir les détails
+		</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
@@ -119,7 +124,10 @@ const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-7">Voir les détails</Button>
+        <Button size="sm" variant="outline" className="text-xs py-1.5 px-3 h-7">
+			<Eye className="mr-1" size={14} />
+			Voir les détails
+		</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
@@ -181,55 +189,129 @@ const TransactionCard = ({
 );
 
 const Releve = ({ releve }: { releve: any }) => (
-  <TransactionCard 
-    title={`RELEVE : ${releve.id}`}
-    description={`Compte: ${releve.numero_compte}`}
-    details={[
-      { 
-        date: new Date(releve.date_operation).toLocaleDateString(), 
-        montant: releve.debit ? `-${releve.debit.toFixed(2)} ${releve.devise}` : 
-                 releve.credit ? `${releve.credit.toFixed(2)} ${releve.devise}` : 
-                 "0.00 " + releve.devise,
-        statut: releve.description
-      }
-    ]}
-    entity={releve}
-  />
+  <Card className="w-full mb-2 bg-blue-50 shadow-md border border-blue-200">
+    <div className="flex items-center ml-8 h-28">
+      <div className="flex-grow h-full flex flex-col justify-center py-4 px-4">
+        <CardTitle className="text-sm font-semibold text-black">{`RELEVE : ${releve.id}`}</CardTitle>
+        <CardDescription className="text-xs mt-1 text-gray-600">{`Compte: ${releve.numero_compte}`}</CardDescription>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+          <div>
+            <span className="text-gray-600">Date: </span>
+            <span className="font-medium text-black">{new Date(releve.date_operation).toLocaleDateString()}</span>
+          </div>
+          <div>
+            <span className="text-gray-600">Montant: </span>
+            <span className="font-medium text-black">
+              {releve.debit ? `-${releve.debit.toFixed(2)} FCFA` : 
+               releve.credit ? `${releve.credit.toFixed(2)} FCFA` : 
+               "0.00 FCFA"}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">Statut: </span>
+            <span className="font-medium text-black">{releve.description}</span>
+          </div>
+        </div>
+      </div>
+      <div className="p-4 h-full flex items-center">
+        <DetailDialog title={`RELEVE : ${releve.id}`} entity={releve} />
+      </div>
+    </div>
+  </Card>
 );
 
-const GrandLivres = ({ grandLivres }: { grandLivres: any[] }) => (
-  <div className="space-y-4">
-    {grandLivres.map((grandLivre, idx) => (
-      <TransactionCard 
-        key={idx}
-        title={`Grand Livre : ${grandLivre.grand_livre.id}`}
-        description={grandLivre.grand_livre.libelle}
-        details={[
-          {
-            date: new Date(grandLivre.grand_livre.date_ecriture).toLocaleDateString(),
-            montant: grandLivre.grand_livre.debit ? 
-              `-${grandLivre.grand_livre.debit.toFixed(2)}` : 
-              `${grandLivre.grand_livre.credit.toFixed(2)}`,
-            statut: grandLivre.statut
-          }
-        ]}
-        entity={grandLivre}
-        isGrandLivre={true}
-        DetailDialogComponent={GrandLivreDetailDialog}
-      />
-    ))}
-    {grandLivres.length > 0 && (
-      <div className="text-sm text-muted-foreground mt-2">
-        Commentaire: {grandLivres[0].commentaire}
+const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: string }) => {
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleCheckboxChange = (id: string) => {
+    setSelectedItems(prev => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleMatchSelected = () => {
+    console.log("Matching selected items:", selectedItems);
+    setIsDialogOpen(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      {grandLivres.map((grandLivre, idx) => (
+        <Card key={idx} className="w-full mb-2 shadow-md bg-green-50 border border-green-200">
+          <div className="flex items-center h-28">
+            <div className="p-4 h-full flex items-center">
+              <input
+                type="checkbox"
+                checked={selectedItems.includes(grandLivre.grand_livre.id)}
+                onChange={() => handleCheckboxChange(grandLivre.grand_livre.id)}
+                className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+              />
+            </div>
+            <div className="flex-grow h-full flex flex-col justify-center py-3">
+              <CardTitle className="text-sm font-semibold text-black">{`Grand Livre : ${grandLivre.grand_livre.id}`}</CardTitle>
+              <CardDescription className="text-xs mt-1 text-gray-600">{grandLivre.grand_livre.libelle}</CardDescription>
+              <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <span className="text-gray-600">Date: </span>
+                  <span className="font-medium text-black">{new Date(grandLivre.grand_livre.date_ecriture).toLocaleDateString()}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Montant: </span>
+                  <span className="font-medium text-black">
+                    {grandLivre.grand_livre.debit ? 
+                      `-${grandLivre.grand_livre.debit.toFixed(2)} FCFA` : 
+                      `${grandLivre.grand_livre.credit.toFixed(2)} FCFA`}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Statut: </span>
+                  <span className="font-medium text-black">{grandLivre.statut}</span>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 h-full flex items-center">
+              <GrandLivreDetailDialog title={`Grand Livre : ${grandLivre.grand_livre.id}`} entity={grandLivre} />
+            </div>
+          </div>
+        </Card>
+      ))}
+      {grandLivres.length > 0 && (
+        <div className="text-sm text-gray-600 mt-2">
+          Commentaire: {grandLivres[0].commentaire}
+        </div>
+      )}
+      <div className="flex justify-center mt-4">
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button 
+              size="sm" 
+              className="bg-green-600 hover:bg-green-700 text-white"
+              disabled={selectedItems.length === 0}
+            >
+				<Merge className="mr-1" size={14} />
+              Matcher {selectedItems.length} élément{selectedItems.length > 1 ? 's' : ''}
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Faire un matching</DialogTitle>
+            </DialogHeader>
+            <DialogDescription>
+              Matcher le Grand Livre {grandLivres[0].grand_livre.id} au Relevé {releveId} ?
+            </DialogDescription>
+          
+          </DialogContent>
+        </Dialog>
       </div>
-    )}
-  </div>
-);
+    </div>
+  );
+};
 
 const Rapprochement = ({ rapprochement }: { rapprochement: any }) => (
   <div className="space-y-4 w-full">
     <Releve releve={rapprochement} />
-    <GrandLivres grandLivres={rapprochement.lignes_rapprochement} />
+    <GrandLivres grandLivres={rapprochement.lignes_rapprochement} releveId={rapprochement.id} />
   </div>
 );
 
@@ -264,8 +346,8 @@ export default function RapprochementDetails() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <StatCard title="Total Lignes" value={data?.total.toString() || "0"} />
-            <StatCard title="Taux de match positif" value="98%" />
-            <StatCard title="Taux de match négatif" value="2%" />
+            <StatCard title="Taux de matchs positifs" value="98%" />
+            <StatCard title="Taux de matchs négatifs" value="2%" />
           </div>
 
           {data && data.items.length > 0 && (

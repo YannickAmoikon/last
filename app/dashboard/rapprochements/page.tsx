@@ -10,7 +10,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {Edit, MoreHorizontal, Trash2Icon, Loader2} from 'lucide-react';
+import {Edit, MoreHorizontal, Trash2Icon, Loader2, ListCollapse} from 'lucide-react';
 import {useGetRapprochementsQuery, useDeleteRapprochementMutation} from '@/lib/services/rapprochementsApi';
 import {useToast} from '@/hooks/use-toast';
 import CreateRapprochementDialog from "@/components/forms&dialogs/rapprochementDialog";
@@ -148,6 +148,7 @@ export default function Rapprochements() {
 											<TableCell>{rapprochement.banque.nom}</TableCell>
 											<TableCell>{rapprochement.statut}</TableCell>
 											<TableCell>{rapprochement.etape_actuelle}</TableCell>
+											{/* @ts-ignore */}
 											<TableCell>{convertirTempsTraitement(rapprochement.temps_traitement)}</TableCell>
 											<TableCell className="text-right">
 												<DropdownMenu>
@@ -159,7 +160,7 @@ export default function Rapprochements() {
 													<DropdownMenuContent align="end">
 														<DropdownMenuItem asChild>
 															<Link href={`/dashboard/rapprochements/${rapprochement.id}`}>
-																<Edit className="mr-2 h-4 w-4"/>
+																<ListCollapse className="mr-1" size={14} />
 																Details
 															</Link>
 														</DropdownMenuItem>

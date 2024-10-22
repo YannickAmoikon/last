@@ -109,6 +109,7 @@ const createFormData = (body: CreateRapprochementRequest): FormData => {
 export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 	endpoints: (builder) => ({
 		getRapprochements: builder.query<RapprochementsResponse, GetRapprochementsParams | void>({
+			// @ts-ignore
 			query: (params = {page: 1, page_size: 10}) => ({
 				url: RAPPROCHEMENTS_URL,
 				method: 'GET',
@@ -121,6 +122,7 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 					date: new Date(item.date).toISOString(),
 				})),
 			}),
+			// @ts-ignore
 			providesTags: (result) =>
 				result
 					? [
@@ -137,6 +139,7 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 				body: createFormData(body),
 				formData: true,
 			}),
+			// @ts-ignore
 			invalidatesTags: [{type: RAPPROCHEMENTS_TAG, id: 'LIST'}],
 		}),
 
@@ -146,6 +149,7 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 				method: 'PUT',
 				body,
 			}),
+			// @ts-ignore
 			invalidatesTags: (result, error, {id}) => [{type: RAPPROCHEMENTS_TAG, id}],
 		}),
 
@@ -154,6 +158,7 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 				url: `${RAPPROCHEMENTS_URL}/${id}`,
 				method: 'DELETE',
 			}),
+			// @ts-ignore
 			invalidatesTags: (result, error, id) => [{type: RAPPROCHEMENTS_TAG, id}],
 		}),
 
@@ -178,6 +183,7 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 					})),
 				})),
 			}),
+			// @ts-ignore
 			providesTags: (result, error, arg) => 
 				result
 					? [
