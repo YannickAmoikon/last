@@ -10,7 +10,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import {Edit, MoreHorizontal, Trash2Icon, Loader2, ListCollapse} from 'lucide-react';
+import {MoreHorizontal, Trash2Icon, Loader2, ListCollapse} from 'lucide-react';
 import {useGetRapprochementsQuery, useDeleteRapprochementMutation} from '@/lib/services/rapprochementsApi';
 import {useToast} from '@/hooks/use-toast';
 import CreateRapprochementDialog from "@/components/forms&dialogs/rapprochementDialog";

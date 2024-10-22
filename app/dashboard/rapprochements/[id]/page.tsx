@@ -1,6 +1,7 @@
 "use client"
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -19,19 +20,26 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { ChevronLeft, ChevronRight, Eye, Merge, Loader2, Info, Check, X, Filter, ChevronDown, CheckSquare, Square, AlertTriangle, ListFilter } from 'lucide-react';
-import { useGetRapprochementLignesQuery, useValiderLigneRapprochementMutation } from '@/lib/services/rapprochementsApi';
-import { useToast } from "@/hooks/use-toast"
+import { useGetRapprochementLignesQuery, useValiderLigneRapprochementMutation, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
+import { toast, useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
 import { FileDown, FileSpreadsheet } from 'lucide-react';
+
+// Définir le type d'exportation
+type ExportType = 'Pas_rapproche' | 'Rapprochement_Match' | null;
+
+// Fonction utilitaire pour formater le nom du fichier
+const getExportFileName = (type: ExportType): string => {
+  const date = new Date().toISOString().split('T')[0];
+  const typeLabel = type === 'Pas_rapproche' ? 'non-rapproche' : 'rapprochement-match';
+  return `rapport-${typeLabel}-${date}.xlsx`;
+};
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
   <Card className="bg-gray-100 border shadow-sm">
@@ -376,19 +384,24 @@ const Rapprochement = ({ rapprochement }: { rapprochement: any }) => (
 );
 
 export default function RapprochementDetails({params}: {params: {id: string}}) {
-  const [currentRapprochementIndex, setCurrentRapprochementIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [exportType, setExportType] = useState<ExportType>(null);
 
-  const rapprochementId = params.id;
+  const rapprochementId = parseInt(params.id);
 
   const { data, error, isLoading, refetch } = useGetRapprochementLignesQuery({
     statut: statusFilter || "Rapprochement partiel",
-    rapprochement_id: parseInt(rapprochementId),
+    rapprochement_id: rapprochementId,
     page: currentPage,
     page_size: pageSize
   });
+
+  const { data: rapportData, isFetching: isExporting, error: rapportError } = useGetRapprochementRapportQuery(
+    { rapprochement_id: rapprochementId, statut: exportType || '' },
+    { skip: !exportType }
+  );
 
   const handlePrevious = () => {
     setCurrentPage(prev => (prev > 1 ? prev - 1 : prev));
@@ -399,7 +412,6 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
   };
 
   const handleMatchSuccess = useCallback(() => {
-    // Rafraîchir les données
     refetch();
   }, [refetch]);
 
@@ -408,11 +420,33 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
     setCurrentPage(1);
   };
 
-  const handleExport = (type: 'partiel' | 'total' | 'non_rapproche') => {
-    // Logique d'export à implémenter
-    console.log(`Exporting ${type} rapprochement`);
-    // Ici, vous pouvez appeler votre API ou service d'export avec les paramètres appropriés
+  const handleExportClick = (type: ExportType) => {
+    setExportType(type);
   };
+
+  useEffect(() => {
+    if (rapportData && exportType) {
+      const fileName = getExportFileName(exportType);
+      saveAs(rapportData, fileName); // rapportData est déjà un Blob, pas besoin de le convertir
+      setExportType(null);
+      toast({
+        title: "Export réussi",
+        description: `Le rapport a été téléchargé avec succès.`,
+        className: "bg-green-600 text-white",
+      });
+    }
+  }, [rapportData, exportType]);
+
+  useEffect(() => {
+    if (rapportError) {
+      console.error("Erreur lors du chargement du rapport:", rapportError);
+      toast({
+        title: "Erreur d'export",
+        description: "Une erreur est survenue lors de l'export des données.",
+        variant: "destructive",
+      });
+    }
+  }, [rapportError]);
 
   if (isLoading) {
     return (
@@ -468,23 +502,19 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline" className="ml-2">
-                <FileDown className="mr-1" size={14} />
+              <Button size="sm" variant="outline" className="ml-2" disabled={isExporting}>
+                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-1" size={14} />}
                 Exporter
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px]">
-              <DropdownMenuItem onClick={() => handleExport('partiel')}>
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                <span>Rapprochement partiel</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('total')}>
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                <span>Rapprochement total</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExport('non_rapproche')}>
+              <DropdownMenuItem onClick={() => handleExportClick('Pas_rapproche')} disabled={isExporting}>
                 <FileSpreadsheet className="mr-2 h-4 w-4" />
                 <span>Non rapproché</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExportClick('Rapprochement_Match')} disabled={isExporting}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                <span>Rapprochement Match</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -496,14 +526,13 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
             <StatCard title="En attente de validation" value={data?.total.toString() || "0"} />
             <StatCard 
               title="Taux de progression" 
-              // @ts-ignore
+              //@ts-ignore
               value={`${(((data?.total_ligne - data?.total) / data?.total_ligne) * 100).toFixed(1)}%`}
             />
           </div>
           {data?.items.map((rapprochement, idx) => (
             <Rapprochement rapprochement={rapprochement} key={idx} />
           ))}
-          
         </CardContent>
         <CardFooter className="flex justify-between p-4 items-center bg-gray-50 border-t border-gray-200">
           <Button size="sm" variant="outline" onClick={handlePrevious} disabled={currentPage === 1} className="text-gray-600 border-gray-300 hover:bg-gray-100">

@@ -205,6 +205,15 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 				{ type: RAPPROCHEMENTS_TAG, id: `LIST_${rapprochement_id}` },
 			],
 		}),
+
+		getRapprochementRapport: builder.query<Blob, { rapprochement_id: number; statut: string }>({
+			query: ({ rapprochement_id, statut }) => ({
+				url: `${RAPPROCHEMENTS_URL}/${rapprochement_id}/lignes/rapport`,
+				method: 'GET',
+				params: { statut },
+				responseHandler: (response) => response.blob(),
+			}),
+		}),
 	}),
 });
 
@@ -216,5 +225,5 @@ export const {
 	useDeleteRapprochementMutation,
 	useGetRapprochementLignesQuery,
 	useValiderLigneRapprochementMutation,
+	useGetRapprochementRapportQuery,
 } = rapprochementsApiSlice;
-
