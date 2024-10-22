@@ -29,6 +29,7 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 				url: `${BANKS_URL}/with-comptes`,
 				method: 'GET',
 			}),
+			//@ts-ignore
 			providesTags: (result) =>
 				result
 					? [
@@ -44,6 +45,7 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 				method: 'POST',
 				body,
 			}),
+			//@ts-ignore
 			invalidatesTags: [{type: BANKS_TAG, id: 'LIST'}],
 		}),
 
@@ -53,6 +55,7 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 				method: 'PUT',
 				body,
 			}),
+			//@ts-ignore
 			invalidatesTags: (result, error, {id}) => [{type: BANKS_TAG, id}],
 		}),
 
@@ -61,6 +64,7 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 				url: `${BANKS_URL}/${id}`,
 				method: 'DELETE',
 			}),
+			//@ts-ignore
 			invalidatesTags: (result, error, id) => [{type: BANKS_TAG, id}],
 		}),
 	}),
