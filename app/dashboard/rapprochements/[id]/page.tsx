@@ -30,6 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { FileDown, FileSpreadsheet } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Types et fonctions utilitaires
 type ExportType = 'Pas_rapproche' | 'Rapprochement_Match' | null;
@@ -51,7 +52,7 @@ const formatMontant = (montant: number): string => {
 
 // Composants
 const StatCard = ({ title, value }: { title: string, value: string }) => (
-  <Card className="bg-gray-100 rounded-none border shadow-sm">
+  <Card className="bg-gray-100 hover:shadow-md cursor-pointer transition-shadow duration-200 rounded-none border shadow-sm">
     <CardHeader className="pb-2">
       <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
     </CardHeader>
@@ -155,7 +156,6 @@ const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any 
     if (typeof value === "boolean") return value ? "Oui" : "Non";
     
     if (isDate) {
-      // Formater la date
       const date = new Date(value);
       return date.toLocaleDateString('fr-FR', { 
         year: 'numeric', 
@@ -170,81 +170,68 @@ const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any 
     if (isAmount) {
       const numValue = typeof value === 'string' ? parseFloat(value.replace(/[^\d.-]/g, '')) : value;
       if (!isNaN(numValue)) {
-        const formattedValue = new Intl.NumberFormat('fr-FR', {
+        return new Intl.NumberFormat('fr-FR', {
+          style: 'currency',
+          currency: 'XOF',
           minimumFractionDigits: 0,
           maximumFractionDigits: 0
         }).format(numValue);
-        return `${formattedValue} F CFA`;
       }
-      return `${value} F CFA`;
     }
     
     return String(value);
   };
 
-  const renderGrandLivreDetails = (item: any) => {
-    const ligneRapprochementKeys = [
-      { key: 'id', label: 'ID' },
-      { key: 'rapprochement_id', label: 'ID Rapprochement' },
-      { key: 'statut', label: 'Statut' },
-      { key: 'type_match', label: 'Type de Match' },
-      { key: 'commentaire', label: 'Commentaire' },
-      { key: 'decision', label: 'Décision' },
-      { key: 'flag', label: 'Flag' }
-    ];
-    const grandLivreKeys = [
-      { key: 'rapprochement_id', label: 'ID Rapprochement' },
-      { key: 'numero_piece', label: 'Numéro de Pièce' },
-      { key: 'date_ecriture', label: 'Date Écriture', isDate: true },
-      { key: 'libelle', label: 'Libellé' },
-      { key: 'debit', label: 'Débit', isAmount: true },
-      { key: 'credit', label: 'Crédit', isAmount: true },
-      { key: 'cpte_alt', label: 'Compte Alternatif', isAmount: true },
-      { key: 'exercice', label: 'Exercice' },
-      { key: 'compte', label: 'Compte' },
-      { key: 'cpte_gen', label: 'Compte Général' },
-      { key: 'id', label: 'ID' }
-    ];
-
-    return (
-      <div className="grid gap-4">
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Informations de la ligne rapprochement</h3>
-          <div className="grid gap-2">
-            {ligneRapprochementKeys.map(({ key, label }) => (
-              <div key={key} className="grid grid-cols-3 gap-2 items-center">
-                <span className="text-sm font-medium text-gray-600">{label}:</span>
-                <span className="col-span-2 text-sm">{formatValue(item[key])}</span>
-              </div>
-            ))}
+  const renderDetails = (title: string, data: any, keys: { key: string, label: string, isAmount?: boolean, isDate?: boolean }[]) => (
+    <div className="mb-6">
+      <h3 className="text-lg font-semibold mb-3">{title}</h3>
+      <div className="grid gap-2">
+        {keys.map(({ key, label, isAmount, isDate }) => (
+          <div key={key} className="grid grid-cols-2 gap-2">
+            <span className="text-sm font-medium text-gray-600">{label}:</span>
+            <span className="text-sm">{formatValue(data[key], isAmount, isDate)}</span>
           </div>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold mb-2">Détails du Grand Livre</h3>
-          <div className="grid gap-2">
-            {grandLivreKeys.map(({ key, label, isAmount, isDate }) => (
-              <div key={key} className="grid grid-cols-3 gap-2 items-center">
-                <span className="text-sm font-medium text-gray-600">{label}:</span>
-                <span className="col-span-2 text-sm">{formatValue(item.grand_livre[key], isAmount, isDate)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
       </div>
-    );
-  };
+    </div>
+  );
+
+  const ligneRapprochementKeys = [
+    { key: 'id', label: 'ID' },
+    { key: 'rapprochement_id', label: 'ID Rapprochement' },
+    { key: 'statut', label: 'Statut' },
+    { key: 'type_match', label: 'Type de Match' },
+    { key: 'commentaire', label: 'Commentaire' },
+    { key: 'decision', label: 'Décision' },
+    { key: 'flag', label: 'Flag' }
+  ];
+
+  const grandLivreKeys = [
+    { key: 'id', label: 'ID' },
+    { key: 'rapprochement_id', label: 'ID Rapprochement' },
+    { key: 'numero_piece', label: 'Numéro de Pièce' },
+    { key: 'date_ecriture', label: 'Date Écriture', isDate: true },
+    { key: 'libelle', label: 'Libellé' },
+    { key: 'debit', label: 'Débit', isAmount: true },
+    { key: 'credit', label: 'Crédit', isAmount: true },
+    { key: 'cpte_alt', label: 'Compte Alternatif' },
+    { key: 'exercice', label: 'Exercice' },
+    { key: 'compte', label: 'Compte' },
+    { key: 'cpte_gen', label: 'Compte Général' }
+  ];
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <DetailButton onClick={() => {}} />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold mb-4">{title}</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          {renderGrandLivreDetails(entity)}
+        <div className="space-y-6">
+          {renderDetails("Informations de la ligne rapprochement", entity, ligneRapprochementKeys)}
+          {renderDetails("Détails du Grand Livre", entity.grand_livre, grandLivreKeys)}
         </div>
       </DialogContent>
     </Dialog>
@@ -299,7 +286,7 @@ const TransactionCard = ({
 );
 
 const Releve = ({ releve }: { releve: any }) => (
-  <Card className="w-full mb-2 bg-orange-100 rounded-none shadow-sm border-l-4 border-l-orange-500">
+  <Card className="w-full mb-2 bg-orange-100 rounded-none shadow-sm border-l-4 border-l-orange-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
     <div className="flex items-center ml-9 h-28">
       <div className="flex-grow h-full flex flex-col justify-center py-4 px-4">
         <CardTitle className="text-sm font-semibold text-orange-700">{`ID: ${releve.id}`}</CardTitle>
@@ -371,7 +358,7 @@ const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLivres: a
   return (
     <div className="space-y-2 relative">
       {grandLivres.map((item, idx) => (
-        <Card key={idx} className="w-full rounded-none mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500">
+        <Card key={idx} className="w-full rounded-none mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
               <input
