@@ -41,6 +41,15 @@ const getExportFileName = (type: ExportType): string => {
   return `rapport-${typeLabel}-${date}.xlsx`;
 };
 
+const formatMontant = (montant: number): string => {
+  return new Intl.NumberFormat('fr-FR', { 
+    style: 'currency', 
+    currency: 'XOF', 
+    minimumFractionDigits: 0, 
+    maximumFractionDigits: 0 
+  }).format(montant);
+};
+
 const StatCard = ({ title, value }: { title: string, value: string }) => (
   <Card className="bg-gray-100 border shadow-sm">
     <CardHeader className="pb-2">
@@ -227,9 +236,9 @@ const Releve = ({ releve }: { releve: any }) => (
           <div>
             <span className="text-gray-600">Montant: </span>
             <span className="font-medium text-gray-900">
-              {releve.debit ? `-${releve.debit.toFixed(2)} FCFA` : 
-               releve.credit ? `${releve.credit.toFixed(2)} FCFA` : 
-               "0.00 FCFA"}
+              {releve.debit ? `-${formatMontant(releve.debit)}` : 
+               releve.credit ? formatMontant(releve.credit) : 
+               formatMontant(0)}
             </span>
           </div>
           <div>
@@ -312,8 +321,8 @@ const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLivres: a
                   <span className="text-gray-600">Montant: </span>
                   <span className="font-medium text-gray-900">
                     {grandLivre.grand_livre.debit ? 
-                      `-${grandLivre.grand_livre.debit.toFixed(2)} FCFA` : 
-                      `${grandLivre.grand_livre.credit.toFixed(2)} FCFA`}
+                      `-${formatMontant(grandLivre.grand_livre.debit)}` : 
+                      formatMontant(grandLivre.grand_livre.credit)}
                   </span>
                 </div>
                 <div>
