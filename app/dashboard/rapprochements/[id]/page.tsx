@@ -18,7 +18,7 @@ import {
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Eye, Merge, Loader2, Info, Check, X, Filter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Merge, Loader2, Info, Check, X, Filter, ChevronDown, CheckSquare, Square, AlertTriangle, ListFilter } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useValiderLigneRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -31,7 +31,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
-import { FileDown, ChevronDown } from 'lucide-react';
+import { FileDown, FileSpreadsheet } from 'lucide-react';
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
   <Card className="bg-gray-100 border shadow-sm">
@@ -408,9 +408,10 @@ export default function RapprochementDetails() {
     setCurrentPage(1);
   };
 
-  const handleExport = (format: 'excel' | 'pdf') => {
+  const handleExport = (type: 'partiel' | 'total' | 'non_rapproche') => {
     // Logique d'export à implémenter
-    console.log(`Exporting to ${format}`);
+    console.log(`Exporting ${type} rapprochement`);
+    // Ici, vous pouvez appeler votre API ou service d'export avec les paramètres appropriés
   };
 
   if (isLoading) {
@@ -441,46 +442,50 @@ export default function RapprochementDetails() {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline" className="h-9 px-4 py-2">
-                Options
-                <ChevronDown className="ml-1" size={14} />
+              <Button size="sm" variant="outline" className="ml-auto">
+                <ListFilter className="mr-1" size={14} />
+                Filtrer
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px]">
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <Filter className="mr-2" size={14} />
-                  <span>Filtrer</span>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent sideOffset={-4} alignOffset={-5}>
-                  <DropdownMenuItem onClick={() => handleStatusFilter(null)}>
-                    <span>Tous les statuts</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement partiel")}>
-                    <span>Rapprochement partiel</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement total")}>
-                    <span>Rapprochement total</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleStatusFilter("Non rapproché")}>
-                    <span>Non rapproché</span>
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <FileDown className="mr-2" size={14} />
-                  <span>Exporter</span>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent sideOffset={-4} alignOffset={-5}>
-                  <DropdownMenuItem onClick={() => handleExport('excel')}>
-                    <span>Export en Excel</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport('pdf')}>
-                    <span>Export en PDF</span>
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
+              <DropdownMenuItem onClick={() => handleStatusFilter(null)}>
+                <Filter className="mr-2 h-4 w-4" />
+                <span>Tous les statuts</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement partiel")}>
+                <Filter className="mr-2 h-4 w-4" />
+                <span>Rapprochement partiel</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement total")}>
+                <Filter className="mr-2 h-4 w-4" />
+                <span>Rapprochement total</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleStatusFilter("Non rapproché")}>
+                <Filter className="mr-2 h-4 w-4" />
+                <span>Non rapproché</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline" className="ml-2">
+                <FileDown className="mr-1" size={14} />
+                Exporter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuItem onClick={() => handleExport('partiel')}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                <span>Rapprochement partiel</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('total')}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                <span>Rapprochement total</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('non_rapproche')}>
+                <FileSpreadsheet className="mr-2 h-4 w-4" />
+                <span>Non rapproché</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
