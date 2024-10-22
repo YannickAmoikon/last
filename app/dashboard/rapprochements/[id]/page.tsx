@@ -565,7 +565,7 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
       <Card className="w-full shadow-md border border-gray-200">
         <CardHeader className="border-b border-gray-200 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-lg font-bold text-gray-900">Détails du Rapprochement</CardTitle>
+            <CardTitle className="text-lg font-bold text-gray-900">Détails du Rapprochement #{rapprochementId}</CardTitle>
             <CardDescription className="text-gray-600">Informations générales et statistiques</CardDescription>
           </div>
           <DropdownMenu>
