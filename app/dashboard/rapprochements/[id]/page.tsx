@@ -16,19 +16,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Eye, Merge, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Merge, Loader2, Info } from 'lucide-react';
 import { useGetRapprochementLignesQuery } from '@/lib/services/rapprochementsApi';
 
 const StatCard = ({ title, value }: { title: string, value: string }) => (
-  <Card className="bg-white border-l-4 border-l-orange-500 shadow-sm">
+  <Card className="bg-gray-100 border shadow-sm">
     <CardHeader className="pb-2">
       <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
     </CardHeader>
     <CardContent>
-      <div className="text-lg font-bold text-orange-600">{value}</div>
+      <div className="text-lg font-bold text-gray-600">{value}</div>
     </CardContent>
   </Card>
 );
@@ -195,10 +194,10 @@ const TransactionCard = ({
 );
 
 const Releve = ({ releve }: { releve: any }) => (
-  <Card className="w-full mb-2 bg-white shadow-sm border-l-4 border-l-green-500">
+  <Card className="w-full mb-2 bg-orange-100 rounded-none shadow-sm border-l-4 border-l-orange-500">
     <div className="flex items-center ml-8 h-28">
       <div className="flex-grow h-full flex flex-col justify-center py-4 px-4">
-        <CardTitle className="text-sm font-semibold text-green-700">{`Relevé : ${releve.id}`}</CardTitle>
+        <CardTitle className="text-sm font-semibold text-orange-700">{`ID: ${releve.id}`}</CardTitle>
         <CardDescription className="text-xs mt-1 text-gray-600">{`Compte: ${releve.numero_compte}`}</CardDescription>
         <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
           <div>
@@ -214,7 +213,7 @@ const Releve = ({ releve }: { releve: any }) => (
             </span>
           </div>
           <div>
-            <span className="text-gray-600">Statut: </span>
+            <span className="text-gray-600">Description: </span>
             <span className="font-medium text-gray-900">{releve.description}</span>
           </div>
         </div>
@@ -242,9 +241,9 @@ const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: 
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {grandLivres.map((grandLivre, idx) => (
-        <Card key={idx} className="w-full mb-2 shadow-sm bg-white border-l-4 border-l-blue-500">
+        <Card key={idx} className="w-full rounded-none mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500">
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
               <input
@@ -255,12 +254,16 @@ const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: 
               />
             </div>
             <div className="flex-grow h-full flex flex-col justify-center py-3">
-              <CardTitle className="text-sm font-semibold text-blue-700">{`Grand Livre : ${grandLivre.grand_livre.id}`}</CardTitle>
+              <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${grandLivre.grand_livre.id}`}</CardTitle>
               <CardDescription className="text-xs mt-1 text-gray-600">{grandLivre.grand_livre.libelle}</CardDescription>
               <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                 <div>
                   <span className="text-gray-600">Date: </span>
                   <span className="font-medium text-gray-900">{new Date(grandLivre.grand_livre.date_ecriture).toLocaleDateString()}</span>
+                  <span className="text-gray-600 flex items-center mt-2">
+                    <Info className="mr-1 text-orange-500" size={14} />
+                    {grandLivre.commentaire}
+                    </span>
                 </div>
                 <div>
                   <span className="text-gray-600">Montant: </span>
@@ -282,11 +285,7 @@ const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: 
           </div>
         </Card>
       ))}
-      {grandLivres.length > 0 && (
-        <div className="text-sm text-gray-600 mt-2">
-          Commentaire: {grandLivres[0].commentaire}
-        </div>
-      )}
+     
       <div className="flex justify-center mt-4">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -314,7 +313,8 @@ const GrandLivres = ({ grandLivres, releveId }: { grandLivres: any[], releveId: 
 };
 
 const Rapprochement = ({ rapprochement }: { rapprochement: any }) => (
-  <div className="space-y-4 w-full">
+  <div className="border-2 border-gray-200 p-4 rounded-md w-full">
+    <span className="text-gray-600 text-xs">{`#${rapprochement.id}`}</span>
     <Releve releve={rapprochement} />
     <GrandLivres grandLivres={rapprochement.lignes_rapprochement} releveId={rapprochement.id} />
   </div>
@@ -328,6 +328,7 @@ export default function RapprochementDetails() {
   const rapprochementId = 1;
 
   const { data, error, isLoading } = useGetRapprochementLignesQuery({
+    statut: "Rapprochement partiel",
     rapprochement_id: rapprochementId,
     page: currentPage,
     page_size: pageSize
@@ -372,9 +373,14 @@ export default function RapprochementDetails() {
             <StatCard title="Taux de matchs négatifs" value="2%" />
           </div>
 
-          {data && data.items.length > 0 && (
+          {/* {data && data.items.length > 0 && (
             <Rapprochement rapprochement={data.items[currentRapprochementIndex]} />
-          )}
+          )} */}
+
+          {data?.items.map((rapprochement, idx) => (
+            <Rapprochement rapprochement={rapprochement} key={idx} />
+          ))}
+          
         </CardContent>
         <CardFooter className="flex justify-between p-4 items-center bg-gray-50 border-t border-gray-200">
           <Button size="sm" variant="outline" onClick={handlePrevious} disabled={currentPage === 1} className="text-gray-600 border-gray-300 hover:bg-gray-100">

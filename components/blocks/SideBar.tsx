@@ -14,8 +14,8 @@ import {
 
 const items = [
 	{title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard},
-	{title: "Banques", url: "/dashboard/banks", icon: Landmark},
 	{title: "Rapprochements", url: "/dashboard/rapprochements", icon: FileSpreadsheet},
+	{title: "Banques", url: "/dashboard/banks", icon: Landmark},
 ];
 
 export default function SideBar({className = ""}: { className?: string }) {
