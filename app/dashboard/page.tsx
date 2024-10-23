@@ -14,18 +14,15 @@ export default function DashboardPage() {
 	const {data: session} = useSession();
 
 	return (
-		<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-			<Card>
-				<CardHeader>
-					<CardTitle>Bienvenue</CardTitle>
+		<main className="flex flex-1 h-full">
+			<Card className="flex-1 rounded-none shadow-none border-0">
+				<CardHeader className="border-b">
+					<CardTitle>Tableau de bord</CardTitle>
 					<CardDescription>
-						Connecté en tant que {session?.user?.name || session?.user?.email || "Utilisateur"}
+						Accéder à une vue générale de l'application
 					</CardDescription>
 				</CardHeader>
-				<CardContent>
-					<p>Votre tableau de bord est prêt !</p>
-				</CardContent>
 			</Card>
-		</div>
+		</main>
 	);
 }

@@ -110,9 +110,9 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
   }
 
   return (
-    <div className="flex flex-col flex-1 w-full">
+    <div className="flex flex-col flex-1 h-full">
       <Toaster />
-      <Card className="w-full shadow-md border border-gray-200 rounded-none">
+      <Card className="flex-1 rounded-none shadow-none border-0">
         <CardHeader className="border-b border-gray-200 flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-bold text-gray-900">Détails du Rapprochement #{rapprochementId}</CardTitle>
@@ -159,7 +159,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
             </DropdownMenuContent>
           </DropdownMenu>
         </CardHeader>
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-4">
             <StatCard title="Total de lignes" value={data?.total_ligne.toString() || "0"} />
             <StatCard title="Total de matchs" value={data?.total_match.toString() || "0"} />

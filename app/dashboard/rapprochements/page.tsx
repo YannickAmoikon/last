@@ -138,40 +138,38 @@ export default function Rapprochements() {
 	}
 
 	return (
-		<main className="flex flex-1 py-4 items-start justify-center">
+		<main className="flex flex-1 h-full">
 			<Toaster />
-			<div className="grid flex-1 gap-4 p-8 sm:px-6 sm:py-0 md:gap-8">
-				<Card>
-					<CardHeader>
-						<CardTitle>Rapprochements</CardTitle>
-						<CardDescription>
-							Liste des rapprochements bancaires
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<div className="flex items-center justify-between mb-4">
-							<SearchInput value={searchTerm} onChange={setSearchTerm} />
-							<CreateRapprochementDialog onRapprochementCreated={handleRapprochementCreated}/>
-						</div>
-						<RapprochementTable
-							rapprochements={filteredRapprochements}
-							onDelete={handleDelete}
-							formatDate={formatDate}
-						/>
-					</CardContent>
-					<CardFooter className="flex justify-between items-center">
-						<div className="text-xs text-muted-foreground">
-							{rapprochements && `Affichage ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRapprochements.length)} sur ${filteredRapprochements.length} rapprochements`}
-						</div>
-						<Pagination
-							currentPage={page}
-							totalPages={rapprochements?.total_pages || 1}
-							onPreviousPage={handlePreviousPage}
-							onNextPage={handleNextPage}
-						/>
-					</CardFooter>
-				</Card>
-			</div>
+			<Card className="flex-1 rounded-none shadow-none border-0">
+				<CardHeader className="border-b">
+					<CardTitle>Rapprochements</CardTitle>
+					<CardDescription>
+						Gestion des rapprochements bancaires
+					</CardDescription>
+				</CardHeader>
+				<CardContent className="p-6">
+					<div className="flex items-center justify-between mb-4">
+						<SearchInput value={searchTerm} onChange={setSearchTerm} />
+						<CreateRapprochementDialog onRapprochementCreated={handleRapprochementCreated}/>
+					</div>
+					<RapprochementTable
+						rapprochements={filteredRapprochements}
+						onDelete={handleDelete}
+						formatDate={formatDate}
+					/>
+				</CardContent>
+				<CardFooter className="flex justify-between items-center border-t py-4">
+					<div className="text-sm text-muted-foreground">
+						{rapprochements && `Affichage ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRapprochements.length)} sur ${filteredRapprochements.length} rapprochements`}
+					</div>
+					<Pagination
+						currentPage={page}
+						totalPages={rapprochements?.total_pages || 1}
+						onPreviousPage={handlePreviousPage}
+						onNextPage={handleNextPage}
+					/>
+				</CardFooter>
+			</Card>
 		</main>
 	);
 }

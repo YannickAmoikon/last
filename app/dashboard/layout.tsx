@@ -4,7 +4,6 @@
 import {useSession} from "next-auth/react";
 import {redirect} from "next/navigation";
 import SideBar from "@/components/blocks/SideBar";
-import Header from "@/components/blocks/Header";
 import { Loader2 } from 'lucide-react';
 
 export default function DashboardLayout({
@@ -32,7 +31,6 @@ export default function DashboardLayout({
 		<div className="flex h-screen overflow-hidden">
 			<SideBar/>
 			<div className="flex flex-col flex-1 overflow-hidden">
-				<Header/>
 				<main className="flex-1 overflow-auto p-4">
 					{children}
 				</main>

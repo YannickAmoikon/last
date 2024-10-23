@@ -14,12 +14,13 @@ export const Pagination: React.FC<PaginationProps> = ({
   onPreviousPage,
   onNextPage,
 }) => (
-  <div className="flex gap-2">
+  <div className="flex items-center justify-center gap-4">
     <Button
       variant="outline"
       size="sm"
       onClick={onPreviousPage}
       disabled={currentPage === 1}
+      className="px-4"
     >
       Précédent
     </Button>
@@ -28,6 +29,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       size="sm"
       onClick={onNextPage}
       disabled={currentPage >= totalPages}
+      className="px-4"
     >
       Suivant
     </Button>
