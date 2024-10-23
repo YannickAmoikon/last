@@ -7,8 +7,9 @@ import { useValiderLigneRapprochementMutation } from '@/lib/services/rapprocheme
 import { useToast } from "@/hooks/use-toast"
 import { GrandLivreDetailDialog } from './GrandLivreDetailDialog'
 import { formatMontant } from '@/utils/formatters'
+import OptionMatchDialog from './OptionMatchDialog';
 
-export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLivres: any[], releveId: string, onMatchSuccess: () => void }) => {
+export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: { grandLivres: any[], releveId: string, onMatchSuccess: () => void, releve: any }) => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -94,7 +95,7 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLi
         </Card>
       ))}
       
-      <div className="flex justify-center mt-4">
+      <div className="flex items-center space-x-2 justify-end mt-4">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button 
@@ -126,6 +127,11 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLi
             </div>
           </DialogContent>
         </Dialog>
+        <OptionMatchDialog 
+          releve={releve}
+          buttonClassName="bg-blue-600 hover:bg-blue-700 text-white"
+          grandLivres={grandLivres}
+        />
       </div>
       {(isDialogOpen || isLoading) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40" aria-hidden="true">

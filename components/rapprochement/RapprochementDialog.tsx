@@ -137,7 +137,7 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 	return (
 		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
-				<Button size="sm" className="bg-gray-900 text-white rounded-sm border hover:text-white hover:bg-gray-900">
+				<Button size="sm" className="bg-gray-800 text-white rounded-sm hover:text-white hover:bg-gray-900">
 					<Plus className="mr-1" size={14} />
 					Nouveau rapprochement
 				</Button>

@@ -43,7 +43,12 @@ export const TransactionCard = ({
     <CardFooter className="pt-2 pb-3">
      <div className="flex justify-end w-full space-x-2">
        <DetailDialogComponent title={title} entity={entity} />
-       {isGrandLivre && <Button size="sm" className="text-xs py-1.5 px-3 h-7">Matcher</Button>}
+       {
+       isGrandLivre && 
+       <>
+        <Button size="sm" className="text-xs py-1.5 px-3 h-7">Matcher</Button>
+       </>
+       }
      </div>
     </CardFooter>
   </Card>
