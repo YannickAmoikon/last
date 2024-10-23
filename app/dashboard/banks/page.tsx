@@ -5,7 +5,7 @@ export default function BanksPage() {
 		<main className="flex flex-1 h-full">
 			<Card className="flex-1 rounded-none shadow-none border-0">
 				<CardHeader className="border-b">
-					<CardTitle>Banques</CardTitle>
+					<CardTitle className="uppercase">Banques</CardTitle>
 					<CardDescription>
 						Gestion des banques
 					</CardDescription>

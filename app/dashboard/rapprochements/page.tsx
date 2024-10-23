@@ -131,7 +131,7 @@ export default function Rapprochements() {
 			<Toaster />
 			<Card className="flex-1 rounded-none shadow-none border-0">
 				<CardHeader className="border-b">
-					<CardTitle>Rapprochements</CardTitle>
+					<CardTitle className="uppercase">Rapprochements</CardTitle>
 					<CardDescription>
 						Gestion des rapprochements bancaires
 					</CardDescription>

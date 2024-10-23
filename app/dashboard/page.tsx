@@ -17,7 +17,7 @@ export default function DashboardPage() {
 		<main className="flex flex-1 h-full">
 			<Card className="flex-1 rounded-none shadow-none border-0">
 				<CardHeader className="border-b">
-					<CardTitle>Tableau de bord</CardTitle>
+					<CardTitle className="uppercase">Tableau de bord</CardTitle>
 					<CardDescription>
 						Accéder à une vue générale de l'application
 					</CardDescription>

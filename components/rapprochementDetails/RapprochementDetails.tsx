@@ -117,54 +117,58 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
   }
 
   return (
-    <div className="flex flex-col flex-1 h-full">
+    <main className="flex flex-1 h-full">
       <Toaster />
-      <Card className="flex-1 rounded-sm shadow-none border-0">
-        <CardHeader className="border-b border-gray-200 flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-lg font-bold text-gray-900">Détails du Rapprochement #{rapprochementId}</CardTitle>
-            <CardDescription className="text-gray-600">Informations générales et statistiques</CardDescription>
+      <Card className="flex-1 rounded-none shadow-none border-0">
+        <CardHeader className="border-b flex flex-row items-center justify-between">
+          <div className="space-y-2">
+            <CardTitle className="uppercase">Détails du Rapprochement #{rapprochementId}</CardTitle>
+            <CardDescription>
+              Informations générales et statistiques
+            </CardDescription>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="secondary" className="ml-auto border rounded-sm">
-                <ListFilter className="mr-1" size={14} />
-                Filtrer
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]">
-              <DropdownMenuItem onClick={() => handleStatusFilter(null)}>
-                <Filter className="mr-2 h-4 w-4" />
-                <span>Tous les statuts</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusFilter("Non rapproché")}>
-                <Filter className="mr-2 h-4 w-4" />
-                <span>Non rapproché</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement total")}>
-                <Filter className="mr-2 h-4 w-4" />
-                <span>Rapprochement match</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="secondary" className="ml-2 border rounded-sm" disabled={isExporting}>
-                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-1" size={14} />}
-                Exporter
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]">
-              <DropdownMenuItem onClick={() => handleExportClick('Pas_rapproche')} disabled={isExporting}>
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                <span>Non rapproché</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleExportClick('Rapprochement_Match')} disabled={isExporting}>
-                <FileSpreadsheet className="mr-2 h-4 w-4" />
-                <span>Rapprochement match</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center space-x-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="secondary" className="border rounded-sm">
+                  <ListFilter className="mr-1" size={14} />
+                  Filtrer
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px]">
+                <DropdownMenuItem onClick={() => handleStatusFilter(null)}>
+                  <Filter className="mr-2 h-4 w-4" />
+                  <span>Tous les statuts</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleStatusFilter("Non rapproché")}>
+                  <Filter className="mr-2 h-4 w-4" />
+                  <span>Non rapproché</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement total")}>
+                  <Filter className="mr-2 h-4 w-4" />
+                  <span>Rapprochement match</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting}>
+                  {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-1" size={14} />}
+                  Exporter
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px]">
+                <DropdownMenuItem onClick={() => handleExportClick('Pas_rapproche')} disabled={isExporting}>
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  <span>Non rapproché</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExportClick('Rapprochement_Match')} disabled={isExporting}>
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  <span>Rapprochement match</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-4">
@@ -231,6 +235,6 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
           </Tabs>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 };
