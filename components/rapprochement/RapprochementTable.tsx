@@ -33,13 +33,13 @@ export const RapprochementTable: React.FC<RapprochementTableProps> = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>ID</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead>Banque</TableHead>
-          <TableHead>Statut</TableHead>
-          <TableHead>Étape actuelle</TableHead>
-          <TableHead>Temps de traitement</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead className="w-1/12 text-left">ID</TableHead>
+          <TableHead className="w-2/12 text-center">Date</TableHead>
+          <TableHead className="w-2/12 text-center">Banque</TableHead>
+          <TableHead className="w-2/12 text-center">Statut</TableHead>
+          <TableHead className="w-2/12 text-center">Étape actuelle</TableHead>
+          <TableHead className="w-2/12 text-center">Temps de traitement</TableHead>
+          <TableHead className="w-2/12 text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

@@ -20,15 +20,15 @@ export const RapprochementRow: React.FC<RapprochementRowProps> = ({
   formatDate,
 }) => (
   <TableRow>
-    <TableCell>{rapprochement.id}</TableCell>
-    <TableCell>{formatDate(rapprochement.date)}</TableCell>
-    <TableCell>{rapprochement.banque.nom}</TableCell>
-    <TableCell className="w-32">
+    <TableCell className="w-1/12 ">{rapprochement.id}</TableCell>
+    <TableCell className="w-2/12 text-center">{formatDate(rapprochement.date)}</TableCell>
+    <TableCell className="w-2/12 text-center">{rapprochement.banque.nom}</TableCell>
+    <TableCell className="w-2/12 text-center">
       <StatusBadge status={rapprochement.statut} />
     </TableCell>
-    <TableCell>{rapprochement.etape_actuelle}</TableCell>
-    <TableCell>{convertirTempsTraitement(Number(rapprochement.temps_traitement))}</TableCell>
-    <TableCell className="text-right">
+    <TableCell className="w-2/12 text-center">{rapprochement.etape_actuelle}</TableCell>
+    <TableCell className="w-2/12 text-center">{convertirTempsTraitement(Number(rapprochement.temps_traitement))}</TableCell>
+    <TableCell className="w-2/12 text-right">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
