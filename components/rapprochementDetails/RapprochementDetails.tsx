@@ -12,6 +12,13 @@ import { StatCard } from './StatCard';
 import { Rapprochement } from './Rapprochement';
 import { getExportFileName, ExportType } from '@/utils/exportHelpers';
 
+const tabs = [
+  {label: "Rapprochements", value: "rapprochements"},
+  {label: "Onglet 1", value: "tab1"},
+  {label: "Onglet 2", value: "tab2"},
+  {label: "Onglet 3", value: "tab3"}
+]
+
 export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
@@ -173,30 +180,14 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
           
           <Tabs defaultValue="rapprochements" className="w-full mt-6">
             <TabsList className="w-full space-x-2 flex items-center rounded-sm justify-start py-5 border-b border-gray-200">
-              <TabsTrigger 
-                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
-                value="rapprochements"
+              {tabs.map((tab) => (
+                <TabsTrigger 
+                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border border-transparent hover:border-gray-300 data-[state=active]:border-gray-300 data-[state=active]:text-gray-800" 
+                value={tab.value}
               >
-                Rapprochements
+               {tab.label}
               </TabsTrigger>
-              <TabsTrigger 
-                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
-                value="tab1"
-              >
-                Onglet 1
-              </TabsTrigger>
-              <TabsTrigger 
-                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
-                value="tab2"
-              >
-                Onglet 2
-              </TabsTrigger>
-              <TabsTrigger 
-                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
-                value="tab3"
-              >
-                Onglet 3
-              </TabsTrigger>
+              ))}
             </TabsList>
             <TabsContent className="space-y-2" value="rapprochements">
               {data?.items.map((rapprochement, idx) => (
