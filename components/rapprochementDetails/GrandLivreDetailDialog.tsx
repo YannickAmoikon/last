@@ -76,7 +76,7 @@ export const GrandLivreDetailDialog = ({ title, entity }: { title: string, entit
       <DialogTrigger asChild>
         <DetailButton onClick={() => {}} />
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl bg-blue-50 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold mb-4">{title}</DialogTitle>
         </DialogHeader>

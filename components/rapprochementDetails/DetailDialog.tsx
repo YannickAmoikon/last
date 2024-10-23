@@ -65,7 +65,7 @@ export const DetailDialog = ({ title, entity }: { title: string, entity: any }) 
       <DialogTrigger asChild>
         <DetailButton onClick={() => {}} />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] bg-orange-50 max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold mb-4">{title}</DialogTitle>
         </DialogHeader>
