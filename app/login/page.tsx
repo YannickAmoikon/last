@@ -26,7 +26,7 @@ export default function LoginPage() {
 
 	if (status === 'loading') {
 		return <div className="flex flex-col items-center justify-center min-h-screen">
-		<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+		<Loader2 className="h-8 w-8 animate-spin text-gray-900" />
 			<p className="mt-2 text-gray-600">Chargement de l'authentification...</p>
 		</div>
 	}

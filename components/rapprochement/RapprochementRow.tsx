@@ -20,6 +20,7 @@ export const RapprochementRow: React.FC<RapprochementRowProps> = ({
   formatDate,
 }) => (
   <TableRow>
+    <TableCell>{rapprochement.id}</TableCell>
     <TableCell>{formatDate(rapprochement.date)}</TableCell>
     <TableCell>{rapprochement.banque.nom}</TableCell>
     <TableCell className="w-32">

@@ -107,7 +107,7 @@ export default function Rapprochements() {
 		return (
 			<div className="flex items-center justify-center h-screen w-full">
 				<div className="text-center">
-					<Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto" />
+					<Loader2 className="h-8 w-8 animate-spin text-gray-900 mx-auto" />
 					<p className="mt-2 text-gray-600">Chargement des données...</p>
 				</div>
 			</div>
