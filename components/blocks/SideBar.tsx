@@ -10,6 +10,9 @@ import {
 	FileSpreadsheet,
 	Landmark,
 	AtSign,
+	ArrowLeftRight,
+	ArrowUp01,
+	ArrowDown10,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -50,8 +53,8 @@ export default function SideBar({className = ""}: { className?: string }) {
 		<aside className={`bg-gray-900 text-gray-100 w-64 min-h-screen flex-col shadow-lg hidden md:flex ${className}`}>
 			<div className="flex h-16 items-center px-4 border-b border-gray-700">
 				<span className="flex items-center gap-2 font-semibold">
-					<AtSign className="h-6 w-6"/>
-					<span className="uppercase text-lg uppercase">Sanlam Allianz</span>
+					<ArrowDown10 className="h-6 w-6 mr-1"/>
+					<span className="uppercase text-lg uppercase">S A C I {"-"} R A P B</span>
 				</span>
 			</div>
 			<nav className="flex-1 overflow-auto py-6 px-3">

@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, Filter, ListFilter, RefreshCcw, FileDown, FileSpreadsheet } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, Filter, ListFilter, RefreshCcw, FileDown, FileSpreadsheet, Ellipsis, BookCheck, BookOpenCheck } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
 import { toast} from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -11,12 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StatCard } from './StatCard';
 import { Rapprochement } from './Rapprochement';
 import { getExportFileName, ExportType } from '@/utils/exportHelpers';
+import { Separator } from '../ui/separator';
 
 const tabs = [
   {label: "Rapprochements", value: "rapprochements"},
-  {label: "Onglet 1", value: "tab1"},
-  {label: "Onglet 2", value: "tab2"},
-  {label: "Onglet 3", value: "tab3"}
+  {label: "Historique", value: "history"},
 ]
 
 export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: number }) => {
@@ -149,18 +148,22 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting}>
-                  {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-1" size={14} />}
-                  Exporter
+                  {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Ellipsis size={14} />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
                 <DropdownMenuItem onClick={() => handleExportClick('Pas_rapproche')} disabled={isExporting}>
-                  <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  <FileSpreadsheet className="mr-1 h-4 w-4" />
                   <span>Non rapproché</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleExportClick('Rapprochement_Match')} disabled={isExporting}>
-                  <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  <FileSpreadsheet className="mr-1 h-4 w-4" />
                   <span>Rapprochement match</span>
+                </DropdownMenuItem>
+                <Separator className="my-1"/>
+                <DropdownMenuItem>
+                  <BookOpenCheck className="mr-1 h-4 w-4" />
+                  <span>Clôturer</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
