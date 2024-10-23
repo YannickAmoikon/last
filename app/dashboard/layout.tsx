@@ -22,7 +22,7 @@ export default function DashboardLayout({
 		return (
 			<div className="flex flex-col items-center justify-center min-h-screen">
 				<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-				<p className="mt-2 text-gray-600">Chargement...</p>
+				<p className="mt-2 text-gray-600">Chargement du tableau de bord...</p>
 			</div>
 		);
 	}

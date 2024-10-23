@@ -1,15 +1,39 @@
 // app/login/page.tsx
 "use client";
 
-import {Button} from "@/components/ui/button";
-import {Card, CardContent, CardHeader, CardTitle, CardDescription} from "@/components/ui/card";
-import {signIn} from "next-auth/react";
+import { useEffect } from 'react';
+import { useSession } from "next-auth/react";
+import { useRouter } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { signIn } from "next-auth/react";
 import Image from 'next/image';
 
 export default function LoginPage() {
+	const { data: session, status } = useSession();
+	const router = useRouter();
+
+	useEffect(() => {
+		if (status === 'authenticated' && session) {
+			router.push('/dashboard');
+		}
+	}, [session, status, router]);
+
 	const handleLogin = () => {
 		signIn("keycloak", {callbackUrl: "/dashboard"});
 	};
+
+	if (status === 'loading') {
+		return <div className="flex flex-col items-center justify-center min-h-screen">
+		<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+			<p className="mt-2 text-gray-600">Chargement de l'authentification...</p>
+		</div>
+	}
+
+	if (status === 'authenticated') {
+		return null; // Ne rien rendre pendant la redirection
+	}
 
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-indigo-100">

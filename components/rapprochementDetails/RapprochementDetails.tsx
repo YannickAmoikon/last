@@ -174,7 +174,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
             <StatCard 
               title="Taux de progression" 
               //@ts-ignore
-              value={`${(((data?.total_ligne - data?.total) / data?.total_ligne) * 100).toFixed(1)}%`}
+              value={`${(((data?.total_ligne - data?.total) / data?.total_ligne) * 100).toFixed(1)} %`}
             />
           </div>
           

@@ -65,7 +65,7 @@ export const GrandLivreDetailDialog = ({ title, entity }: { title: string, entit
     { key: 'libelle', label: 'Libellé' },
     { key: 'debit', label: 'Débit', isAmount: true },
     { key: 'credit', label: 'Crédit', isAmount: true },
-    { key: 'cpte_alt', label: 'Compte Alternatif' },
+    { key: 'cpte_alt', label: 'Compte Alternatif', isAmount: true },
     { key: 'exercice', label: 'Exercice' },
     { key: 'compte', label: 'Compte' },
     { key: 'cpte_gen', label: 'Compte Général' }
