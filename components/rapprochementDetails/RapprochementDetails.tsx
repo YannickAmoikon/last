@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, Loader2, Filter, ListFilter, RefreshCcw, FileDown, FileSpreadsheet } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
-import { toast, useToast } from "@/hooks/use-toast"
+import { toast} from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -44,10 +44,6 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
   const handleNext = () => {
     setCurrentPage(prev => Math.min(data?.total_pages || 1, prev + 1));
   };
-
-  const handleMatchSuccess = useCallback(() => {
-    refetch();
-  }, [refetch]);
 
   const handleStatusFilter = (status: string | null) => {
     setStatusFilter(status);

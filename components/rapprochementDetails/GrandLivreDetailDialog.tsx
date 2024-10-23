@@ -49,7 +49,6 @@ export const GrandLivreDetailDialog = ({ title, entity }: { title: string, entit
 
   const ligneRapprochementKeys = [
     { key: 'id', label: 'ID' },
-    { key: 'rapprochement_id', label: 'ID Rapprochement' },
     { key: 'statut', label: 'Statut' },
     { key: 'type_match', label: 'Type de Match' },
     { key: 'commentaire', label: 'Commentaire' },
@@ -59,7 +58,6 @@ export const GrandLivreDetailDialog = ({ title, entity }: { title: string, entit
 
   const grandLivreKeys = [
     { key: 'id', label: 'ID' },
-    { key: 'rapprochement_id', label: 'ID Rapprochement' },
     { key: 'numero_piece', label: 'Numéro de Pièce' },
     { key: 'date_ecriture', label: 'Date Écriture', isDate: true },
     { key: 'libelle', label: 'Libellé' },

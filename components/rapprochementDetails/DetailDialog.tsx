@@ -35,7 +35,7 @@ export const DetailDialog = ({ title, entity }: { title: string, entity: any }) 
 
   const renderReleveDetails = (releve: any) => {
     const releveKeys = [
-      { key: 'rapprochement_id', label: 'ID Rapprochement' },
+      { key: 'id', label: 'ID' },
       { key: 'date_operation', label: 'Date Opération', isDate: true },
       { key: 'numero_compte', label: 'Numéro de Compte' },
       { key: 'description', label: 'Description' },
@@ -45,7 +45,6 @@ export const DetailDialog = ({ title, entity }: { title: string, entity: any }) 
       { key: 'debit', label: 'Débit', isAmount: true },
       { key: 'credit', label: 'Crédit', isAmount: true },
       { key: 'solde_courant', label: 'Solde Courant', isAmount: true },
-      { key: 'id', label: 'ID' }
     ];
 
     return (
