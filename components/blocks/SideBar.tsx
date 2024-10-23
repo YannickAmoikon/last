@@ -51,7 +51,7 @@ export default function SideBar({className = ""}: { className?: string }) {
 			<div className="flex h-16 items-center px-4 border-b border-gray-700">
 				<span className="flex items-center gap-2 font-semibold">
 					<AtSign className="h-6 w-6"/>
-					<span className="uppercase text-lg">SALAM ASSURANCE</span>
+					<span className="uppercase text-lg uppercase">Sanlam Allianz</span>
 				</span>
 			</div>
 			<nav className="flex-1 overflow-auto py-6 px-3">
