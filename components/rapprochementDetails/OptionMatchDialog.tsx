@@ -10,7 +10,6 @@ import { Equal, Merge } from "lucide-react"
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { DetailDialog } from './DetailDialog'
 import { formatMontant } from "@/utils/formatters"
-import GrandLivreCard from './GrandLivreCard'  
 
 export default function OptionMatchDialog({ releve, buttonClassName, grandLivres }: { releve: any, buttonClassName: string, grandLivres: any[] }) {
   return (
@@ -60,14 +59,8 @@ export default function OptionMatchDialog({ releve, buttonClassName, grandLivres
               <p>Aucun relevé disponible</p>
             )}
           </div>
-          <div className="flex-1 overflow-y-auto mt-4">
-            {grandLivres.length > 0 ? (
-              grandLivres.map((grandLivre) => (
-                <GrandLivreCard key={grandLivre.id} grandLivre={grandLivre} />
-              ))
-            ) : (
-              <p>Aucun grand livre disponible</p>
-            )}
+          <div className="flex-1 overflow-y-auto">
+          
           </div>
         </div>
         <DialogFooter>
