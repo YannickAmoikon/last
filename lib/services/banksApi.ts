@@ -1,17 +1,6 @@
 import {apiSlice} from './api';
+import {Compte, Banque} from '@/types/banks'
 
-// Interfaces
-interface Compte {
-	id: number;
-	numero_compte: string;
-	description: string;
-}
-
-interface Banque {
-	id: number;
-	nom: string;
-	comptes: Compte[];
-}
 
 // Types pour les requêtes
 type BanqueCreateInput = Omit<Banque, 'id' | 'comptes'>;
