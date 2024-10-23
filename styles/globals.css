@@ -18,8 +18,8 @@
 
 body {
   font-family: var(--font-geist), sans-serif;
-  font-weight: 500; /* Vous pouvez ajuster cette valeur, par exemple 500 pour un texte plus épais */
-  font-variation-settings: 'wght' 500, 'wdth' 100;
+  font-weight: 600; /* Vous pouvez ajuster cette valeur, par exemple 500 pour un texte plus épais */
+  font-variation-settings: 'wght' 600, 'wdth' 100;
 }
 
 pre, code {
@@ -27,7 +27,7 @@ pre, code {
 }
 
 strong, h1, h2, h3, h4, h5, h6 {
-  font-weight: 600; /* Ajustez selon vos préférences */
+  font-weight: 700; /* Ajustez selon vos préférences */
 }
 
 @layer utilities {
