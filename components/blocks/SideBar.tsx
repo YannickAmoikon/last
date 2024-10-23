@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import {usePathname} from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
 	LayoutDashboard,
 	HelpCircle,
@@ -11,6 +11,7 @@ import {
 	Landmark,
 	AtSign,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 const items = [
 	{title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard},
@@ -20,12 +21,23 @@ const items = [
 
 export default function SideBar({className = ""}: { className?: string }) {
 	const pathname = usePathname();
+	const router = useRouter();
+
+	const isActive = (url: string) => {
+		if (url === '/dashboard') {
+			return pathname === url;
+		}
+		return pathname.startsWith(url);
+	};
+
+	const handleLogout = async () => {
+	};
 
 	const LinkItem = ({item}: { item: typeof items[0] }) => (
 		<Link
 			href={item.url}
 			className={`flex text-sm items-center gap-3 rounded-md px-3 py-2.5 transition-all
-        ${pathname === item.url 
+        ${isActive(item.url) 
           ? "bg-gray-700 text-white font-medium" 
           : "text-gray-400 hover:bg-gray-700 hover:text-white"}`}
 		>
@@ -58,7 +70,7 @@ export default function SideBar({className = ""}: { className?: string }) {
 					<span>Aide</span>
 				</Link>
 				<button
-					onClick={() => {/* Logique de déconnexion */}}
+					onClick={handleLogout}
 					className="flex text-sm items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-white rounded-md transition-all w-full mt-2"
 				>
 					<LogOut className="h-5 w-5"/>
