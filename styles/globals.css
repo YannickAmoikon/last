@@ -17,11 +17,17 @@
 }
 
 body {
-  font-family: 'GeistVF', sans-serif;
+  font-family: var(--font-geist), sans-serif;
+  font-weight: 500; /* Vous pouvez ajuster cette valeur, par exemple 500 pour un texte plus épais */
+  font-variation-settings: 'wght' 500, 'wdth' 100;
 }
 
 pre, code {
-  font-family: 'GeistMonoVF', monospace;
+  font-family: var(--font-geist-mono), monospace;
+}
+
+strong, h1, h2, h3, h4, h5, h6 {
+  font-weight: 600; /* Ajustez selon vos préférences */
 }
 
 @layer utilities {
