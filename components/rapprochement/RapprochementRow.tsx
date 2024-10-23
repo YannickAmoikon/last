@@ -48,7 +48,7 @@ export const RapprochementRow: React.FC<RapprochementRowProps> = ({
 			<TableCell className="w-2/12 text-center">
 				<StatusBadge status={rapprochement.statut} />
 			</TableCell>
-			<TableCell className="w-2/12">{rapprochement.etape_actuelle}</TableCell>
+			<TableCell className="w-2/12 text-center">{rapprochement.etape_actuelle}</TableCell>
 			<TableCell className="w-2/12 text-center">
 				{convertirTempsTraitement(Number(rapprochement.temps_traitement))}
 			</TableCell>
