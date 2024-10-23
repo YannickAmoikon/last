@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RapprochementRow } from '@/components/rapprochement/RapprochementRow';
 import { Rapprochement } from '@/types/rapprochements';
 

@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Trash2Icon, ListCollapse } from 'lucide-react';
 import Link from 'next/link';
-import { Badge } from "@/components/ui/badge";
 import { Rapprochement } from '@/types/rapprochements';
 import { StatusBadge } from './StatusBadge';
 import { convertirTempsTraitement } from '@/utils/timeUtils';
