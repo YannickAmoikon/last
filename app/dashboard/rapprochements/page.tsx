@@ -11,17 +11,6 @@ import { SearchInput } from '@/components/rapprochement/SearchInput';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCcw } from 'lucide-react';
 
-function convertirTempsTraitement(tempsEnSecondes: number): string {
-  const heures = Math.floor(tempsEnSecondes / 3600);
-  const minutes = Math.floor((tempsEnSecondes % 3600) / 60);
-
-  if (heures > 0) {
-    return `${heures}h ${minutes} min`;
-  } else {
-    return `${minutes} min`;
-  }
-}
-
 export default function Rapprochements() {
 	const [page, setPage] = useState(1);
 	const [pageSize] = useState(10);
@@ -54,7 +43,7 @@ export default function Rapprochements() {
 			await deleteRapprochement(id).unwrap();
 			toast({
 				title: "Suppression réussie",
-				description: "Le rapprochement a été supprimé avec succès.",
+				description: `Le rapprochement ${id} a été supprimé avec succès.`,
 			});
 			refetch();
 		} catch (error: any) {
