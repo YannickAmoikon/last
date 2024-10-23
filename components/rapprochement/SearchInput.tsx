@@ -8,8 +8,9 @@ interface SearchInputProps {
 
 export const SearchInput: React.FC<SearchInputProps> = ({ value, onChange }) => (
   <Input
+  
     placeholder="Rechercher..."
-    className="w-60"
+    className="w-60 rounded-sm"
     value={value}
     onChange={(e) => onChange(e.target.value)}
   />

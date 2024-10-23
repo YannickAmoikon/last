@@ -49,14 +49,14 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLi
   return (
     <div className="space-y-2 relative">
       {grandLivres.map((item, idx) => (
-        <Card key={idx} className="w-full rounded-none mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
+        <Card key={idx} className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
               <input
                 type="checkbox"
                 checked={selectedItems.includes(item.id.toString())}
                 onChange={() => handleCheckboxChange(item.id.toString())}
-                className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
               />
             </div>
             <div className="flex-grow h-full flex flex-col justify-center py-3">

@@ -112,7 +112,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
   return (
     <div className="flex flex-col flex-1 h-full">
       <Toaster />
-      <Card className="flex-1 rounded-none shadow-none border-0">
+      <Card className="flex-1 rounded-sm shadow-none border-0">
         <CardHeader className="border-b border-gray-200 flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-bold text-gray-900">Détails du Rapprochement #{rapprochementId}</CardTitle>
@@ -120,7 +120,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="secondary" className="ml-auto border">
+              <Button size="sm" variant="secondary" className="ml-auto border rounded-sm">
                 <ListFilter className="mr-1" size={14} />
                 Filtrer
               </Button>
@@ -142,7 +142,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="secondary" className="ml-2 border" disabled={isExporting}>
+              <Button size="sm" variant="secondary" className="ml-2 border rounded-sm" disabled={isExporting}>
                 {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-1" size={14} />}
                 Exporter
               </Button>
@@ -172,27 +172,27 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
           </div>
           
           <Tabs defaultValue="rapprochements" className="w-full mt-6">
-            <TabsList className="w-full space-x-2 flex items-center rounded-none justify-start py-5 border-b border-gray-200">
+            <TabsList className="w-full space-x-2 flex items-center rounded-sm justify-start py-5 border-b border-gray-200">
               <TabsTrigger 
-                className="rounded-none uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
+                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
                 value="rapprochements"
               >
                 Rapprochements
               </TabsTrigger>
               <TabsTrigger 
-                className="rounded-none uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
+                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
                 value="tab1"
               >
                 Onglet 1
               </TabsTrigger>
               <TabsTrigger 
-                className="rounded-none uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
+                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
                 value="tab2"
               >
                 Onglet 2
               </TabsTrigger>
               <TabsTrigger 
-                className="rounded-none uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
+                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
                 value="tab3"
               >
                 Onglet 3

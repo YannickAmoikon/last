@@ -20,7 +20,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       size="sm"
       onClick={onPreviousPage}
       disabled={currentPage === 1}
-      className="px-4"
+      className="px-4 rounded-sm"
     >
       Précédent
     </Button>
@@ -29,7 +29,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       size="sm"
       onClick={onNextPage}
       disabled={currentPage >= totalPages}
-      className="px-4"
+      className="px-4 rounded-sm"
     >
       Suivant
     </Button>

@@ -36,7 +36,7 @@ export default function SideBar({className = ""}: { className?: string }) {
 	const LinkItem = ({item}: { item: typeof items[0] }) => (
 		<Link
 			href={item.url}
-			className={`flex text-sm items-center gap-3 rounded-md px-3 py-2.5 transition-all
+			className={`flex rounded-sm text-sm items-center gap-3 px-3 py-2.5 transition-all
         ${isActive(item.url) 
           ? "bg-gray-700 text-white font-medium" 
           : "text-gray-400 hover:bg-gray-700 hover:text-white"}`}
@@ -64,14 +64,14 @@ export default function SideBar({className = ""}: { className?: string }) {
 			<div className="p-4 border-t border-gray-700">
 				<Link 
 					href="/dashboard/help"
-					className="flex text-sm items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-white rounded-md transition-all"
+					className="flex rounded-sm text-sm items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-all"
 				>
 					<HelpCircle className="h-5 w-5"/>
 					<span>Aide</span>
 				</Link>
 				<button
 					onClick={handleLogout}
-					className="flex text-sm items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-white rounded-md transition-all w-full mt-2"
+					className="flex rounded-sm text-sm items-center gap-3 px-3 py-2.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-all w-full mt-2"
 				>
 					<LogOut className="h-5 w-5"/>
 					<span>Déconnexion</span>

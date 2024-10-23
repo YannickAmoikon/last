@@ -18,7 +18,7 @@ export const TransactionCard = ({
   isGrandLivre?: boolean,
   DetailDialogComponent?: React.ComponentType<{ title: string, entity: any }>
 }) => (
-  <Card className="w-full mb-2 rounded-none shadow-md">
+  <Card className="w-full mb-2 rounded-sm shadow-md">
     <CardHeader className="pb-2 pt-3">
       <CardTitle className="text-sm font-semibold">{title}</CardTitle>
       <CardDescription className="text-xs">{description}</CardDescription>
