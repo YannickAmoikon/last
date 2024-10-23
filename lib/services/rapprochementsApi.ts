@@ -1,94 +1,11 @@
 import {apiSlice} from './api';
-
-// Interfaces
-interface Banque {
-	id: string;
-	nom: string;
-}
-
-interface Rapprochement {
-	user_id: string;
-	banque_id: string;
-	date: string;
-	statut: string;
-	id: string;
-	etape_actuelle: string;
-	commentaire: string;
-	temps_traitement: string;
-	banque: Banque;
-}
-
-interface RapprochementsResponse {
-	items: Rapprochement[];
-	total: number;
-	page: number;
-	page_size: number;
-	total_pages: number;
-}
-
-// Types pour les requêtes
-type GetRapprochementsParams = {
-	page?: number;
-	page_size?: number;
-};
-
-type CreateRapprochementRequest = {
-	banque_id: number;
-	compte_id: number;
-	date: string;
-	releve_bancaire: File;
-	grand_livre: File;
-	balance: File;
-	edr: File;
-};
-
-interface RapprochementLignesResponse {
-	items: RapprochementLigne[];
-	total: number;
-	page: number;
-	page_size: number;
-	total_pages: number;
-	total_ligne: number;
-	total_match: number;
-  };
-  interface RapprochementLigne {
-	rapprochement_id: number;
-	date_operation: string;
-	numero_compte: string;
-	description: string;
-	reference: string;
-	date_valeur: string;
-	devise: string;
-	debit: number;
-	credit: number;
-	solde_courant: number;
-	id: string;
-	lignes_rapprochement: LigneRapprochement[];
-  };
-  interface GrandLivre {
-	rapprochement_id: number;
-	numero_piece: string;
-	date_ecriture: string;
-	libelle: string;
-	debit: number;
-	credit: number;
-	cpte_alt: string;
-	exercice: string;
-	compte: string;
-	cpte_gen: string;
-	id: string;
-  }
-  
-  interface LigneRapprochement {
-	id: number;
-	rapprochement_id: number;
-	statut: string;
-	type_match: string;
-	commentaire: string;
-	decision: string;
-	flag: string;
-	grand_livre: GrandLivre;
-  }
+import {
+	Rapprochement,
+	RapprochementsResponse,
+	GetRapprochementsParams,
+	CreateRapprochementRequest,
+	RapprochementLignesResponse
+} from '@/types/rapprochements';
 
 // Constantes
 const RAPPROCHEMENTS_URL = '/rapprochements';
