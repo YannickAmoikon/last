@@ -28,7 +28,7 @@ export const Releve = ({ releve }: { releve: any }) => (
         </div>
       </div>
       <div className="p-4 h-full flex items-center">
-        <DetailDialog title={`RELEVE : ${releve.id}`} entity={releve} />
+        <DetailDialog title={`Relevé : ${releve.id}`} entity={releve} />
       </div>
     </div>
   </Card>
