@@ -52,7 +52,7 @@ const formatMontant = (montant: number): string => {
 
 // Composants
 const StatCard = ({ title, value }: { title: string, value: string }) => (
-  <Card className="bg-gray-100 hover:shadow-md cursor-pointer transition-shadow duration-200 rounded-none border shadow-sm">
+  <Card className="bg-gray-100 hover:shadow-md rounded-none cursor-pointer transition-shadow duration-200 border shadow-sm">
     <CardHeader className="pb-2">
       <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
     </CardHeader>
@@ -253,7 +253,7 @@ const TransactionCard = ({
   isGrandLivre?: boolean,
   DetailDialogComponent?: React.ComponentType<{ title: string, entity: any }>
 }) => (
-  <Card className="w-full mb-2 shadow-md">
+  <Card className="w-full mb-2 rounded-none shadow-md">
     <CardHeader className="pb-2 pt-3">
       <CardTitle className="text-sm font-semibold">{title}</CardTitle>
       <CardDescription className="text-xs">{description}</CardDescription>
@@ -450,7 +450,7 @@ const GrandLivres = ({ grandLivres, releveId, onMatchSuccess }: { grandLivres: a
 };
 
 const Rapprochement = ({ rapprochement }: { rapprochement: any }) => (
-  <div className="border-2 border-gray-200 p-4 rounded-md w-full">
+  <div className="border-2 border-gray-200 p-4 rounded-none w-full">
     <span className="text-gray-600 text-xs">{`#${rapprochement.id}`}</span>
     <Releve releve={rapprochement} />
     <GrandLivres grandLivres={rapprochement.lignes_rapprochement} releveId={rapprochement.id} onMatchSuccess={() => {}} />
@@ -482,11 +482,11 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
 
   // Gestionnaires d'événements
   const handlePrevious = () => {
-    setCurrentPage(prev => (prev > 1 ? prev - 1 : prev));
+    setCurrentPage(prev => Math.max(1, prev - 1));
   };
 
   const handleNext = () => {
-    setCurrentPage(prev => (prev < (data?.total_pages || 1) ? prev + 1 : prev));
+    setCurrentPage(prev => Math.min(data?.total_pages || 1, prev + 1));
   };
 
   const handleMatchSuccess = useCallback(() => {
@@ -562,9 +562,9 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
 
   // Rendu principal
   return (
-    <div className="flex flex-col flex-1 w-full p-1 space-y-4 bg-gray-50">
+    <div className="flex flex-col flex-1 w-full">
       <Toaster />
-      <Card className="w-full shadow-md border border-gray-200">
+      <Card className="w-full shadow-md border border-gray-200 rounded-none">
         <CardHeader className="border-b border-gray-200 flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-lg font-bold text-gray-900">Détails du Rapprochement #{rapprochementId}</CardTitle>
@@ -618,27 +618,76 @@ export default function RapprochementDetails({params}: {params: {id: string}}) {
             <StatCard title="Total en attente de validation" value={data?.total.toString() || "0"} />
             <StatCard 
               title="Taux de progression" 
-              //@ts-ignore
+              // @ts-ignore
               value={`${(((data?.total_ligne - data?.total) / data?.total_ligne) * 100).toFixed(1)}%`}
             />
           </div>
-          {data?.items.map((rapprochement, idx) => (
-            <Rapprochement rapprochement={rapprochement} key={idx} />
-          ))}
+          
+          <Tabs defaultValue="rapprochements" className="w-full mt-6">
+            <TabsList className="w-full space-x-2 flex items-center rounded-none justify-start py-5 border-b border-gray-200">
+              <TabsTrigger 
+                className="rounded-none uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
+                value="rapprochements"
+              >
+                Rapprochements
+              </TabsTrigger>
+              <TabsTrigger 
+                className="rounded-none uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
+                value="tab1"
+              >
+                Onglet 1
+              </TabsTrigger>
+              <TabsTrigger 
+                className="rounded-none uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
+                value="tab2"
+              >
+                Onglet 2
+              </TabsTrigger>
+              <TabsTrigger 
+                className="rounded-none uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border-b-2 border-transparent hover:border-gray-300 data-[state=active]:border-gray-500 data-[state=active]:text-gray-800" 
+                value="tab3"
+              >
+                Onglet 3
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent className="space-y-2" value="rapprochements">
+              {data?.items.map((rapprochement, idx) => (
+                <Rapprochement rapprochement={rapprochement} key={idx} />
+              ))}
+              <div className="flex justify-between mt-4 items-center">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={handlePrevious} 
+                  disabled={currentPage === 1} 
+                  className="text-gray-600 border-gray-300 hover:bg-gray-100"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-2" />
+                  Précédent
+                </Button>
+                <div className="text-xs text-gray-600">
+                  Page {currentPage} sur {data?.total_pages || 1}
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={handleNext} 
+                  disabled={currentPage === (data?.total_pages || 1)} 
+                  className="text-gray-600 border-gray-300 hover:bg-gray-100"
+                >
+                  Suivant
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            </TabsContent>
+            <TabsContent value="tab1">
+            </TabsContent>
+            <TabsContent value="tab2">
+            </TabsContent>
+            <TabsContent value="tab3">
+            </TabsContent>
+          </Tabs>
         </CardContent>
-        <CardFooter className="flex justify-between p-4 items-center bg-gray-50 border-t border-gray-200">
-          <Button size="sm" variant="outline" onClick={handlePrevious} disabled={currentPage === 1} className="text-gray-600 border-gray-300 hover:bg-gray-100">
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Précédent
-          </Button>
-          <div className="text-xs text-gray-600">
-            Affichage {currentPage} - {data?.total_pages || 1}
-          </div>
-          <Button size="sm" variant="outline" onClick={handleNext} disabled={currentPage === (data?.total_pages || 1)} className="text-gray-600 border-gray-300 hover:bg-gray-100">
-            Suivant
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
-        </CardFooter>
       </Card>
     </div>
   )
