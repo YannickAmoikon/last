@@ -205,7 +205,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
                   Précédent
                 </Button>
                 <div className="text-xs text-gray-600">
-                  Page {currentPage} sur {data?.total_pages || 1}
+                  Affichage {currentPage} sur {data?.total_pages || 1}
                 </div>
                 <Button 
                   size="sm" 
