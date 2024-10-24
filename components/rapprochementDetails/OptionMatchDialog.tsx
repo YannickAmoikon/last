@@ -7,7 +7,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Equal, Merge, Loader2, AlertCircle } from "lucide-react"
+import { Equal, Merge, Loader2, AlertCircle, Check } from "lucide-react"
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { DetailDialog } from './DetailDialog'
 import { formatMontant } from "@/utils/formatters"
@@ -19,6 +19,7 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
+import { Textarea } from "../ui/textarea"
 
 const formSchema = z.object({
   commentaire: z.string().min(1, {
@@ -46,20 +47,24 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 
   const { refetch } = useGetNonRapprochesGrandLivresQuery(releve.rapprochement_id);
 
+  const fetchGrandLivres = useCallback(() => {
+    setIsLoading(true);
+    refetch()
+      .then((result) => {
+        if (result.data) {
+          setNonRapprochesGrandLivres(result.data);
+        } else if (result.error) {
+          setError("Une erreur est survenue lors du chargement des grands livres.");
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, [refetch]);
+
   useEffect(() => {
     if (isOpen) {
-      setIsLoading(true);
-      refetch()
-        .then((result) => {
-          if (result.data) {
-            setNonRapprochesGrandLivres(result.data);
-          } else if (result.error) {
-            setError("Une erreur est survenue lors du chargement des grands livres.");
-          }
-        })
-        .finally(() => setIsLoading(false));
+      fetchGrandLivres();
     }
-  }, [isOpen, refetch]);
+  }, [isOpen, fetchGrandLivres]);
 
   const handleCheckboxChange = useCallback((id: string) => {
     setSelectedItem(prev => prev === id ? null : id);
@@ -90,8 +95,12 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
         description: "La ligne de rapprochement a été créée avec succès.",
         className: "bg-green-600 text-white"
       });
-      setIsOpen(false);
+      // Fermer seulement le dialogue de commentaire
       setIsCommentDialogOpen(false);
+      form.reset();
+      setSelectedItem(null);
+      // Rafraîchir la liste des grands livres non rapprochés
+      fetchGrandLivres();
     } catch (error) {
       console.error("Erreur lors de la création de la ligne:", error);
       toast({
@@ -100,6 +109,11 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
         variant: "destructive",
       });
     }
+  };
+
+  const handleCommentDialogClose = () => {
+    setIsCommentDialogOpen(false);
+    form.reset();
   };
 
   const filteredGrandLivres = nonRapprochesGrandLivres.filter(item =>
@@ -184,13 +198,13 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
                 </div>
               ) : (
                 <div className="space-y-2">
-                  {filteredGrandLivres.map((item: any, idx: number) => (
-                    <Card key={idx} className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
+                  {filteredGrandLivres.map((item: any) => (
+                    <Card key={item.id} className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
                       <div className="flex items-center h-24">
                         <div className="p-2 flex items-center">
                           <input
                             type="checkbox"
-                            checked={selectedItem === item.id?.toString()}
+                            checked={selectedItem === item.id.toString()}
                             onChange={() => handleCheckboxChange(item.id.toString())}
                             className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
@@ -229,7 +243,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 
             <div className="flex-none mt-4 flex justify-center">
               <Button 
-                className="bg-green-600 hover:bg-green-700 text-white" 
+                className="bg-blue-600 hover:bg-blue-600 text-white" 
                 size="sm" 
                 onClick={() => setIsCommentDialogOpen(true)}
                 disabled={!selectedItem}
@@ -242,7 +256,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isCommentDialogOpen} onOpenChange={setIsCommentDialogOpen}>
+      <Dialog open={isCommentDialogOpen} onOpenChange={handleCommentDialogClose}>
         <DialogContent className="sm:max-w-[425px]">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleMatch)} className="space-y-8">
@@ -253,13 +267,18 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
                   <FormItem>
                     <FormLabel>Commentaire</FormLabel>
                     <FormControl>
-                      <Input placeholder="Entrez un commentaire..." {...field} />
+                      <Textarea placeholder="Entrez un commentaire..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <Button type="submit">Valider le matching</Button>
+             <div className="flex justify-end">
+			 <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white" type="submit">
+                <Check size={14} className="mr-1" />
+                Valider
+              </Button>
+			 </div>
             </form>
           </Form>
         </DialogContent>
