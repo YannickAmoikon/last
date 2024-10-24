@@ -68,18 +68,20 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
     }
 
     try {
+      setIsLoading(true);
       const result = await creerLigneRapprochement({
         rapprochement_id: releve.rapprochement_id,
-		//@ts-ignore
         body: {
-          releve_bancaire_id: releve.id,
-          grand_livre_id: selectedItem,
-        }
+			releve_bancaire_id: releve.id.toString(),
+			grand_livre_id: selectedItem,
+			commentaire: ""
+		}
       }).unwrap();
+
       console.log("Résultat de la création de ligne:", result);
       toast({
         title: "Matching réussi",
-        description: "La ligne de rapprochement a été créée avec succès.",
+        description: `La ligne de rapprochement a été créée avec succès. ID: ${result.ligne_id}`,
         className: "bg-green-600 text-white"
       });
       setIsOpen(false);
@@ -93,6 +95,8 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
         description: "Une erreur est survenue lors du matching.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
