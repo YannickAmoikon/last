@@ -10,31 +10,31 @@ import { formatMontant } from '@/utils/formatters'
 import OptionMatchDialog from './OptionMatchDialog';
 
 export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: { grandLivres: any[], releveId: string, onMatchSuccess: () => void, releve: any }) => {
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validerLigneRapprochement] = useValiderLigneRapprochementMutation();
   const { toast } = useToast()
 
   const handleCheckboxChange = useCallback((id: string) => {
-    setSelectedItems(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
+    setSelectedItem(prev => prev === id ? null : id);
   }, []);
 
   const handleMatchSelected = async () => {
     setIsLoading(true);
     try {
-      await validerLigneRapprochement({ rapprochement_id: parseInt(releveId), ligne_id: parseInt(selectedItems[0]) });
-      console.log("Matching réussi pour les éléments:", selectedItems); 
-      setIsDialogOpen(false);
-      setSelectedItems([]);
-      onMatchSuccess(); // Appel de la fonction pour rafraîchir les données
-      toast({
-        title: "Matching réussi",
-        description: `${selectedItems.length} élément(s) ont été matchés avec succès.`,
-        className: "bg-green-600 text-white"
-      })
+      if (selectedItem) {
+        await validerLigneRapprochement({ rapprochement_id: parseInt(releveId), ligne_id: parseInt(selectedItem) });
+        console.log("Matching réussi pour l'élément:", selectedItem); 
+        setIsDialogOpen(false);
+        setSelectedItem(null);
+        onMatchSuccess(); // Appel de la fonction pour rafraîchir les données
+        toast({
+          title: "Matching réussi",
+          description: "L'élément a été matché avec succès.",
+          className: "bg-green-600 text-white"
+        })
+      }
     } catch (error) {
       console.error("Erreur lors du matching:", error);
       toast({
@@ -55,7 +55,7 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
             <div className="p-4 h-full flex items-center">
               <input
                 type="checkbox"
-                checked={selectedItems.includes(item.id.toString())}
+                checked={selectedItem === item.id.toString()}
                 onChange={() => handleCheckboxChange(item.id.toString())}
                 className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
               />
@@ -101,10 +101,10 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
             <Button 
               size="sm" 
               className="bg-blue-600 my-2 hover:bg-blue-700 text-white"
-              disabled={selectedItems.length === 0 || isLoading}
+              disabled={!selectedItem || isLoading}
             >
               <Merge className="mr-1" size={14} />
-              Matcher {selectedItems.length} élément{selectedItems.length > 1 ? 's' : ''}
+              Matcher
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-white">
@@ -112,7 +112,7 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
               <DialogTitle>Faire un matching</DialogTitle>
             </DialogHeader>
             <DialogDescription className="text-gray-600">
-              Êtes-vous sûr de vouloir matcher {selectedItems.length} élément(s) au Relevé {releveId} ?
+              Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{grandLivres[0].grand_livre.id}</span> au Relevé <span className="font-medium text-orange-600">{releveId}</span> ?
             </DialogDescription>
             <div className="flex justify-end space-x-2 mt-4">
               <Button size="sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>

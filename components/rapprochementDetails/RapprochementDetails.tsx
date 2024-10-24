@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, Filter, ListFilter, RefreshCcw, FileDown, FileSpreadsheet, Ellipsis, BookCheck, BookOpenCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
 import { toast} from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -21,11 +21,9 @@ const tabs = [
 export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [exportType, setExportType] = useState<ExportType>(null);
-
   const { data, error, isLoading } = useGetRapprochementLignesQuery({
-    statut: statusFilter || "Rapprochement partiel",
+    statut: "Pas_rapproche",
     rapprochement_id: rapprochementId,
     page: currentPage,
     page_size: pageSize
@@ -135,7 +133,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
                 </DropdownMenuItem>
                 <Separator className="my-1"/>
                 <DropdownMenuItem>
-                  <BookOpenCheck className="mr-1 h-4 w-4" />
+                  <ThumbsUp className="mr-1 h-4 w-4" />
                   <span>Clôturer</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
