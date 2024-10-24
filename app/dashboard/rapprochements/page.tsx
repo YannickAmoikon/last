@@ -10,6 +10,7 @@ import { Pagination } from '@/components/rapprochement/Pagination';
 import { SearchInput } from '@/components/rapprochement/SearchInput';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCcw } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Rapprochements() {
 	const [page, setPage] = useState(1);
@@ -31,11 +32,13 @@ export default function Rapprochements() {
 
 	const filteredRapprochements = useMemo(() => {
 		if (!rapprochements) return [];
-		return rapprochements.items.filter(rapprochement =>
-			rapprochement.banque.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			rapprochement.statut.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			rapprochement.etape_actuelle.toLowerCase().includes(searchTerm.toLowerCase())
-		);
+		return rapprochements.items
+			.filter(rapprochement =>
+				rapprochement.banque.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				rapprochement.statut.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				rapprochement.etape_actuelle.toLowerCase().includes(searchTerm.toLowerCase())
+			)
+			.sort((a, b) => Number(a.id) - Number(b.id)); // Tri par ID
 	}, [rapprochements, searchTerm]);
 
 	const handleDelete = async (id: string) => {
@@ -94,14 +97,13 @@ export default function Rapprochements() {
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center h-screen w-full">
-				<div className="text-center">
-					<Loader2 className="h-8 w-8 animate-spin text-gray-900 mx-auto" />
-					<p className="mt-2 text-gray-600">Chargement des rapprochements...</p>
-				</div>
+		  <div className="flex-1 flex h-full items-center justify-center">
+			<div className="relative flex-1 h-full w-full bg-gray-200 animate-pulse">
+			  <Loader2 className="absolute inset-0 m-auto h-12 w-12 text-gray-900 animate-spin" />
 			</div>
+		  </div>
 		);
-	}
+	  }
 
 	if (error) {
 		return (
@@ -149,7 +151,7 @@ export default function Rapprochements() {
 				</CardContent>
 				<CardFooter className="flex justify-between items-center border-t py-4">
 					<div className="text-sm text-muted-foreground">
-						{rapprochements && `Affichage ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRapprochements.length)} sur ${filteredRapprochements.length} rapprochements`}
+						{rapprochements && `Affichage ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRapprochements.length)} sur ${rapprochements.total_items || rapprochements.items.length} rapprochements`}
 					</div>
 					<Pagination
 						currentPage={page}

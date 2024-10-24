@@ -18,6 +18,7 @@ export interface Banque {
   }
   
   export interface RapprochementsResponse {
+	total_items: number;
     items: Rapprochement[];
     total: number;
     page: number;

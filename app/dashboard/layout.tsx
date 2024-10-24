@@ -4,7 +4,6 @@
 import {useSession} from "next-auth/react";
 import {redirect} from "next/navigation";
 import SideBar from "@/components/blocks/SideBar";
-import { Loader2 } from 'lucide-react';
 
 export default function DashboardLayout({
 																					children,
@@ -17,16 +16,6 @@ export default function DashboardLayout({
 			redirect('/login');
 		},
 	});
-
-	if (status === "loading") {
-		return (
-			<div className="flex flex-col items-center justify-center min-h-screen">
-				<Loader2 className="h-8 w-8 animate-spin text-gray-900" />
-				<p className="mt-2 text-gray-600">Chargement du tableau de bord...</p>
-			</div>
-		);
-	}
-
 	return (
 		<div className="flex h-screen overflow-hidden">
 			<SideBar/>

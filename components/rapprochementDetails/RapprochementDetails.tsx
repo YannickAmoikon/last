@@ -14,6 +14,8 @@ import { Rapprochement } from './Rapprochement';
 import { HistoriqueRapprochement } from './HistoriqueRapprochement';
 import { getExportFileName, ExportType } from '@/utils/exportHelpers';
 import { Separator } from '../ui/separator';
+import { Input } from '../ui/input';
+import { Skeleton } from '../ui/skeleton';
 
 const tabs = [
   {label: "Matchs en attente", value: "rapprochements"},
@@ -127,10 +129,9 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
 
     if (isLoading) {
       return (
-        <div className="flex items-center justify-center flex-1 w-full">
-          <div className="text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-gray-900 mx-auto" />
-            <p className="mt-2 text-gray-600">Chargement des lignes du rapprochement...</p>
+        <div className="flex-1 flex min-h-screen mt-60">
+          <div className="relative flex-1 h-full w-full bg-gray-200 animate-pulse">
+            <Loader2 className="absolute inset-0 m-auto h-12 w-12 text-gray-900 animate-spin" />
           </div>
         </div>
       );
@@ -197,6 +198,11 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
             </CardDescription>
           </div>
           <div className="flex items-center space-x-2">
+            <Input 
+              className="rounded-sm w-96 outline-none duration-500 focus:outline-none focus:ring-0 focus:border-transparent" 
+              type="text" 
+              placeholder="Faire une recherche..." 
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting}>

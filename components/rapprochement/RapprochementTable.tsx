@@ -20,12 +20,8 @@ export const RapprochementTable: React.FC<RapprochementTableProps> = ({
       if (a.id !== b.id) {
         return Number(a.id) - Number(b.id);
       }
-      // Si les IDs sont identiques, trier par date
-      if (a.date !== b.date) {
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      }
-      // Si les dates sont identiques, trier par nom de banque
-      return a.banque.nom.localeCompare(b.banque.nom);
+      // Si les IDs sont identiques, trier par date de création
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
     });
   }, [rapprochements]);
 

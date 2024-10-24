@@ -174,9 +174,10 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 
             <div className="flex-1 overflow-y-auto">
               {isLoading ? (
-                <div className="flex flex-col spaxe-y-4 justify-center items-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
-                  <span className="ml-2">Chargement des grands livres...</span>
+                <div className="flex-1 flex min-h-screen mt-60">
+                  <div className="relative flex-1 h-full w-full bg-gray-200 animate-pulse">
+                    <Loader2 className="absolute inset-0 m-auto h-12 w-12 text-gray-900 animate-spin" />
+                  </div>
                 </div>
               ) : error ? (
                 <div className="flex items-center justify-center h-full">
