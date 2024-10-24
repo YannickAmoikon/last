@@ -8,8 +8,9 @@ import {
   DialogTrigger,
   DialogTitle,
   DialogDescription,
+  DialogHeader,
 } from "@/components/ui/dialog"
-import { Equal, Merge, Loader2, AlertCircle, Check, Info } from "lucide-react"
+import { Equal, Merge, Loader2, AlertCircle, Check, Info, X } from "lucide-react"
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { DetailDialog } from './DetailDialog'
 import { formatMontant } from "@/utils/formatters"
@@ -17,22 +18,11 @@ import { useCreerLigneRapprochementMutation } from "@/lib/services/rapprochement
 import { useGetNonRapprochesGrandLivresQuery } from "@/lib/services/grandsLivresApi"
 import { useToast } from "@/hooks/use-toast"
 import { Input } from "@/components/ui/input"
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Textarea } from "../ui/textarea"
 import { DetailButton } from "./DetailButton"
-
-const formSchema = z.object({
-  commentaire: z.string().min(1, {
-    message: "Le commentaire est requis.",
-  }),
-})
 
 export default function CreateOptionMatchDialog({ releve, buttonClassName }: { releve: any, buttonClassName: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCommentDialogOpen, setIsCommentDialogOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [nonRapprochesGrandLivres, setNonRapprochesGrandLivres] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,13 +31,6 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [detailItem, setDetailItem] = useState<any | null>(null);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      commentaire: "",
-    },
-  })
 
   const { refetch } = useGetNonRapprochesGrandLivresQuery(releve.rapprochement_id);
 
@@ -74,7 +57,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
     setSelectedItem(prev => prev === id ? null : id);
   }, []);
 
-  const handleMatch = async (values: z.infer<typeof formSchema>) => {
+  const handleMatch = async () => {
     if (!selectedItem) {
       toast({
         title: "Erreur",
@@ -87,10 +70,10 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
     try {
       const result = await creerLigneRapprochement({
         rapprochement_id: releve.rapprochement_id,
+		//@ts-ignore
         body: {
           releve_bancaire_id: releve.id,
           grand_livre_id: selectedItem,
-          commentaire: values.commentaire
         }
       }).unwrap();
       console.log("Résultat de la création de ligne:", result);
@@ -99,11 +82,9 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
         description: "La ligne de rapprochement a été créée avec succès.",
         className: "bg-green-600 text-white"
       });
-      // Fermer seulement le dialogue de commentaire
-      setIsCommentDialogOpen(false);
-      form.reset();
+      setIsOpen(false);
+      setIsConfirmDialogOpen(false);
       setSelectedItem(null);
-      // Rafraîchir la liste des grands livres non rapprochés
       fetchGrandLivres();
     } catch (error) {
       console.error("Erreur lors de la création de la ligne:", error);
@@ -115,11 +96,6 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
     }
   };
 
-  const handleCommentDialogClose = () => {
-    setIsCommentDialogOpen(false);
-    form.reset();
-  };
-
   const filteredGrandLivres = nonRapprochesGrandLivres.filter(item =>
     (item?.libelle?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
     (item?.id?.toString().includes(searchTerm) ?? false)
@@ -128,7 +104,6 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
   const handleDialogOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      // Réinitialiser la sélection quand le dialogue se ferme
       setSelectedItem(null);
       setSearchTerm("");
     }
@@ -258,7 +233,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
               <Button 
                 className="bg-blue-600 hover:bg-blue-600 text-white" 
                 size="sm" 
-                onClick={() => setIsCommentDialogOpen(true)}
+                onClick={() => setIsConfirmDialogOpen(true)}
                 disabled={!selectedItem}
               >
                 <Merge size={14} className="mr-1" />
@@ -269,31 +244,25 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isCommentDialogOpen} onOpenChange={handleCommentDialogClose}>
-        <DialogContent className="sm:max-w-[425px]">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleMatch)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="commentaire"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Commentaire</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Entrez un commentaire..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-             <div className="flex justify-end">
-			 <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white" type="submit">
-                <Check size={14} className="mr-1" />
-                Valider
-              </Button>
-			 </div>
-            </form>
-          </Form>
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Faire un matching</DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-gray-600">
+            Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{selectedItem}</span> au Relevé <span className="font-medium text-orange-600">{releve.id}</span> ?
+          </DialogDescription>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button size="sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isLoading}>
+              <X className="mr-1" size={14} />
+              Annuler
+            </Button>
+            <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white" onClick={handleMatch} disabled={isLoading}>
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              <Check className="mr-1" size={14} />
+              Oui
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -317,7 +286,6 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
               <div>
                 <span className="font-semibold">Compte:</span> {detailItem?.compte || detailItem?.cpte_alt || 'N/A'}
               </div>
-              {/* Ajoutez d'autres champs selon les informations disponibles dans votre objet grand livre */}
             </div>
           </DialogDescription>
         </DialogContent>
