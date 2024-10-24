@@ -23,9 +23,9 @@ const tabs = [
 export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentTab, setCurrentTab] = useState(() => {
-    // Récupérer l'onglet sauvegardé dans le localStorage ou utiliser la valeur par défaut
     return localStorage.getItem(`currentTab_${rapprochementId}`) || "rapprochements";
   });
+  const [totalNonRapproche, setTotalNonRapproche] = useState<number>(0);
   const pageSize = 10;
   const [exportType, setExportType] = useState<ExportType>(null);
   const [dematcherLigne] = useDematcherLigneMutation();
@@ -36,7 +36,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
     isLoading: rapprochementLoading,
     refetch: refetchRapprochement
   } = useGetRapprochementLignesQuery({
-    statut: currentTab === "rapprochements" ? "Pas_rapproche" : "Rapprochement_Match",
+    statut: "Pas_rapproche",
     rapprochement_id: rapprochementId,
     page: currentPage,
     page_size: pageSize
@@ -107,12 +107,9 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
         description: "La ligne a été dématchée avec succès.",
         className: "bg-green-600 text-white",
       });
-      // Rafraîchir les données après le dématchage
-      if (currentTab === "rapprochements") {
-        refetchRapprochement();
-      } else {
-        refetchHistory();
-      }
+      // Rafraîchir toutes les données après le dématchage
+      refetchRapprochement();
+      refetchHistory();
     } catch (error) {
       console.error("Erreur lors du dématchage:", error);
       toast({
@@ -182,6 +179,12 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
     localStorage.setItem(`currentTab_${rapprochementId}`, currentTab);
   }, [currentTab, rapprochementId]);
 
+  useEffect(() => {
+    if (rapprochementData) {
+      setTotalNonRapproche(rapprochementData.total);
+    }
+  }, [rapprochementData]);
+
   return (
     <main className="flex flex-1 h-full">
       <Toaster />
@@ -222,7 +225,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
           <div className="grid grid-cols-4 gap-4">
             <StatCard title="Total de lignes" value={rapprochementData?.total_ligne.toString() || "0"} />
             <StatCard title="Total de matchs" value={rapprochementData?.total_match.toString() || "0"} />
-            <StatCard title="Total en attente de validation" value={rapprochementData?.total.toString() || "0"} />
+            <StatCard title="Total en attente de validation" value={totalNonRapproche.toString()} />
             <StatCard 
               title="Taux de progression" 
               value={`${(((rapprochementData?.total_match || 0) / (rapprochementData?.total_ligne || 1)) * 100).toFixed(1)} %`}
