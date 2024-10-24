@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Input } from "@/components/ui/input"
 import { DetailButton } from "./DetailButton"
 
-export default function CreateOptionMatchDialog({ releve, buttonClassName }: { releve: any, buttonClassName: string }) {
+export default function CreateOptionMatchDialog({ releve}: { releve: any}) {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [nonRapprochesGrandLivres, setNonRapprochesGrandLivres] = useState<any[]>([]);
@@ -119,7 +119,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
         <DialogTrigger asChild>
           <Button 
             size="sm" 
-            className={buttonClassName || "bg-blue-600 my-2 hover:bg-blue-700 text-white"}
+            className={"bg-blue-600 rounded-sm my-2 hover:bg-blue-700 text-white"}
           >
             <Equal size={14} />
           </Button>
@@ -236,7 +236,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 
             <div className="flex-none mt-4 flex justify-center">
               <Button 
-                className="bg-blue-600 hover:bg-blue-600 text-white" 
+                className="bg-blue-600 rounded-sm hover:bg-blue-600 text-white" 
                 size="sm" 
                 onClick={() => setIsConfirmDialogOpen(true)}
                 disabled={!selectedItem}
@@ -257,12 +257,12 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
           <DialogDescription className="text-gray-600">
             Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{selectedItem}</span> au Relevé <span className="font-medium text-orange-600">{releve.id}</span> ?
           </DialogDescription>
-          <div className="flex justify-end space-x-2 mt-4">
-            <Button size="sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isLoading}>
-              <X className="mr-1" size={14} />
+          <div className="flex  justify-end space-x-2 mt-4">
+            <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isLoading}>
+              <X className="mr-1 rounded-sm" size={14} />
               Annuler
             </Button>
-            <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white" onClick={handleMatch} disabled={isLoading}>
+            <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleMatch} disabled={isLoading}>
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               <Check className="mr-1" size={14} />
               Oui

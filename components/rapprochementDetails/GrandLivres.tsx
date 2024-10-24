@@ -99,7 +99,7 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
           <DialogTrigger asChild>
             <Button 
               size="sm" 
-              className="bg-blue-600 my-2 hover:bg-blue-600 text-white"
+              className="bg-blue-600 rounded-sm my-2 hover:bg-blue-600 text-white"
               disabled={!selectedItem || isLoading}
             >
               <Merge className="mr-1" size={14} />
@@ -114,11 +114,11 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
               Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{grandLivres[0].grand_livre.id}</span> au Relevé <span className="font-medium text-orange-600">{releveId}</span> ?
             </DialogDescription>
             <div className="flex justify-end space-x-2 mt-4">
-              <Button size="sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
+              <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
                 <X className="mr-1" size={14} />
                 Annuler
               </Button>
-              <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white" onClick={handleMatchSelected} disabled={isLoading}>
+              <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleMatchSelected} disabled={isLoading}>
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                 <Check className="mr-1" size={14} />
                 Oui
@@ -128,7 +128,6 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
         </Dialog>
         <OptionMatchDialog 
           releve={releve}
-          buttonClassName="bg-blue-600 hover:bg-blue-600 text-white"
         />
       </div>
       {(isDialogOpen || isLoading) && (

@@ -107,7 +107,7 @@ const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: {
       <div className="flex items-center space-x-2 justify-end mt-4">
         <Button 
           size="sm" 
-          className="bg-red-600 my-2 hover:bg-red-600 text-white"
+          className="bg-red-600 rounded-sm my-2 hover:bg-red-600 text-white"
           onClick={() => setIsConfirmDialogOpen(true)}
         >
           <Split className="mr-1" size={14} />
@@ -124,11 +124,11 @@ const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: {
             Êtes-vous sûr de vouloir dématcher le grand livre <span className="font-medium text-blue-600">{grandLivres[0]?.grand_livre.id}</span> du Relevé <span className="font-medium text-orange-600">{rapprochementId}</span> ?
           </DialogDescription>
           <div className="flex justify-end space-x-2 mt-4">
-            <Button size="sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isLoading}>
+            <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isLoading}>
               <X className="mr-1" size={14} />
               Annuler
             </Button>
-            <Button size="sm" className="bg-green-600 hover:bg-green-600 text-white" onClick={handleDematch} disabled={isLoading}>
+            <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleDematch} disabled={isLoading}>
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               <Check className="mr-1" size={14} />
               Oui
