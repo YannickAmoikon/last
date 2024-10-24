@@ -16,8 +16,8 @@ import { getExportFileName, ExportType } from '@/utils/exportHelpers';
 import { Separator } from '../ui/separator';
 
 const tabs = [
-  {label: "Rapprochements", value: "rapprochements"},
-  {label: "Historique", value: "history"},
+  {label: "Matchs en attente", value: "rapprochements"},
+  {label: "Historique des matchs", value: "history"},
 ]
 
 export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: number }) => {
@@ -244,7 +244,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
               {tabs.map((tab) => (
                 <TabsTrigger 
                   key={tab.value}
-                  className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border border-transparent hover:border-gray-300 data-[state=active]:border-gray-300 data-[state=active]:text-gray-800" 
+                  className="rounded-sm uppercase w-3/12 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border border-transparent hover:border-gray-300 data-[state=active]:border-gray-300 data-[state=active]:text-gray-800" 
                   value={tab.value}
                 >
                   {tab.label}
