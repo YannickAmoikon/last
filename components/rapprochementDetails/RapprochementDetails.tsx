@@ -1,15 +1,17 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
+import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
 import { toast} from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StatCard } from './StatCard';
 import { Rapprochement } from './Rapprochement';
+import { HistoriqueRapprochement } from './HistoriqueRapprochement';
 import { getExportFileName, ExportType } from '@/utils/exportHelpers';
 import { Separator } from '../ui/separator';
 
@@ -20,10 +22,33 @@ const tabs = [
 
 export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [currentTab, setCurrentTab] = useState(() => {
+    // Récupérer l'onglet sauvegardé dans le localStorage ou utiliser la valeur par défaut
+    return localStorage.getItem(`currentTab_${rapprochementId}`) || "rapprochements";
+  });
   const pageSize = 10;
   const [exportType, setExportType] = useState<ExportType>(null);
-  const { data, error, isLoading } = useGetRapprochementLignesQuery({
-    statut: "Pas_rapproche",
+  const [dematcherLigne] = useDematcherLigneMutation();
+
+  const { 
+    data: rapprochementData, 
+    error: rapprochementError, 
+    isLoading: rapprochementLoading,
+    refetch: refetchRapprochement
+  } = useGetRapprochementLignesQuery({
+    statut: currentTab === "rapprochements" ? "Pas_rapproche" : "Rapprochement_Match",
+    rapprochement_id: rapprochementId,
+    page: currentPage,
+    page_size: pageSize
+  });
+
+  const { 
+    data: historyData, 
+    error: historyError, 
+    isLoading: historyLoading,
+    refetch: refetchHistory
+  } = useGetRapprochementLignesQuery({
+    statut: "Rapprochement_Match",
     rapprochement_id: rapprochementId,
     page: currentPage,
     page_size: pageSize
@@ -39,7 +64,10 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
   };
 
   const handleNext = () => {
-    setCurrentPage(prev => Math.min(data?.total_pages || 1, prev + 1));
+    const totalPages = currentTab === "rapprochements" 
+      ? rapprochementData?.total_pages 
+      : historyData?.total_pages;
+    setCurrentPage(prev => Math.min(totalPages || 1, prev + 1));
   };
 
   const handleExportClick = (type: ExportType) => {
@@ -70,39 +98,89 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
     }
   }, [rapportError]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen w-full">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-900 mx-auto" />
-          <p className="mt-2 text-gray-600">Chargement des lignes du rapprochement...</p>
-        </div>
-      </div>
-    );
-  }
 
-  if (error) {
-		return (
-			<div className="flex items-center justify-center h-full flex-1 bg-gray-50">
-				<div className="text-center">
-					<svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-					</svg>
-					<h2 className="mt-2 text-lg font-semibold text-gray-900">Erreur de chargement</h2>
-					<p className="mt-2 text-sm text-gray-500">Impossible de charger les lignes du rapprochement. Veuillez réessayer.</p>
-					<div className="mt-6">
-						<Button
-							onClick={() => window.location.reload()}
-							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
-						>
-							<RefreshCcw className="mr-1" size={14} />
-							Réessayer
-						</Button>
-					</div>
-				</div>
-			</div>
-		);
-	}
+  const handleDematch = async (rapprochementId: string, ligneId: number) => {
+    try {
+      await dematcherLigne({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
+      toast({
+        title: "Dématchage réussi",
+        description: "La ligne a été dématchée avec succès.",
+        className: "bg-green-600 text-white",
+      });
+      // Rafraîchir les données après le dématchage
+      if (currentTab === "rapprochements") {
+        refetchRapprochement();
+      } else {
+        refetchHistory();
+      }
+    } catch (error) {
+      console.error("Erreur lors du dématchage:", error);
+      toast({
+        title: "Erreur de dématchage",
+        description: "Une erreur est survenue lors du dématchage de la ligne.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const renderContent = () => {
+    const isLoading = currentTab === "rapprochements" ? rapprochementLoading : historyLoading;
+    const error = currentTab === "rapprochements" ? rapprochementError : historyError;
+    const data = currentTab === "rapprochements" ? rapprochementData : historyData;
+
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center flex-1 w-full">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-900 mx-auto" />
+            <p className="mt-2 text-gray-600">Chargement des lignes du rapprochement...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex items-center justify-center h-full flex-1 bg-gray-50">
+          <div className="text-center">
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h2 className="mt-2 text-lg font-semibold text-gray-900">Erreur de chargement</h2>
+            <p className="mt-2 text-sm text-gray-500">Impossible de charger les lignes du rapprochement. Veuillez réessayer.</p>
+            <div className="mt-6">
+              <Button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+              >
+                <RefreshCcw className="mr-1" size={14} />
+                Réessayer
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (currentTab === "rapprochements") {
+      return (
+        <>
+          {data?.items.map((rapprochement, idx) => (
+            <div key={idx} className="flex justify-between items-center">
+              <Rapprochement rapprochement={rapprochement} />
+            </div>
+          ))}
+        </>
+      );
+    } else {
+      return <HistoriqueRapprochement items={data?.items || []} onDematch={handleDematch} />;
+    }
+  };
+
+  useEffect(() => {
+    // Sauvegarder l'onglet actuel dans le localStorage
+    localStorage.setItem(`currentTab_${rapprochementId}`, currentTab);
+  }, [currentTab, rapprochementId]);
 
   return (
     <main className="flex flex-1 h-full">
@@ -142,67 +220,68 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
         </CardHeader>
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-4">
-            <StatCard title="Total de lignes" value={data?.total_ligne.toString() || "0"} />
-            <StatCard title="Total de matchs" value={data?.total_match.toString() || "0"} />
-            <StatCard title="Total en attente de validation" value={data?.total.toString() || "0"} />
+            <StatCard title="Total de lignes" value={rapprochementData?.total_ligne.toString() || "0"} />
+            <StatCard title="Total de matchs" value={rapprochementData?.total_match.toString() || "0"} />
+            <StatCard title="Total en attente de validation" value={rapprochementData?.total.toString() || "0"} />
             <StatCard 
               title="Taux de progression" 
-              //@ts-ignore
-              value={`${(((data?.total_ligne - data?.total) / data?.total_ligne) * 100).toFixed(1)} %`}
+              value={`${(((rapprochementData?.total_match || 0) / (rapprochementData?.total_ligne || 1)) * 100).toFixed(1)} %`}
             />
           </div>
           
-          <Tabs defaultValue="rapprochements" className="w-full mt-6">
+          <Tabs 
+            value={currentTab} 
+            className="w-full mt-6" 
+            onValueChange={(value) => {
+              setCurrentTab(value);
+              setCurrentPage(1);
+            }}
+          >
             <TabsList className="w-full space-x-2 flex items-center rounded-sm justify-start py-5 border-b border-gray-200">
               {tabs.map((tab) => (
                 <TabsTrigger 
-                className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border border-transparent hover:border-gray-300 data-[state=active]:border-gray-300 data-[state=active]:text-gray-800" 
-                value={tab.value}
-              >
-               {tab.label}
-              </TabsTrigger>
+                  key={tab.value}
+                  className="rounded-sm uppercase w-1/6 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border border-transparent hover:border-gray-300 data-[state=active]:border-gray-300 data-[state=active]:text-gray-800" 
+                  value={tab.value}
+                >
+                  {tab.label}
+                </TabsTrigger>
               ))}
             </TabsList>
             <TabsContent className="space-y-2" value="rapprochements">
-              {data?.items.map((rapprochement, idx) => (
-                <Rapprochement rapprochement={rapprochement} key={idx} />
-              ))}
-              <div className="flex justify-between mt-4 items-center">
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={handlePrevious} 
-                  disabled={currentPage === 1} 
-                  className="text-gray-600 border-gray-300 hover:bg-gray-100"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-2" />
-                  Précédent
-                </Button>
-                <div className="text-xs text-gray-600">
-                  Affichage {currentPage} sur {data?.total_pages || 1}
-                </div>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={handleNext} 
-                  disabled={currentPage === (data?.total_pages || 1)} 
-                  className="text-gray-600 border-gray-300 hover:bg-gray-100"
-                >
-                  Suivant
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </div>
+              {renderContent()}
             </TabsContent>
-            <TabsContent value="tab1">
-              {/* Contenu pour l'onglet 1 */}
-            </TabsContent>
-            <TabsContent value="tab2">
-              {/* Contenu pour l'onglet 2 */}
-            </TabsContent>
-            <TabsContent value="tab3">
-              {/* Contenu pour l'onglet 3 */}
+            <TabsContent className="space-y-2" value="history">
+              {renderContent()}
             </TabsContent>
           </Tabs>
+          
+          {/* Pagination */}
+          <div className="flex justify-between mt-4 items-center">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handlePrevious} 
+              disabled={currentPage === 1} 
+              className="text-gray-600 border-gray-300 hover:bg-gray-100"
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Précédent
+            </Button>
+            <div className="text-xs text-gray-600">
+              Affichage {currentPage} sur {(currentTab === "rapprochements" ? rapprochementData : historyData)?.total_pages || 1}
+            </div>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handleNext} 
+              disabled={currentPage === ((currentTab === "rapprochements" ? rapprochementData : historyData)?.total_pages || 1)} 
+              className="text-gray-600 border-gray-300 hover:bg-gray-100"
+            >
+              Suivant
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </main>
