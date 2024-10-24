@@ -8,7 +8,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Equal, Merge, Loader2, Info } from "lucide-react"
+import { Equal, Merge, Loader2, Info, AlertCircle } from "lucide-react"
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { DetailDialog } from './DetailDialog'
 import { formatMontant } from "@/utils/formatters"
@@ -139,12 +139,11 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 					</div>
 
 					<div className="flex-none mb-4 flex justify-end">
-						<div className="relative w-1/3">
-							<Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+						<div className="relative w-1/2">
 							<Input
 								type="text"
-								placeholder="Rechercher un grand livre..."
-								className="pl-10 pr-4 py-2 w-full"
+								placeholder="Faire une recherche précise pour matcher..."
+								className=" py-2 w-full"
 								value={searchTerm}
 								onChange={(e) => setSearchTerm(e.target.value)}
 							/>
@@ -153,12 +152,20 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 
 					<div className="flex-1 overflow-y-auto">
 						{isLoading ? (
-							<div className="flex justify-center items-center h-full">
+							<div className="flex flex-col spaxe-y-4 justify-center items-center h-full">
 								<Loader2 className="h-8 w-8 animate-spin text-gray-500" />
 								<span className="ml-2">Chargement des grands livres...</span>
 							</div>
 						) : error ? (
-							<div className="text-red-500">{error}</div>
+							<div className="flex items-center justify-center h-full">
+								<div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-md flex items-center space-x-3">
+									<AlertCircle className="h-6 w-6 text-red-500" />
+									<div>
+										<p className="font-bold">Erreur</p>
+										<p>{error}</p>
+									</div>
+								</div>
+							</div>
 						) : (
 							<div className="space-y-2">
 								{filteredGrandLivres.map((item: any, idx: number) => (
