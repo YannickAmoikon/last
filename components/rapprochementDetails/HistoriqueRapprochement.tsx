@@ -142,7 +142,7 @@ const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: {
 
 export const HistoriqueRapprochement: React.FC<HistoriqueRapprochementProps> = ({ items, onDematch }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {items.map((rapprochement, idx) => (
         <div key={idx} className="border-2 border-gray-200 p-4 rounded-sm w-full">
           <span className="text-gray-600 text-xs">{`#${rapprochement.id}`}</span>
