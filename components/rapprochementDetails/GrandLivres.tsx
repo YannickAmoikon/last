@@ -25,10 +25,9 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
     try {
       if (selectedItem) {
         await validerLigneRapprochement({ rapprochement_id: parseInt(releveId), ligne_id: parseInt(selectedItem) });
-        console.log("Matching réussi pour l'élément:", selectedItem); 
         setIsDialogOpen(false);
         setSelectedItem(null);
-        onMatchSuccess(); // Appel de la fonction pour rafraîchir les données
+        onMatchSuccess();
         toast({
           title: "Matching réussi",
           description: "L'élément a été matché avec succès.",
@@ -100,7 +99,7 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
           <DialogTrigger asChild>
             <Button 
               size="sm" 
-              className="bg-blue-600 my-2 hover:bg-blue-700 text-white"
+              className="bg-blue-600 my-2 hover:bg-blue-600 text-white"
               disabled={!selectedItem || isLoading}
             >
               <Merge className="mr-1" size={14} />

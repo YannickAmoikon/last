@@ -15,6 +15,8 @@ import { formatMontant } from "@/utils/formatters"
 import { useCreerLigneRapprochementMutation } from "@/lib/services/rapprochementsApi"
 import { useGetNonRapprochesGrandLivresQuery } from "@/lib/services/grandsLivresApi"
 import { useToast } from "@/hooks/use-toast"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 
 export default function CreateOptionMatchDialog({ releve, buttonClassName }: { releve: any, buttonClassName: string }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -24,13 +26,14 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 	const [creerLigneRapprochement] = useCreerLigneRapprochementMutation();
 	const [selectedItems, setSelectedItems] = useState<string[]>([]);
 	const { toast } = useToast();
+	const [searchTerm, setSearchTerm] = useState("");
 
 	const { refetch } = useGetNonRapprochesGrandLivresQuery(releve.rapprochement_id);
 
 	useEffect(() => {
 		if (isOpen) {
 			setIsLoading(true);
-			refetch()
+				refetch()
 				.then((result) => {
 					if (result.data) {
 						setNonRapprochesGrandLivres(result.data);
@@ -84,6 +87,11 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 		}
 	};
 
+	const filteredGrandLivres = nonRapprochesGrandLivres.filter(item =>
+		(item?.libelle?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+		(item?.id?.toString().includes(searchTerm) ?? false)
+	);
+
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
@@ -94,16 +102,16 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 					<Equal size={14} />
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[1000px] h-[700px] flex flex-col">
-				<div className="flex flex-col h-full py-5">
-					<div className="flex-1 overflow-y-auto">
+			<DialogContent className="sm:max-w-[1100px] h-[750px] flex flex-col">
+				<div className="flex flex-col h-full pt-5">
+					<div className="flex-none mb-4">
 						{releve && (
-							<Card className="w-full mb-2 bg-orange-100 rounded-sm shadow-sm border-l-4 border-l-orange-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
-								<div className="flex items-center ml-9 h-28">
-									<div className="flex-grow h-full flex flex-col justify-center py-4 px-4">
+							<Card className="w-full bg-orange-100 rounded-sm shadow-sm border-l-4 border-l-orange-500">
+								<div className="flex items-center h-24">
+									<div className="flex-grow ml-9 flex flex-col justify-center py-2 px-4">
 										<CardTitle className="text-sm font-semibold text-orange-700">{`ID: ${releve.id}`}</CardTitle>
 										<CardDescription className="text-xs mt-1 text-gray-600">{`Compte: ${releve.numero_compte}`}</CardDescription>
-										<div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+										<div className="mt-2 grid grid-cols-3 gap-2 text-xs">
 											<div>
 												<span className="text-gray-600">Date: </span>
 												<span className="font-medium text-gray-900">{new Date(releve.date_operation).toLocaleDateString()}</span>
@@ -122,35 +130,49 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 											</div>
 										</div>
 									</div>
-									<div className="p-4 h-full flex items-center">
+									<div className="p-2">
 										<DetailDialog title={`Relevé : ${releve.id}`} entity={releve} />
 									</div>
 								</div>
 							</Card>
 						)}
 					</div>
-					<div className="flex-1 overflow-y-auto mt-4">
+
+					<div className="flex-none mb-4 flex justify-end">
+						<div className="relative w-1/3">
+							<Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+							<Input
+								type="text"
+								placeholder="Rechercher un grand livre..."
+								className="pl-10 pr-4 py-2 w-full"
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+							/>
+						</div>
+					</div>
+
+					<div className="flex-1 overflow-y-auto">
 						{isLoading ? (
 							<div className="flex justify-center items-center h-full">
-								<Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                <span className="ml-2">Chargement des grands livres...</span>
+								<Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+								<span className="ml-2">Chargement des grands livres...</span>
 							</div>
 						) : error ? (
 							<div className="text-red-500">{error}</div>
 						) : (
 							<div className="space-y-2">
-								{nonRapprochesGrandLivres.map((item: any, idx: number) => (
+								{filteredGrandLivres.map((item: any, idx: number) => (
 									<Card key={idx} className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
-										<div className="flex items-center h-28">
-											<div className="p-4 h-full flex items-center">
+										<div className="flex items-center h-24">
+											<div className="p-2 flex items-center">
 												<input
 													type="checkbox"
-													checked={selectedItems.includes(item.id.toString())}
+													checked={selectedItems.includes(item.id?.toString())}
 													onChange={() => handleCheckboxChange(item.id.toString())}
 													className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
 												/>
 											</div>
-											<div className="flex-grow h-full flex flex-col justify-center py-3">
+											<div className="flex-grow flex flex-col justify-center py-2 px-4">
 												<CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${item.id}`}</CardTitle>
 												<CardDescription className="text-xs mt-1 text-gray-600">{item.libelle}</CardDescription>
 												<div className="mt-2 grid grid-cols-3 gap-2 text-xs">
@@ -172,7 +194,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 													</div>
 												</div>
 											</div>
-											<div className="p-4 h-full flex items-center">
+											<div className="p-2">
 												<DetailDialog title={`Grand Livre : ${item.id}`} entity={item} />
 											</div>
 										</div>
@@ -181,18 +203,19 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 							</div>
 						)}
 					</div>
+
+					<div className="flex-none mt-4 flex justify-center">
+						<Button 
+							className="bg-green-600 hover:bg-green-700 text-white" 
+							size="sm" 
+							onClick={handleMatch}
+							disabled={selectedItems.length === 0}
+						>
+							<Merge size={14} className="mr-1" />
+							Matcher
+						</Button>
+					</div>
 				</div>
-				<DialogFooter>
-					<Button 
-						className="bg-green-600 my-2 hover:bg-green-600 text-white" 
-						size="sm" 
-						onClick={handleMatch}
-						disabled={selectedItems.length === 0}
-					>
-						<Merge size={14} className="mr-1" />
-						Matcher
-					</Button>
-				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	)
