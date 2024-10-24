@@ -165,7 +165,7 @@ export default function CreateOptionMatchDialog({ releve}: { releve: any}) {
                 <Input
                   type="text"
                   placeholder="Faire une recherche précise pour matcher..."
-                  className=" py-2 w-full"
+                  className=" py-2 rounded-sm w-full"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -234,7 +234,7 @@ export default function CreateOptionMatchDialog({ releve}: { releve: any}) {
               )}
             </div>
 
-            <div className="flex-none mt-4 flex justify-center">
+            <div className="flex-none mt-8 flex justify-end">
               <Button 
                 className="bg-blue-600 rounded-sm hover:bg-blue-600 text-white" 
                 size="sm" 

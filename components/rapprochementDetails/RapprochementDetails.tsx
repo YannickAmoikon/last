@@ -15,7 +15,6 @@ import { HistoriqueRapprochement } from './HistoriqueRapprochement';
 import { getExportFileName, ExportType } from '@/utils/exportHelpers';
 import { Separator } from '../ui/separator';
 import { Input } from '../ui/input';
-import { Skeleton } from '../ui/skeleton';
 
 const tabs = [
   {label: "Matchs en attente", value: "rapprochements"},
