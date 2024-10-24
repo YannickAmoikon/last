@@ -271,7 +271,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
       </Dialog>
 
       <Dialog open={!!detailItem} onOpenChange={() => setDetailItem(null)}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-blue-50">
           <DialogTitle>Grand Livre : {detailItem?.id}</DialogTitle>
           <DialogDescription>
             <div className="space-y-4">
