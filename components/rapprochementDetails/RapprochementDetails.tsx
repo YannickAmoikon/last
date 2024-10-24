@@ -24,7 +24,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [exportType, setExportType] = useState<ExportType>(null);
 
-  const { data, error, isLoading, refetch } = useGetRapprochementLignesQuery({
+  const { data, error, isLoading } = useGetRapprochementLignesQuery({
     statut: statusFilter || "Rapprochement partiel",
     rapprochement_id: rapprochementId,
     page: currentPage,
@@ -42,11 +42,6 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
 
   const handleNext = () => {
     setCurrentPage(prev => Math.min(data?.total_pages || 1, prev + 1));
-  };
-
-  const handleStatusFilter = (status: string | null) => {
-    setStatusFilter(status);
-    setCurrentPage(1);
   };
 
   const handleExportClick = (type: ExportType) => {
@@ -82,34 +77,34 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
       <div className="flex items-center justify-center h-screen w-full">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-gray-900 mx-auto" />
-          <p className="mt-2 text-gray-600">Chargement des données...</p>
+          <p className="mt-2 text-gray-600">Chargement des lignes du rapprochement...</p>
         </div>
       </div>
     );
   }
 
   if (error) {
-    return (
-      <div className="flex items-center justify-center flex-1 h-full bg-gray-50">
-        <div className="text-center">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <h2 className="mt-2 text-lg font-semibold text-gray-900">Erreur de chargement</h2>
-          <p className="mt-2 text-sm text-gray-500">Impossible de charger les détails du rapprochement. Veuillez réessayer.</p>
-          <div className="mt-6">
-            <Button
-              onClick={() => window.location.reload()}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300"
-            >
-              <RefreshCcw className="mr-1" size={14} />
-              Réessayer
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+		return (
+			<div className="flex items-center justify-center h-full flex-1 bg-gray-50">
+				<div className="text-center">
+					<svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+					</svg>
+					<h2 className="mt-2 text-lg font-semibold text-gray-900">Erreur de chargement</h2>
+					<p className="mt-2 text-sm text-gray-500">Impossible de charger les lignes du rapprochement. Veuillez réessayer.</p>
+					<div className="mt-6">
+						<Button
+							onClick={() => window.location.reload()}
+							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+						>
+							<RefreshCcw className="mr-1" size={14} />
+							Réessayer
+						</Button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
   return (
     <main className="flex flex-1 h-full">
@@ -125,30 +120,8 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
           <div className="flex items-center space-x-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="secondary" className="border rounded-sm">
-                  <ListFilter className="mr-1" size={14} />
-                  Filtrer
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuItem onClick={() => handleStatusFilter(null)}>
-                  <Filter className="mr-2 h-4 w-4" />
-                  <span>Tous les statuts</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleStatusFilter("Non rapproché")}>
-                  <Filter className="mr-2 h-4 w-4" />
-                  <span>Non rapproché</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleStatusFilter("Rapprochement total")}>
-                  <Filter className="mr-2 h-4 w-4" />
-                  <span>Rapprochement match</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting}>
-                  {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Ellipsis size={14} />}
+                  {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ellipsis size={14} />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">

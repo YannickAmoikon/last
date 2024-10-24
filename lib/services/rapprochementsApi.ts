@@ -131,6 +131,21 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
 				responseHandler: (response) => response.blob(),
 			}),
 		}),
+
+		creerLigneRapprochement: builder.mutation<
+			{ message: string; ligne_id: number },
+			{ rapprochement_id: number; body: { releve_bancaire_id: string; grand_livre_id: string; commentaire: string } }
+		>({
+			query: ({ rapprochement_id, body }) => ({
+				url: `${RAPPROCHEMENTS_URL}/${rapprochement_id}/lignes/creer`,
+				method: 'POST',
+				body,
+			}),
+			// @ts-ignore
+			invalidatesTags: (result, error, { rapprochement_id }) => [
+				{ type: RAPPROCHEMENTS_TAG, id: `LIST_${rapprochement_id}` },
+			],
+		}),
 	}),
 });
 
@@ -143,4 +158,5 @@ export const {
 	useGetRapprochementLignesQuery,
 	useValiderLigneRapprochementMutation,
 	useGetRapprochementRapportQuery,
+	useCreerLigneRapprochementMutation,
 } = rapprochementsApiSlice;

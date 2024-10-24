@@ -130,7 +130,6 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
         <OptionMatchDialog 
           releve={releve}
           buttonClassName="bg-blue-600 hover:bg-blue-600 text-white"
-          grandLivres={grandLivres}
         />
       </div>
       {(isDialogOpen || isLoading) && (

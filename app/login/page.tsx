@@ -23,18 +23,6 @@ export default function LoginPage() {
 	const handleLogin = () => {
 		signIn("keycloak", {callbackUrl: "/dashboard"});
 	};
-
-	if (status === 'loading') {
-		return <div className="flex flex-col items-center justify-center min-h-screen">
-		<Loader2 className="h-8 w-8 animate-spin text-gray-900" />
-			<p className="mt-2 text-gray-600">Chargement de l'authentification...</p>
-		</div>
-	}
-
-	if (status === 'authenticated') {
-		return null; // Ne rien rendre pendant la redirection
-	}
-
 	return (
 		<div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-indigo-100">
 			<Card className="w-[450px] shadow-2xl">

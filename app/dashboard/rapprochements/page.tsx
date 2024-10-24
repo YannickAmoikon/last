@@ -97,7 +97,7 @@ export default function Rapprochements() {
 			<div className="flex items-center justify-center h-screen w-full">
 				<div className="text-center">
 					<Loader2 className="h-8 w-8 animate-spin text-gray-900 mx-auto" />
-					<p className="mt-2 text-gray-600">Chargement des données...</p>
+					<p className="mt-2 text-gray-600">Chargement des rapprochements...</p>
 				</div>
 			</div>
 		);
@@ -115,7 +115,7 @@ export default function Rapprochements() {
 					<div className="mt-6">
 						<Button
 							onClick={() => window.location.reload()}
-							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-300"
+							className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
 						>
 							<RefreshCcw className="mr-1" size={14} />
 							Réessayer

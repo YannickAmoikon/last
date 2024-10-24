@@ -5,7 +5,7 @@ import { RapprochementDetails } from '@/components/rapprochementDetails/Rapproch
 
 export default function RapprochementPage({ params }: { params: { id: string } }) {
   return (
-    <div className="container mx-auto">
+    <div className="flex-1 flex h-full">
       <RapprochementDetails rapprochementId={parseInt(params.id)} />
     </div>
   );
