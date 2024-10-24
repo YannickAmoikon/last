@@ -6,8 +6,10 @@ import {
   Dialog,
   DialogContent,
   DialogTrigger,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog"
-import { Equal, Merge, Loader2, AlertCircle, Check } from "lucide-react"
+import { Equal, Merge, Loader2, AlertCircle, Check, Info } from "lucide-react"
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { DetailDialog } from './DetailDialog'
 import { formatMontant } from "@/utils/formatters"
@@ -20,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Textarea } from "../ui/textarea"
+import { DetailButton } from "./DetailButton"
 
 const formSchema = z.object({
   commentaire: z.string().min(1, {
@@ -37,6 +40,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
+  const [detailItem, setDetailItem] = useState<any | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -121,9 +125,18 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
     (item?.id?.toString().includes(searchTerm) ?? false)
   );
 
+  const handleDialogOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      // Réinitialiser la sélection quand le dialogue se ferme
+      setSelectedItem(null);
+      setSearchTerm("");
+    }
+  };
+
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
         <DialogTrigger asChild>
           <Button 
             size="sm" 
@@ -232,7 +245,7 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
                           </div>
                         </div>
                         <div className="p-2">
-                          <DetailDialog title={`Grand Livre : ${item.id}`} entity={item} />
+                         <DetailButton onClick={() => setDetailItem(item)} />
                         </div>
                       </div>
                     </Card>
@@ -281,6 +294,32 @@ export default function CreateOptionMatchDialog({ releve, buttonClassName }: { r
 			 </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!detailItem} onOpenChange={() => setDetailItem(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogTitle>Grand Livre : {detailItem?.id}</DialogTitle>
+          <DialogDescription>
+            <div className="space-y-4">
+              <div>
+                <span className="font-semibold">ID:</span> {detailItem?.id}
+              </div>
+              <div>
+                <span className="font-semibold">Libellé:</span> {detailItem?.libelle}
+              </div>
+              <div>
+                <span className="font-semibold">Date d'écriture:</span> {new Date(detailItem?.date_ecriture).toLocaleDateString()}
+              </div>
+              <div>
+                <span className="font-semibold">Montant:</span> {detailItem?.debit ? `-${formatMontant(detailItem.debit)}` : formatMontant(detailItem?.credit)}
+              </div>
+              <div>
+                <span className="font-semibold">Compte:</span> {detailItem?.compte || detailItem?.cpte_alt || 'N/A'}
+              </div>
+              {/* Ajoutez d'autres champs selon les informations disponibles dans votre objet grand livre */}
+            </div>
+          </DialogDescription>
         </DialogContent>
       </Dialog>
     </>
