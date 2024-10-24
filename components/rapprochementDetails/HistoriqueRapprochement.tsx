@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Eye, Unlink, Info, X, Check, Loader2 } from 'lucide-react';
+import { Eye, Unlink, Info, X, Check, Loader2, Split } from 'lucide-react';
 import { formatMontant } from "@/utils/formatters"
 import { DetailDialog } from './DetailDialog'
 import { GrandLivreDetailDialog } from './GrandLivreDetailDialog'
@@ -69,7 +69,7 @@ const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: {
     <div className="space-y-2 relative">
       {grandLivres.map((item, idx) => (
         <Card key={idx} className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
-          <div className="flex items-center h-28">
+          <div className="flex items-center ml-9 h-28">
             <div className="flex-grow h-full flex flex-col justify-center py-3 ml-4">
               <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${item.grand_livre.id}`}</CardTitle>
               <CardDescription className="text-xs mt-1 text-gray-600">{item.grand_livre.libelle}</CardDescription>
@@ -110,7 +110,7 @@ const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: {
           className="bg-red-600 my-2 hover:bg-red-600 text-white"
           onClick={() => setIsConfirmDialogOpen(true)}
         >
-          <Unlink className="mr-1" size={14} />
+          <Split className="mr-1" size={14} />
           Dématcher
         </Button>
       </div>
