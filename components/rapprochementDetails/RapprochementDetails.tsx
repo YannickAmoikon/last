@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX, ArrowLeft } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery, useCloturerRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
 import { toast} from "@/hooks/use-toast"
@@ -18,6 +18,7 @@ import { Input } from '../ui/input';
 import { useRefresh } from '@/components/contexts/RefreshContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { X, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const tabs = [
   {label: "Matchs en attente", value: "rapprochements"},
@@ -30,6 +31,7 @@ interface RapprochementDetailsProps {
 }
 
 export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: RapprochementDetailsProps) => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [currentTab, setCurrentTab] = useState(() => localStorage.getItem(`currentTab_${rapprochementId}`) || "rapprochements");
   const [totalNonRapproche, setTotalNonRapproche] = useState<number>(0);
@@ -258,6 +260,10 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
 
   const [isClotured, setIsClotured] = useState(rapprochementStatus === "Clôturé");
 
+  function onBack() {
+    router.back();
+  }
+
   return (
     <main className="flex flex-1 h-full">
       <Toaster />
@@ -267,6 +273,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
             <CardTitle className="uppercase">Détails du Rapprochement #{rapprochementId}</CardTitle>
             <CardDescription>Informations générales et statistiques</CardDescription>
           </div>
+          <div className="flex items-center space-x-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting || isCloturing}>
@@ -293,6 +300,11 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button onClick={() => {onBack()}} size="sm" variant="outline" className="border rounded-sm">
+            <ArrowLeft className="mr-1" size={14} />
+              Retour
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-4">
