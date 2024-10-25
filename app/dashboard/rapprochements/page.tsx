@@ -10,7 +10,6 @@ import { Pagination } from '@/components/rapprochement/Pagination';
 import { SearchInput } from '@/components/rapprochement/SearchInput';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCcw } from 'lucide-react';
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Rapprochements() {
 	const [page, setPage] = useState(1);

@@ -11,18 +11,6 @@ import {
 const RAPPROCHEMENTS_URL = '/rapprochements';
 const RAPPROCHEMENTS_TAG = 'Rapprochements';
 
-// Fonctions utilitaires
-const createFormData = (body: CreateRapprochementRequest): FormData => {
-	const formData = new FormData();
-	Object.entries(body).forEach(([key, value]) => {
-		if (value instanceof File) {
-			formData.append(key, value, value.name);
-		} else {
-			formData.append(key, value.toString());
-		}
-	});
-	return formData;
-};
 
 // Slice API
 export const rapprochementsApiSlice = apiSlice.injectEndpoints({

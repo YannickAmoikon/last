@@ -74,7 +74,7 @@ export default function CreateOptionMatchDialog({ releve}: { releve: any}) {
         body: {
 			releve_bancaire_id: releve.id.toString(),
 			grand_livre_id: selectedItem,
-			commentaire: ""
+			commentaire: "Rapprochement manuel"
 		}
       }).unwrap();
 
@@ -204,7 +204,7 @@ export default function CreateOptionMatchDialog({ releve}: { releve: any}) {
                         </div>
                         <div className="flex-grow flex flex-col justify-center py-2 px-4">
                           <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${item.id}`}</CardTitle>
-                          <CardDescription className="text-xs mt-1 text-gray-600">{item.libelle}</CardDescription>
+                          <CardDescription className="text-xs mt-1 text-gray-600">Compte: {item.compte || item.cpte_alt || 'N/A'}</CardDescription>
                           <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                             <div>
                               <span className="text-gray-600">Date: </span>
@@ -219,8 +219,8 @@ export default function CreateOptionMatchDialog({ releve}: { releve: any}) {
                               </span>
                             </div>
                             <div>
-                              <span className="text-gray-600">Compte: </span>
-                              <span className="font-medium text-gray-900">{item.compte || item.cpte_alt || 'N/A'}</span>
+                              <span className="text-gray-600">Libellé: </span>
+                              <span className="font-medium text-gray-900">{item.libelle}</span>
                             </div>
                           </div>
                         </div>

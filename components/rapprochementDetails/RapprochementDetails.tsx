@@ -245,19 +245,19 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
                   {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ellipsis size={14} />}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuItem onClick={() => handleExportClick('Pas_rapproche')} disabled={isExporting}>
+              <DropdownMenuContent align="end" className="w-[230px]">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => handleExportClick('Pas_rapproche')} disabled={isExporting}>
                   <FileSpreadsheet className="mr-1 h-4 w-4" />
-                  <span>Non rapproché</span>
+                  <span>Matchs en attente</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExportClick('Rapprochement_Match')} disabled={isExporting}>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => handleExportClick('Rapprochement_Match')} disabled={isExporting}>
                   <FileSpreadsheet className="mr-1 h-4 w-4" />
-                  <span>Rapprochement match</span>
+                  <span>Matchs terminés</span>
                 </DropdownMenuItem>
                 <Separator className="my-1"/>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="bg-green-600 text-white cursor-pointer hover:bg-green-600 hover:text-white focus:bg-green-600 focus:text-white">
                   <ThumbsUp className="mr-1 h-4 w-4" />
-                  <span>Clôturer</span>
+                  <span>Clôturer rapprochement</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
