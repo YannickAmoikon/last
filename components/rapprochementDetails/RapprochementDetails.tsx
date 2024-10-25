@@ -274,7 +274,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-4">
             <StatCard title="Total de lignes" value={rapprochementData?.total_ligne?.toString() || "0"} />
-            <StatCard title="Total de matchs" value={rapprochementData?.total_match?.toString() || "0"} />
+            <StatCard title="Total de matchs terminés" value={rapprochementData?.total_match?.toString() || "0"} />
             <StatCard title="Total en attente de validation" value={totalNonRapproche.toString()} />
             <StatCard 
               title="Taux de progression" 
