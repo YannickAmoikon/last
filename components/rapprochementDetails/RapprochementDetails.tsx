@@ -21,7 +21,7 @@ import { X, Check } from 'lucide-react';
 
 const tabs = [
   {label: "Matchs en attente", value: "rapprochements"},
-  {label: "Historique des matchs", value: "history"},
+  {label: "Matchs terminés", value: "history"},
 ]
 
 interface RapprochementDetailsProps {
