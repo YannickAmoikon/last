@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 interface HistoriqueRapprochementProps {
   items: any[];
   onDematch: (rapprochementId: string, ligneId: number) => void;
+  isClotured: boolean;
 }
 
 const Releve = ({ releve }: { releve: any }) => (
@@ -45,15 +46,19 @@ const Releve = ({ releve }: { releve: any }) => (
   </Card>
 );
 
-const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: { 
+const GrandLivres = ({ grandLivres, rapprochementId, onDematch, isClotured }: { 
   grandLivres: any[], 
   rapprochementId: string, 
-  onDematch: (rapprochementId: string, ligneId: number) => void 
+  onDematch: (rapprochementId: string, ligneId: number) => void,
+  isClotured: boolean
 }) => {
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDematch = async () => {
+    if (isClotured) {
+      return;
+    }
     setIsLoading(true);
     const ligneId = parseInt(grandLivres[0].id);
     if (!isNaN(ligneId)) {
@@ -107,8 +112,9 @@ const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: {
       <div className="flex items-center space-x-2 justify-end mt-4">
         <Button 
           size="sm" 
-          className="bg-red-600 rounded-sm my-2 hover:bg-red-600 text-white"
-          onClick={() => setIsConfirmDialogOpen(true)}
+          className={`bg-red-600 rounded-sm my-2 hover:bg-red-600 text-white ${isClotured ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => !isClotured && setIsConfirmDialogOpen(true)}
+          disabled={isClotured}
         >
           <Split className="mr-1" size={14} />
           Dématcher
@@ -128,7 +134,7 @@ const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: {
               <X className="mr-1" size={14} />
               Annuler
             </Button>
-            <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleDematch} disabled={isLoading}>
+            <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleDematch} disabled={isLoading || isClotured}>
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               <Check className="mr-1" size={14} />
               Oui
@@ -140,7 +146,7 @@ const GrandLivres = ({ grandLivres, rapprochementId, onDematch }: {
   );
 };
 
-export const HistoriqueRapprochement: React.FC<HistoriqueRapprochementProps> = ({ items, onDematch }) => {
+export const HistoriqueRapprochement: React.FC<HistoriqueRapprochementProps> = ({ items, onDematch, isClotured }) => {
   return (
     <div className="space-y-2 w-full">
       {items.map((rapprochement, idx) => (
@@ -151,6 +157,7 @@ export const HistoriqueRapprochement: React.FC<HistoriqueRapprochementProps> = (
             grandLivres={rapprochement.lignes_rapprochement} 
             rapprochementId={rapprochement.id}
             onDematch={onDematch}
+            isClotured={isClotured}
           />
         </div>
       ))}

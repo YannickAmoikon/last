@@ -81,13 +81,30 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
   }, [rapportError]);
 
   const handleDematch = async (rapprochementId: string, ligneId: number) => {
+    if (isClotured) {
+      toast({ 
+        title: "Action non autorisée", 
+        description: "Le dématchage n'est pas possible sur un rapprochement clôturé.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
     try {
       await dematcherLigne({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
-      toast({ title: "Dématchage réussi", description: "L'élément a été dématché avec succès.", className: "bg-green-600 text-white" });
+      toast({ 
+        title: "Dématchage réussi", 
+        description: "L'élément a été dématché avec succès.", 
+        className: "bg-green-600 text-white" 
+      });
       triggerRefresh('dematch');
     } catch (error) {
       console.error("Erreur lors du dématchage:", error);
-      toast({ title: "Erreur de dématchage", description: "Une erreur est survenue lors du dématchage de l'élément.", variant: "destructive" });
+      toast({ 
+        title: "Erreur de dématchage", 
+        description: "Une erreur est survenue lors du dématchage de l'élément.", 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -229,7 +246,13 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
         </>
       );
     } else {
-      return <HistoriqueRapprochement items={filteredData} onDematch={handleDematch} />;
+      return (
+        <HistoriqueRapprochement 
+          items={filteredData} 
+          onDematch={handleDematch} 
+          isClotured={isClotured}
+        />
+      );
     }
   };
 
