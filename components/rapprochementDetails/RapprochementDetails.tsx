@@ -107,7 +107,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
       await dematcherLigne({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
       toast({
         title: "Dématchage réussi",
-        description: "La ligne a été dématchée avec succès.",
+        description: "L'élément a été dématché avec succès.",
         className: "bg-green-600 text-white",
       });
       // Rafraîchir toutes les données après le dématchage
@@ -117,7 +117,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
       console.error("Erreur lors du dématchage:", error);
       toast({
         title: "Erreur de dématchage",
-        description: "Une erreur est survenue lors du dématchage de la ligne.",
+        description: "Une erreur est survenue lors du dématchage de l'élément.",
         variant: "destructive",
       });
     }

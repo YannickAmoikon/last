@@ -80,7 +80,7 @@ export default function CreateOptionMatchDialog({ releve}: { releve: any}) {
 
       console.log("Résultat de la création de ligne:", result);
       toast({
-        title: "Matching réussi",
+        title: "Match réussi",
         description: `La ligne de rapprochement a été créée avec succès. ID: ${result.ligne_id}`,
         className: "bg-green-600 text-white"
       });

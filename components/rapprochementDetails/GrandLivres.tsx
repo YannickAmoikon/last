@@ -29,16 +29,16 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
         setSelectedItem(null);
         onMatchSuccess();
         toast({
-          title: "Matching réussi",
+          title: "Match réussi",
           description: "L'élément a été matché avec succès.",
           className: "bg-green-600 text-white"
         })
       }
     } catch (error) {
-      console.error("Erreur lors du matching:", error);
+      console.error("Erreur lors du match:", error);
       toast({
-        title: "Erreur de matching",
-        description: "Une erreur est survenue lors du matching.",
+        title: "Erreur de match",
+        description: "Une erreur est survenue lors du match.",
         variant: "destructive",
       })
     } finally {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Eye, Unlink, Info, X, Check, Loader2, Split } from 'lucide-react';
+import { Info, X, Check, Loader2, Split } from 'lucide-react';
 import { formatMontant } from "@/utils/formatters"
 import { DetailDialog } from './DetailDialog'
 import { GrandLivreDetailDialog } from './GrandLivreDetailDialog'
