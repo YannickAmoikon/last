@@ -240,7 +240,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
       <Toaster />
       <Card className="flex-1 rounded-none shadow-none border-0">
         <CardHeader className="border-b flex flex-row items-center justify-between">
-          <div className="flex flex-col space-y-2">
+          <div className="flex flex-col space-y-1.5">
             <CardTitle className="uppercase">Détails du Rapprochement #{rapprochementId}</CardTitle>
             <CardDescription>Informations générales et statistiques</CardDescription>
           </div>
