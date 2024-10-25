@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { RapprochementDetails } from '@/components/rapprochementDetails/RapprochementDetails';
 import { Loader2 } from 'lucide-react'; // Assurez-vous que l'import est correct
+import { useSearchParams } from 'next/navigation';
 
 export default function RapprochementPage({ params }: { params: { id: string } }) {
   const [isLoading, setIsLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const status = searchParams.get('status') || '';
 
   useEffect(() => {
     // Simulez un chargement de données
@@ -28,7 +31,10 @@ export default function RapprochementPage({ params }: { params: { id: string } }
 
   return (
     <div className="flex-1 flex h-full">
-      <RapprochementDetails rapprochementId={parseInt(params.id)} />
+      <RapprochementDetails 
+        rapprochementId={parseInt(params.id)} 
+        rapprochementStatus={status} 
+      />
     </div>
   );
 }

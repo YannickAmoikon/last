@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetRapprochementsQuery, useDeleteRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useToast } from '@/hooks/use-toast';
@@ -10,12 +10,14 @@ import { Pagination } from '@/components/rapprochement/Pagination';
 import { SearchInput } from '@/components/rapprochement/SearchInput';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCcw } from 'lucide-react';
+import { useRefresh } from '@/components/contexts/RefreshContext';
 
 export default function Rapprochements() {
 	const [page, setPage] = useState(1);
 	const [pageSize] = useState(10);
 	const [searchTerm, setSearchTerm] = useState('');
 	const { toast } = useToast();
+	const { triggerRefresh } = useRefresh();
 
 	const {
 		data: rapprochements,
@@ -25,7 +27,7 @@ export default function Rapprochements() {
 	} = useGetRapprochementsQuery({
 		page,
 		page_size: pageSize,
-	});
+	}, { refetchOnMountOrArgChange: true });
 
 	const [deleteRapprochement] = useDeleteRapprochementMutation();
 
@@ -39,6 +41,10 @@ export default function Rapprochements() {
 			)
 			.sort((a, b) => Number(a.id) - Number(b.id)); // Tri par ID
 	}, [rapprochements, searchTerm]);
+
+	useEffect(() => {
+		refetch();
+	}, [triggerRefresh, refetch]);
 
 	const handleDelete = async (id: string) => {
 		try {
@@ -146,6 +152,7 @@ export default function Rapprochements() {
 						rapprochements={filteredRapprochements}
 						onDelete={handleDelete}
 						formatDate={formatDate}
+						triggerRefresh={triggerRefresh}
 					/>
 				</CardContent>
 				<CardFooter className="flex justify-between items-center border-t py-4">

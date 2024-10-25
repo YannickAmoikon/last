@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RapprochementRow } from '@/components/rapprochement/RapprochementRow';
 import { Rapprochement } from '@/types/rapprochements';
@@ -7,24 +7,15 @@ interface RapprochementTableProps {
   rapprochements: Rapprochement[];
   onDelete: (id: string) => void;
   formatDate: (date: string) => string;
+  triggerRefresh: (action: string) => void;
 }
 
 export const RapprochementTable: React.FC<RapprochementTableProps> = ({
   rapprochements,
   onDelete,
   formatDate,
+  triggerRefresh,
 }) => {
-  const sortedRapprochements = useMemo(() => {
-    return [...rapprochements].sort((a, b) => {
-      // Trier par ID (supposé être numérique)
-      if (a.id !== b.id) {
-        return Number(a.id) - Number(b.id);
-      }
-      // Si les IDs sont identiques, trier par date de création
-      return new Date(a.date).getTime() - new Date(b.date).getTime();
-    });
-  }, [rapprochements]);
-
   return (
     <Table>
       <TableHeader>
@@ -39,12 +30,13 @@ export const RapprochementTable: React.FC<RapprochementTableProps> = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {sortedRapprochements.map((rapprochement) => (
+        {rapprochements.map((rapprochement) => (
           <RapprochementRow
             key={rapprochement.id}
             rapprochement={rapprochement}
             onDelete={onDelete}
             formatDate={formatDate}
+            triggerRefresh={triggerRefresh}
           />
         ))}
       </TableBody>

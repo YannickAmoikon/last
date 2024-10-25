@@ -3,7 +3,7 @@ import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX } from 'lucide-react';
-import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
+import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery, useCloturerRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
 import { toast} from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -15,42 +15,42 @@ import { HistoriqueRapprochement } from './HistoriqueRapprochement';
 import { getExportFileName, ExportType } from '@/utils/exportHelpers';
 import { Separator } from '../ui/separator';
 import { Input } from '../ui/input';
+import { useRefresh } from '@/components/contexts/RefreshContext';
 
 const tabs = [
   {label: "Matchs en attente", value: "rapprochements"},
   {label: "Historique des matchs", value: "history"},
 ]
 
-export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: number }) => {
+interface RapprochementDetailsProps {
+  rapprochementId: number;
+  rapprochementStatus: string;
+}
+
+export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: RapprochementDetailsProps) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentTab, setCurrentTab] = useState(() => {
-    return localStorage.getItem(`currentTab_${rapprochementId}`) || "rapprochements";
-  });
+  const [currentTab, setCurrentTab] = useState(() => localStorage.getItem(`currentTab_${rapprochementId}`) || "rapprochements");
   const [totalNonRapproche, setTotalNonRapproche] = useState<number>(0);
-  const pageSize = 25;
   const [exportType, setExportType] = useState<ExportType>(null);
-  const [dematcherLigne] = useDematcherLigneMutation();
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState<any[]>([]);
+  const [isCloturing, setIsCloturing] = useState(false);
+  const { triggerRefresh } = useRefresh();
+  const pageSize = 25;
 
-  const { 
-    data: rapprochementData, 
-    error: rapprochementError, 
-    isLoading: rapprochementLoading,
-    refetch: refetchRapprochement
-  } = useGetRapprochementLignesQuery({
+  const [dematcherLigne] = useDematcherLigneMutation();
+  const [cloturerRapprochement] = useCloturerRapprochementMutation();
+
+  const { data: rapprochementData, error: rapprochementError, isLoading: rapprochementLoading, refetch: refetchRapprochement } = useGetRapprochementLignesQuery({
     statut: "Pas_rapproche",
     rapprochement_id: rapprochementId,
     page: currentPage,
     page_size: pageSize
   });
 
-  const { 
-    data: historyData, 
-    error: historyError, 
-    isLoading: historyLoading,
-    refetch: refetchHistory
-  } = useGetRapprochementLignesQuery({
+  console.log(rapprochementId, rapprochementStatus)
+
+  const { data: historyData, error: historyError, isLoading: historyLoading, refetch: refetchHistory } = useGetRapprochementLignesQuery({
     statut: "Rapprochement_Match",
     rapprochement_id: rapprochementId,
     page: currentPage,
@@ -62,93 +62,89 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
     { skip: !exportType }
   );
 
-  const handlePrevious = () => {
-    setCurrentPage(prev => Math.max(1, prev - 1));
-  };
-
-  const handleNext = () => {
-    const totalPages = currentTab === "rapprochements" 
-      ? rapprochementData?.total_pages 
-      : historyData?.total_pages;
-    setCurrentPage(prev => Math.min(totalPages || 1, prev + 1));
-  };
-
-  const handleExportClick = (type: ExportType) => {
-    setExportType(type);
-  };
-
   useEffect(() => {
     if (rapportData && exportType) {
-      const fileName = getExportFileName(exportType);
-      saveAs(rapportData, fileName);
+      saveAs(rapportData, getExportFileName(exportType));
       setExportType(null);
-      toast({
-        title: "Export réussi",
-        description: `Le rapport a été téléchargé avec succès.`,
-        className: "bg-green-600 text-white",
-      });
+      toast({ title: "Export réussi", description: `Le rapport a été téléchargé avec succès.`, className: "bg-green-600 text-white" });
     }
   }, [rapportData, exportType]);
 
   useEffect(() => {
     if (rapportError) {
       console.error("Erreur lors du chargement du rapport:", rapportError);
-      toast({
-        title: "Erreur d'export",
-        description: "Une erreur est survenue lors de l'export des données.",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur d'export", description: "Une erreur est survenue lors de l'export des données.", variant: "destructive" });
     }
   }, [rapportError]);
-
 
   const handleDematch = async (rapprochementId: string, ligneId: number) => {
     try {
       await dematcherLigne({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
-      toast({
-        title: "Dématchage réussi",
-        description: "L'élément a été dématché avec succès.",
-        className: "bg-green-600 text-white",
-      });
-      // Rafraîchir toutes les données après le dématchage
-      refetchRapprochement();
-      refetchHistory();
+      toast({ title: "Dématchage réussi", description: "L'élément a été dématché avec succès.", className: "bg-green-600 text-white" });
+      triggerRefresh('dematch');
     } catch (error) {
       console.error("Erreur lors du dématchage:", error);
-      toast({
-        title: "Erreur de dématchage",
-        description: "Une erreur est survenue lors du dématchage de l'élément.",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur de dématchage", description: "Une erreur est survenue lors du dématchage de l'élément.", variant: "destructive" });
     }
   };
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+  const handleCloturer = async (rapprochementId: string) => {
+    if (isClotured) {
+      toast({
+        title: "Rapprochement déjà clôturé",
+        description: "Ce rapprochement a déjà été clôturé.",
+        variant: "default",
+      });
+      return;
+    }
+    setIsCloturing(true);
+    try {
+      await cloturerRapprochement({ rapprochement_id: parseInt(rapprochementId) }).unwrap();
+      setIsClotured(true);
+      toast({
+        title: "Rapprochement clôturé",
+        description: "Le rapprochement a été clôturé avec succès.",
+        className: "bg-green-600 text-white",
+      });
+      triggerRefresh('cloture');
+    } catch (error) {
+      console.error("Erreur lors de la clôture", error);
+      toast({
+        title: "Erreur de clôture",
+        description: "Une erreur est survenue lors de la clôture du rapprochement.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCloturing(false);
+    }
   };
 
   const filterData = (data: any[]) => {
     if (!searchTerm) return data;
     return data.filter((item) => 
-      Object.entries(item).some(([key, value]) => {
-        if (typeof value === 'string' || typeof value === 'number') {
-          return String(value).toLowerCase().includes(searchTerm.toLowerCase());
-        }
-        if (typeof value === 'object' && value !== null) {
-          return JSON.stringify(value).toLowerCase().includes(searchTerm.toLowerCase());
-        }
-        return false;
-      })
+      Object.entries(item).some(([key, value]) => 
+        (typeof value === 'string' || typeof value === 'number') && 
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
     );
   };
 
   useEffect(() => {
-    if (currentTab === "rapprochements" && rapprochementData?.items) {
-      setFilteredData(filterData(rapprochementData.items));
-    } else if (currentTab === "history" && historyData?.items) {
-      setFilteredData(filterData(historyData.items));
-    }
+    const data = currentTab === "rapprochements" ? rapprochementData?.items : historyData?.items;
+    if (data) setFilteredData(filterData(data));
   }, [currentTab, rapprochementData, historyData, searchTerm]);
+
+  useEffect(() => {
+    localStorage.setItem(`currentTab_${rapprochementId}`, currentTab);
+  }, [currentTab, rapprochementId]);
+
+  useEffect(() => {
+    if (rapprochementData) setTotalNonRapproche(rapprochementData.total);
+  }, [rapprochementData]);
+
+  useEffect(() => {
+    setIsClotured(rapprochementStatus === "Clôturé");
+  }, [rapprochementStatus]);
 
   const renderContent = () => {
     const isLoading = currentTab === "rapprochements" ? rapprochementLoading : historyLoading;
@@ -205,7 +201,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
 
     if (filteredData.length === 0 && searchTerm) {
       return (
-        <div className="flex flex-col h-[300px] items-center  mt-40 text-center">
+        <div className="flex flex-col h-[300px] items-center mt-40 text-center">
           <div className="rounded-full bg-gray-100 p-3 mb-4">
             <LocateOff className="h-12 w-12 text-gray-400" />
           </div>
@@ -217,6 +213,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
       );
     }
 
+    // Votre logique de rendu principal reste inchangée
     if (currentTab === "rapprochements") {
       return (
         <>
@@ -232,52 +229,43 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
     }
   };
 
-  useEffect(() => {
-    // Sauvegarder l'onglet actuel dans le localStorage
-    localStorage.setItem(`currentTab_${rapprochementId}`, currentTab);
-  }, [currentTab, rapprochementId]);
-
-  useEffect(() => {
-    if (rapprochementData) {
-      setTotalNonRapproche(rapprochementData.total);
-    }
-  }, [rapprochementData]);
+  const [isClotured, setIsClotured] = useState(rapprochementStatus === "Clôturé");
 
   return (
     <main className="flex flex-1 h-full">
       <Toaster />
       <Card className="flex-1 rounded-none shadow-none border-0">
         <CardHeader className="border-b flex flex-row items-center justify-between">
-          <div className="space-y-1.5">
+          <div>
             <CardTitle className="uppercase">Détails du Rapprochement #{rapprochementId}</CardTitle>
-            <CardDescription>
-              Informations générales et statistiques
-            </CardDescription>
+            <CardDescription>Informations générales et statistiques</CardDescription>
           </div>
-          <div className="flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting}>
-                  {isExporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ellipsis size={14} />}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[230px]">
-                <DropdownMenuItem className="cursor-pointer" onClick={() => handleExportClick('Pas_rapproche')} disabled={isExporting}>
-                  <FileSpreadsheet className="mr-1 h-4 w-4" />
-                  <span>Matchs en attente</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => handleExportClick('Rapprochement_Match')} disabled={isExporting}>
-                  <FileSpreadsheet className="mr-1 h-4 w-4" />
-                  <span>Matchs terminés</span>
-                </DropdownMenuItem>
-                <Separator className="my-1"/>
-                <DropdownMenuItem className="bg-green-600 text-white cursor-pointer hover:bg-green-600 hover:text-white focus:bg-green-600 focus:text-white">
-                  <ThumbsUp className="mr-1 h-4 w-4" />
-                  <span>Clôturer rapprochement</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting || isCloturing}>
+                {isExporting || isCloturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ellipsis size={14} />}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[230px]">
+              <DropdownMenuItem onClick={() => setExportType('Pas_rapproche')} disabled={isExporting || isCloturing}>
+                <FileSpreadsheet className="mr-1 h-4 w-4" />
+                <span>Matchs en attente</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setExportType('Rapprochement_Match')} disabled={isExporting || isCloturing}>
+                <FileSpreadsheet className="mr-1 h-4 w-4" />
+                <span>Matchs terminés</span>
+              </DropdownMenuItem>
+              <Separator className="my-1"/>
+              <DropdownMenuItem 
+                onClick={() => handleCloturer(rapprochementId.toString())} 
+                className={`cursor-pointer ${isClotured ? 'bg-gray-400 text-white' : 'bg-green-600 text-white hover:bg-green-600 hover:text-white focus:bg-green-600 focus:text-white'}`}
+                disabled={isExporting || isCloturing || isClotured}
+              >
+                <ThumbsUp className="mr-1 h-4 w-4" />
+                <span>{isClotured ? "Rapprochement clôturé" : "Clôturer rapprochement"}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </CardHeader>
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-4">
@@ -314,9 +302,9 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
               <Input 
                 className="rounded-sm w-96 outline-none duration-500 focus:outline-none focus:ring-0 focus:border-transparent" 
                 type="text" 
-                placeholder="Rechercher..." 
+                placeholder="Faire une recherche..." 
                 value={searchTerm}
-                onChange={handleSearch}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <TabsContent className="space-y-2" value="rapprochements">
@@ -332,7 +320,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
             <Button 
               size="sm" 
               variant="outline" 
-              onClick={handlePrevious} 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
               disabled={currentPage === 1} 
               className="text-gray-600 border-gray-300 hover:bg-gray-100"
             >
@@ -345,7 +333,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
             <Button 
               size="sm" 
               variant="outline" 
-              onClick={handleNext} 
+              onClick={() => setCurrentPage(prev => Math.min((currentTab === "rapprochements" ? rapprochementData : historyData)?.total_pages || 1, prev + 1))} 
               disabled={currentPage === ((currentTab === "rapprochements" ? rapprochementData : historyData)?.total_pages || 1)} 
               className="text-gray-600 border-gray-300 hover:bg-gray-100"
             >

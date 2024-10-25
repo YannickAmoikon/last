@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import AuthProvider from "@/components/providers/auth-provider";
 import ReduxProvider from "@/components/providers/redux-provider";
 import LocalFont from 'next/font/local'
+import { RefreshProvider } from "@/components/contexts/RefreshContext";
 
 const font = LocalFont({
   src: '../fonts/GeistVF.woff',
@@ -29,7 +30,7 @@ export default function RootLayout({
     >
       <AuthProvider>
         <ReduxProvider>
-        {children}
+          <RefreshProvider>{children}</RefreshProvider>
       </ReduxProvider>
     </AuthProvider>
     </body>
