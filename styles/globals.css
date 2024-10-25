@@ -169,3 +169,14 @@ strong, h1, h2, h3, h4, h5, h6 {
   border-top-color: #ef4444; /* Rouge */
   animation: loader-rotate 1.5s linear infinite;
 }
+
+/* Masquer la barre de défilement pour Chrome, Safari et Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Masquer la barre de défilement pour IE, Edge et Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE et Edge */
+  scrollbar-width: none;  /* Firefox */
+}

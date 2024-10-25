@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
 import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
 import { toast} from "@/hooks/use-toast"
@@ -27,9 +27,11 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
     return localStorage.getItem(`currentTab_${rapprochementId}`) || "rapprochements";
   });
   const [totalNonRapproche, setTotalNonRapproche] = useState<number>(0);
-  const pageSize = 10;
+  const pageSize = 50;
   const [exportType, setExportType] = useState<ExportType>(null);
   const [dematcherLigne] = useDematcherLigneMutation();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredData, setFilteredData] = useState<any[]>([]);
 
   const { 
     data: rapprochementData, 
@@ -121,10 +123,36 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
     }
   };
 
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filterData = (data: any[]) => {
+    if (!searchTerm) return data;
+    return data.filter((item) => 
+      Object.entries(item).some(([key, value]) => {
+        if (typeof value === 'string' || typeof value === 'number') {
+          return String(value).toLowerCase().includes(searchTerm.toLowerCase());
+        }
+        if (typeof value === 'object' && value !== null) {
+          return JSON.stringify(value).toLowerCase().includes(searchTerm.toLowerCase());
+        }
+        return false;
+      })
+    );
+  };
+
+  useEffect(() => {
+    if (currentTab === "rapprochements" && rapprochementData?.items) {
+      setFilteredData(filterData(rapprochementData.items));
+    } else if (currentTab === "history" && historyData?.items) {
+      setFilteredData(filterData(historyData.items));
+    }
+  }, [currentTab, rapprochementData, historyData, searchTerm]);
+
   const renderContent = () => {
     const isLoading = currentTab === "rapprochements" ? rapprochementLoading : historyLoading;
     const error = currentTab === "rapprochements" ? rapprochementError : historyError;
-    const data = currentTab === "rapprochements" ? rapprochementData : historyData;
 
     if (isLoading) {
       return (
@@ -159,10 +187,24 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
       );
     }
 
+    if (filteredData.length === 0 && searchTerm) {
+      return (
+        <div className="flex flex-col h-[300px] items-center  mt-40 text-center">
+          <div className="rounded-full bg-gray-100 p-3 mb-4">
+            <LocateOff className="h-6 w-6 text-gray-400" />
+          </div>
+          <h3 className="mt-2 text-sm font-semibold text-gray-900">Aucun résultat trouvé</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Essayez d'ajuster votre recherche pour voir vos résultats.
+          </p>
+        </div>
+      );
+    }
+
     if (currentTab === "rapprochements") {
       return (
         <>
-          {data?.items.map((rapprochement, idx) => (
+          {filteredData.map((rapprochement, idx) => (
             <div key={idx} className="flex justify-between items-center">
               <Rapprochement rapprochement={rapprochement} />
             </div>
@@ -170,7 +212,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
         </>
       );
     } else {
-      return <HistoriqueRapprochement items={data?.items || []} onDematch={handleDematch} />;
+      return <HistoriqueRapprochement items={filteredData} onDematch={handleDematch} />;
     }
   };
 
@@ -196,12 +238,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
               Informations générales et statistiques
             </CardDescription>
           </div>
-          <div className="flex items-center space-x-2">
-            <Input 
-              className="rounded-sm w-96 outline-none duration-500 focus:outline-none focus:ring-0 focus:border-transparent" 
-              type="text" 
-              placeholder="Faire une recherche..." 
-            />
+          <div className="flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting}>
@@ -243,19 +280,29 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
             onValueChange={(value) => {
               setCurrentTab(value);
               setCurrentPage(1);
+              setSearchTerm('');
             }}
           >
-            <TabsList className="w-full space-x-2 flex items-center rounded-sm justify-start py-5 border-b border-gray-200">
-              {tabs.map((tab) => (
-                <TabsTrigger 
-                  key={tab.value}
-                  className="rounded-sm uppercase w-3/12 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border border-transparent hover:border-gray-300 data-[state=active]:border-gray-300 data-[state=active]:text-gray-800" 
-                  value={tab.value}
-                >
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+            <div className="flex justify-between items-center mb-4">
+              <TabsList className="space-x-2 w-1/2 flex items-center rounded-sm justify-start py-5 border-b border-gray-200">
+                {tabs.map((tab) => (
+                  <TabsTrigger 
+                    key={tab.value}
+                    className="rounded-sm uppercase w-6/12 py-1.5 px-4 text-xs font-normal transition-colors duration-200 border border-transparent hover:border-gray-300 data-[state=active]:border-gray-300 data-[state=active]:text-gray-800" 
+                    value={tab.value}
+                  >
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              <Input 
+                className="rounded-sm w-96 outline-none duration-500 focus:outline-none focus:ring-0 focus:border-transparent" 
+                type="text" 
+                placeholder="Rechercher..." 
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+            </div>
             <TabsContent className="space-y-2" value="rapprochements">
               {renderContent()}
             </TabsContent>
