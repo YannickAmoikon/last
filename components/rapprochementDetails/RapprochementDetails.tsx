@@ -16,6 +16,8 @@ import { getExportFileName, ExportType } from '@/utils/exportHelpers';
 import { Separator } from '../ui/separator';
 import { Input } from '../ui/input';
 import { useRefresh } from '@/components/contexts/RefreshContext';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { X, Check } from 'lucide-react';
 
 const tabs = [
   {label: "Matchs en attente", value: "rapprochements"},
@@ -37,6 +39,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
   const [isCloturing, setIsCloturing] = useState(false);
   const { triggerRefresh } = useRefresh();
   const pageSize = 25;
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const [dematcherLigne] = useDematcherLigneMutation();
   const [cloturerRapprochement] = useCloturerRapprochementMutation();
@@ -88,7 +91,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
     }
   };
 
-  const handleCloturer = async (rapprochementId: string) => {
+  const handleCloturer = async () => {
     if (isClotured) {
       toast({
         title: "Rapprochement déjà clôturé",
@@ -99,7 +102,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
     }
     setIsCloturing(true);
     try {
-      await cloturerRapprochement({ rapprochement_id: parseInt(rapprochementId) }).unwrap();
+      await cloturerRapprochement({ rapprochement_id: rapprochementId }).unwrap();
       setIsClotured(true);
       toast({
         title: "Rapprochement clôturé",
@@ -116,6 +119,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
       });
     } finally {
       setIsCloturing(false);
+      setIsConfirmDialogOpen(false);
     }
   };
 
@@ -257,7 +261,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
               </DropdownMenuItem>
               <Separator className="my-1"/>
               <DropdownMenuItem 
-                onClick={() => handleCloturer(rapprochementId.toString())} 
+                onClick={() => setIsConfirmDialogOpen(true)} 
                 className={`cursor-pointer ${isClotured ? 'bg-gray-400 text-white' : 'bg-green-600 text-white hover:bg-green-600 hover:text-white focus:bg-green-600 focus:text-white'}`}
                 disabled={isExporting || isCloturing || isClotured}
               >
@@ -300,7 +304,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
                 ))}
               </TabsList>
               <Input 
-                className="rounded-sm w-96 outline-none duration-500 focus:outline-none focus:ring-0 focus:border-transparent" 
+                className="rounded-sm w-[410px] outline-none duration-500 focus:outline-none focus:ring-0 focus:border-transparent" 
                 type="text" 
                 placeholder="Faire une recherche..." 
                 value={searchTerm}
@@ -343,6 +347,28 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Clôturer le rapprochement</DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-gray-600">
+            Êtes-vous sûr de vouloir clôturer le rapprochement <span className="font-medium text-blue-600">#{rapprochementId}</span> ?
+          </DialogDescription>
+          <div className="flex justify-end space-x-2 mt-4">
+            <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isCloturing}>
+              <X className="mr-1 rounded-sm" size={14} />
+              Annuler
+            </Button>
+            <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleCloturer} disabled={isCloturing}>
+              {isCloturing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              <Check className="mr-1" size={14} />
+              Oui
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
