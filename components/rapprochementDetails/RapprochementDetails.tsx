@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery } from '@/lib/services/rapprochementsApi';
 import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
 import { toast} from "@/hooks/use-toast"
@@ -153,6 +153,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
   const renderContent = () => {
     const isLoading = currentTab === "rapprochements" ? rapprochementLoading : historyLoading;
     const error = currentTab === "rapprochements" ? rapprochementError : historyError;
+    const data = currentTab === "rapprochements" ? rapprochementData : historyData;
 
     if (isLoading) {
       return (
@@ -187,11 +188,26 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
       );
     }
 
+    if (!data || data.total === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center h-[400px] text-center">
+          <div className="bg-gray-100 rounded-full p-3 mb-4">
+            <FileX className="h-12 w-12 text-gray-400" />
+          </div>
+          <h3 className="mt-2 text-lg font-semibold text-gray-900">Aucune donnée disponible</h3>
+          <p className="mt-1 text-sm text-gray-500 max-w-md">
+            Ce rapprochement ne contient actuellement aucune donnée. 
+            Veuillez ajouter des éléments ou vérifier les paramètres du rapprochement.
+          </p>
+        </div>
+      );
+    }
+
     if (filteredData.length === 0 && searchTerm) {
       return (
         <div className="flex flex-col h-[300px] items-center  mt-40 text-center">
           <div className="rounded-full bg-gray-100 p-3 mb-4">
-            <LocateOff className="h-6 w-6 text-gray-400" />
+            <LocateOff className="h-12 w-12 text-gray-400" />
           </div>
           <h3 className="mt-2 text-sm font-semibold text-gray-900">Aucun résultat trouvé</h3>
           <p className="mt-1 text-sm text-gray-500">
@@ -265,8 +281,8 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
         </CardHeader>
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-4">
-            <StatCard title="Total de lignes" value={rapprochementData?.total_ligne.toString() || "0"} />
-            <StatCard title="Total de matchs" value={rapprochementData?.total_match.toString() || "0"} />
+            <StatCard title="Total de lignes" value={rapprochementData?.total_ligne?.toString() || "0"} />
+            <StatCard title="Total de matchs" value={rapprochementData?.total_match?.toString() || "0"} />
             <StatCard title="Total en attente de validation" value={totalNonRapproche.toString()} />
             <StatCard 
               title="Taux de progression" 
