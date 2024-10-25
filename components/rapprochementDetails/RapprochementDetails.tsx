@@ -27,7 +27,7 @@ export const RapprochementDetails = ({ rapprochementId }: { rapprochementId: num
     return localStorage.getItem(`currentTab_${rapprochementId}`) || "rapprochements";
   });
   const [totalNonRapproche, setTotalNonRapproche] = useState<number>(0);
-  const pageSize = 50;
+  const pageSize = 25;
   const [exportType, setExportType] = useState<ExportType>(null);
   const [dematcherLigne] = useDematcherLigneMutation();
   const [searchTerm, setSearchTerm] = useState('');
