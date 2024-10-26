@@ -361,7 +361,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
               variant="outline" 
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} 
               disabled={currentPage === 1} 
-              className="text-gray-600 border-gray-300 hover:bg-gray-100"
+              className="text-gray-600 rounded-sm border-gray-300 hover:bg-gray-100"
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Précédent
@@ -374,7 +374,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
               variant="outline" 
               onClick={() => setCurrentPage(prev => Math.min((currentTab === "waiting" ? linkData : historyData)?.total_pages || 1, prev + 1))} 
               disabled={currentPage === ((currentTab === "waiting" ? linkData : historyData)?.total_pages || 1)} 
-              className="text-gray-600 border-gray-300 hover:bg-gray-100"
+              className="text-gray-600 rounded-sm border-gray-300 hover:bg-gray-100"
             >
               Suivant
               <ChevronRight className="h-4 w-4 ml-2" />
