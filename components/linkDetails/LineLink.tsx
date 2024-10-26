@@ -67,31 +67,6 @@ export const LineLink: React.FC<LineLinkProps> = ({
     }
   };
 
-  const handleDematch = async () => {
-    if (!onDematch || isClotured) return;
-    setIsLoading(true);
-    try {
-      if (selectedItem) {
-        await onDematch(bankStatementId, parseInt(selectedItem));
-        setSelectedItem(null);
-        toast({
-          title: "Dématchage réussi",
-          description: "L'élément a été dématché avec succès.",
-          className: "bg-green-600 text-white"
-        });
-      }
-    } catch (error) {
-      console.error("Erreur lors du dématchage:", error);
-      toast({
-        title: "Erreur de dématchage",
-        description: "Une erreur est survenue lors du dématchage.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="space-y-2 relative">
       {linesLinks.map((lineLink, idx) => (

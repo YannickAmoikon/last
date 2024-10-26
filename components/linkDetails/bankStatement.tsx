@@ -1,5 +1,5 @@
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
-import { BankStatementDetailDialog } from './bankStatementDetailDialog'
+import { BankStatementDetailDialog } from './BankStatementDetailDialog'
 import { formatMontant } from '@/utils/formatters'
 
 export const BankStatement = ({ bankStatement }: { bankStatement: any }) => (

@@ -19,7 +19,7 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
-import { BankStatementDetailDialog } from "./bankStatementDetailDialog";
+import { BankStatementDetailDialog } from "./BankStatementDetailDialog";
 import { formatMontant } from "@/utils/formatters";
 import { useCreateLineLinkMutation } from "@/lib/services/linkApi";
 import { useGetNotMatchedBooksQuery } from "@/lib/services/BookApi";

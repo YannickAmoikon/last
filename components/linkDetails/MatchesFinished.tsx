@@ -1,5 +1,5 @@
 import React from 'react';
-import { BankStatement } from './bankStatement';
+import { BankStatement } from './BankStatement';
 import { LineLink } from './LineLink';
 
 interface MatchesFinishedProps {

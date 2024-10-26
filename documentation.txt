@@ -1,0 +1,171 @@
+Documentation sur SACI - RAPB
+
+______________________________________________________________________________________________________________________
+
+* 1. Pages (Pages accessibles depuis le tableau de bord)
+
+
+* 1.1. login = Page de connexion
+
+- /login = Page de connexion
+
+###############################
+
+* 1.2. dashboard = Pages accessibles depuis le tableau de bord
+
+- /dashboard/banks = Page des banques avec leurs comptes
+
+- /dashboard/help = Page d'aide
+
+- /dashboard/links = Page des rapprochements
+
+- /dashboard/links/[id] = Page des détails d'un rapprochement
+
+______________________________________________________________________________________________________________________
+
+* 2. Components (Composants utilisés dans les pages)
+
+
+* 2.1. Link = Composants pour les rapprochements
+
+- /components/link/CreateLinkDialog = Dialogue pour créer ou modifier un rapprochement
+
+- /components/link/LinkRow = Lignes du tableau des rapprochements
+
+- /components/link/LinkTable = Tableau des rapprochements
+
+- /components/link/Pagination = Pagination du tableau des rapprochements
+
+- /components/link/SearchInput = Barre de recherche du tableau des rapprochements
+
+- /components/link/StatusBadge = Badge de statut d'une ligne du tableau des rapprochements
+
+
+###############################
+
+
+* 2.2. LinkDetails = Composants pour les détails d'un rapprochement
+
+- /components/linkDetails/BankStatement = Releve de compte
+
+- /components/linkDetails/BankStatementDetailDialog = Dialogue pour voir les détails d'un releve de compte
+
+- /components/linkDetails/Book = Grand livre
+
+- /components/linkDetails/BookDetailDialog = Dialogue pour voir les détails d'un grand livre
+
+- /components/linkDetails/BookList = Liste des grands livres
+
+- /components/linkDetails/CreateManuelMatchDialog = Dialogue pour créer un match manuel
+
+- /components/linkDetails/DetailButton = Bouton pour voir un detail
+
+- /components/linkDetails/LineLink = Ligne d'un rapprochement
+
+- /components/linkDetails/LineLinkDetailDialog = Dialogue pour voir les détails d'une ligne d'un rapprochement
+
+- /components/linkDetails/LinkDetails = Page des détails d'un rapprochement
+
+- /components/linkDetails/MatchesFinished = Liste des matches terminés
+
+- /components/linkDetails/PendingMatches = Liste des matches en attente de validation
+
+______________________________________________________________________________________________________________________
+
+
+* 3. Services (Services utilisés dans les composants)
+
+la route est lib/services/
+
+
+* 3.1. api = Services pour les requêtes
+
+
+###############################
+
+
+* 3.2. bankApi = Services pour les banques
+
+- useGetBanksQuery = Requête pour récupérer les banques
+
+- useGetBanksWithAccountsQuery = Requête pour récupérer les banques avec leurs comptes
+
+- useCreateBankMutation = Requête pour créer une banque
+
+- useUpdateBankMutation = Requête pour modifier une banque
+
+- useDeleteBankMutation = Requête pour supprimer une banque
+
+
+###############################
+
+
+* 3.3. BookApi = Services pour les grands livres
+
+- useGetNotMatchedBooksQuery = Requête pour récupérer les grands livres non matchés
+
+
+###############################
+
+
+* 3.4. lineLinkApi = Services pour les lignes de rapprochement
+
+- useDematchLineLinkMutation = Requête pour dématcher une ligne de rapprochement
+
+
+###############################
+
+
+* 3.5. linkApi = Services pour les rapprochements
+
+- useGetLinksQuery = Requête pour récupérer les rapprochements
+- useCreateLinkMutation = Requête pour créer un rapprochement
+- useUpdateLinkMutation = Requête pour modifier un rapprochement
+- useDeleteLinkMutation = Requête pour supprimer un rapprochement
+- useGetMatchesQuery = Requête pour récupérer les matches
+- useValidateLineLinkMutation = Requête pour valider une ligne d'un rapprochement
+- useGetLinkRapportQuery = Requête pour récupérer le rapport d'un rapprochement
+- useCreateLineLinkMutation = Requête pour créer une ligne d'un rapprochement
+- useCloseLinkMutation = Requête pour clôturer un rapprochement
+
+
+______________________________________________________________________________________________________________________
+
+
+* 4. auth.ts
+
+- authOptions = Options pour l'authentification
+
+______________________________________________________________________________________________________________________
+
+
+* 5. store.ts
+
+- store = Store pour le state management
+
+______________________________________________________________________________________________________________________
+
+
+* 6. utils
+
+- exportHelpers = Fonctions d'exportation
+- formatters = Fonctions pour formater les données
+- timeUtils = Fonctions pour le temps
+
+______________________________________________________________________________________________________________________
+
+
+* 7. types
+
+- lineLink = Type pour les lignes de rapprochement
+- bank = Type pour les banques
+- book = Type pour les grands livres
+- link = Type pour les rapprochements
+
+
+______________________________________________________________________________________________________________________
+
+
+* 8. .env
+
+- Variables d'environnement
