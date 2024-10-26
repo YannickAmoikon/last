@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX, ArrowLeft, BookCheck, LibraryBig, BookCopy, PercentCircle, Percent, ChartLine } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery, useCloturerRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
 import { toast} from "@/hooks/use-toast"
@@ -307,13 +307,14 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
           </div>
         </CardHeader>
         <CardContent className="space-y-4 p-6">
-          <div className="grid grid-cols-4 gap-4">
-            <StatCard title="Total de lignes" value={rapprochementData?.total_ligne?.toString() || "0"} />
-            <StatCard title="Total de matchs terminés" value={rapprochementData?.total_match?.toString() || "0"} />
-            <StatCard title="Total en attente de validation" value={totalNonRapproche.toString()} />
+          <div className="grid grid-cols-4 gap-2">
+            <StatCard title="Total de lignes" value={rapprochementData?.total_ligne?.toString() || "0"} icon={<LibraryBig size={24} />} />
+            <StatCard title="Total en attente de validation" value={totalNonRapproche.toString()} icon={<BookCopy size={24} />} />
+            <StatCard title="Total de matchs terminés" value={rapprochementData?.total_match?.toString() || "0"} icon={<BookCheck size={24} />} />
             <StatCard 
-              title="Taux de progression" 
-              value={`${(((rapprochementData?.total_match || 0) / (rapprochementData?.total_ligne || 1)) * 100).toFixed(1)} %`}
+              title="Taux de progression"
+              value={`${(((rapprochementData?.total_match || 0) / (rapprochementData?.total_ligne || 1)) * 100).toFixed(1)} %`} 
+              icon={<ChartLine size={24} />}
             />
           </div>
           
