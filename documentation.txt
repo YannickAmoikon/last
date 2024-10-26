@@ -26,7 +26,7 @@ ________________________________________________________________________________
 * 2. Components (Composants utilisés dans les pages)
 
 
-* 2.1. Link = Composants pour les rapprochements
+* 2.1. link = Composants pour les rapprochements
 
 - /components/link/CreateLinkDialog = Dialogue pour créer ou modifier un rapprochement
 
@@ -44,11 +44,11 @@ ________________________________________________________________________________
 ###############################
 
 
-* 2.2. LinkDetails = Composants pour les détails d'un rapprochement
+* 2.2. linkDetails = Composants pour les détails d'un rapprochement
 
-- /components/linkDetails/BankStatement = Releve de compte
+- /components/linkDetails/BankStatement = Rélévé de compte
 
-- /components/linkDetails/BankStatementDetailDialog = Dialogue pour voir les détails d'un releve de compte
+- /components/linkDetails/BankStatementDetailDialog = Dialogue pour voir les détails d'un rélévé de compte
 
 - /components/linkDetails/Book = Grand livre
 
@@ -119,13 +119,21 @@ la route est lib/services/
 * 3.5. linkApi = Services pour les rapprochements
 
 - useGetLinksQuery = Requête pour récupérer les rapprochements
+
 - useCreateLinkMutation = Requête pour créer un rapprochement
+
 - useUpdateLinkMutation = Requête pour modifier un rapprochement
+
 - useDeleteLinkMutation = Requête pour supprimer un rapprochement
+
 - useGetMatchesQuery = Requête pour récupérer les matches
+
 - useValidateLineLinkMutation = Requête pour valider une ligne d'un rapprochement
+
 - useGetLinkRapportQuery = Requête pour récupérer le rapport d'un rapprochement
+
 - useCreateLineLinkMutation = Requête pour créer une ligne d'un rapprochement
+
 - useCloseLinkMutation = Requête pour clôturer un rapprochement
 
 
@@ -149,7 +157,9 @@ ________________________________________________________________________________
 * 6. utils
 
 - exportHelpers = Fonctions d'exportation
+
 - formatters = Fonctions pour formater les données
+
 - timeUtils = Fonctions pour le temps
 
 ______________________________________________________________________________________________________________________
@@ -158,8 +168,11 @@ ________________________________________________________________________________
 * 7. types
 
 - lineLink = Type pour les lignes de rapprochement
+
 - bank = Type pour les banques
+
 - book = Type pour les grands livres
+
 - link = Type pour les rapprochements
 
 
