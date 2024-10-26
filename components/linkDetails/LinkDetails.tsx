@@ -34,11 +34,11 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [currentTab, setCurrentTab] = useState(() => localStorage.getItem(`currentTab_${linkId}`) || "waiting");
-  const [totalNonRapproche, setTotalNonRapproche] = useState<number>(0);
+  const [totalUnmatched, setTotalUnmatched] = useState<number>(0);
   const [exportType, setExportType] = useState<ExportType>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState<any[]>([]);
-  const [isCloturing, setIsCloturing] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const { triggerRefresh } = useRefresh();
   const pageSize = 25;
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
@@ -110,7 +110,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
     }
   };
 
-  const handleCloturer = async () => {
+  const handleClose = async () => {
     if (isClotured) {
       toast({
         title: "Rapprochement déjà clôturé",
@@ -119,7 +119,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
       });
       return;
     }
-    setIsCloturing(true);
+    setIsClosing(true);
     try {
       await closeLink({ rapprochement_id: linkId }).unwrap();
       setIsClotured(true);
@@ -137,7 +137,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
         variant: "destructive",
       });
     } finally {
-      setIsCloturing(false);
+      setIsClosing(false);
       setIsConfirmDialogOpen(false);
     }
   };
@@ -162,7 +162,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
   }, [currentTab, linkId]);
 
   useEffect(() => {
-    if (linkData) setTotalNonRapproche(linkData.total);
+    if (linkData) setTotalUnmatched(linkData.total);
   }, [linkData]);
 
   useEffect(() => {
@@ -275,16 +275,16 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
           <div className="flex items-center space-x-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting || isCloturing}>
-                {isExporting || isCloturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ellipsis size={14} />}
+              <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting || isClosing}>
+                {isExporting || isClosing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ellipsis size={14} />}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[230px]">
-              <DropdownMenuItem onClick={() => setExportType('Pas_rapproche')} disabled={isExporting || isCloturing}>
+              <DropdownMenuItem onClick={() => setExportType('Pas_rapproche')} disabled={isExporting || isClosing}>
                 <FileSpreadsheet className="mr-1 h-4 w-4" />
                 <span>Matchs en attente</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setExportType('Rapprochement_Match')} disabled={isExporting || isCloturing}>
+              <DropdownMenuItem onClick={() => setExportType('Rapprochement_Match')} disabled={isExporting || isClosing}>
                 <FileSpreadsheet className="mr-1 h-4 w-4" />
                 <span>Matchs terminés</span>
               </DropdownMenuItem>
@@ -292,7 +292,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
               <DropdownMenuItem 
                 onClick={() => setIsConfirmDialogOpen(true)} 
                 className={`cursor-pointer ${isClotured ? 'bg-gray-400 text-white' : 'bg-green-600 text-white hover:bg-green-600 hover:text-white focus:bg-green-600 focus:text-white'}`}
-                disabled={isExporting || isCloturing || isClotured}
+                disabled={isExporting || isClosing || isClotured}
               >
                 <ThumbsUp className="mr-1 h-4 w-4" />
                 <span>{isClotured ? "Rapprochement clôturé" : "Clôturer rapprochement"}</span>
@@ -308,7 +308,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-2">
             <StatCard title="Total de lignes" value={linkData?.total_ligne?.toString() || "0"} icon={<LibraryBig size={24} />} />
-            <StatCard title="Total en attente de validation" value={totalNonRapproche.toString()} icon={<BookCopy size={24} />} />
+            <StatCard title="Total en attente de validation" value={totalUnmatched.toString()} icon={<BookCopy size={24} />} />
             <StatCard title="Total de matchs terminés" value={linkData?.total_match?.toString() || "0"} icon={<BookCheck size={24} />} />
             <StatCard 
               title="Taux de progression"
@@ -392,12 +392,12 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
             Êtes-vous sûr de vouloir clôturer le rapprochement <span className="font-medium text-blue-600">#{linkId}</span> ?
           </DialogDescription>
           <div className="flex justify-end space-x-2 mt-4">
-            <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isCloturing}>
+            <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isClosing}>
               <X className="mr-1 rounded-sm" size={14} />
               Annuler
             </Button>
-            <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleCloturer} disabled={isCloturing}>
-              {isCloturing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleClose} disabled={isClosing}>
+              {isClosing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               <Check className="mr-1" size={14} />
               Oui
             </Button>
