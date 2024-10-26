@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import Link from "next/link";
 import { Rapprochement } from "@/types/rapprochements";
-import { StatusBadge } from "./StatusBadge";
+import { StatusBadge } from "@/components/link/StatusBadge";
 import { convertirTempsTraitement } from "@/utils/timeUtils";
 
 interface RapprochementRowProps {

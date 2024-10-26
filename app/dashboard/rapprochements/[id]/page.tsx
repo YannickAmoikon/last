@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react';
-import { RapprochementDetails } from '@/components/rapprochementDetails/RapprochementDetails';
+import { RapprochementDetails } from '@/components/linkDetails/LinkDetails';
 import { Loader2 } from 'lucide-react'; // Assurez-vous que l'import est correct
 import { useSearchParams } from 'next/navigation';
 
@@ -31,7 +31,7 @@ export default function RapprochementPage({ params }: { params: { id: string } }
 
   return (
     <div className="flex-1 flex h-full">
-      <RapprochementDetails 
+      <RapprochementDetails
         rapprochementId={parseInt(params.id)} 
         rapprochementStatus={status} 
       />

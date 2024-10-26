@@ -19,15 +19,15 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
-import { ReleveDetailDialog } from "./ReleveDetailDialog";
+import { BankStatementDetailDialog } from "./bankStatementDetailDialog";
 import { formatMontant } from "@/utils/formatters";
 import { useCreerLigneRapprochementMutation } from "@/lib/services/rapprochementsApi";
 import { useGetNonRapprochesGrandLivresQuery } from "@/lib/services/grandsLivresApi";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { GrandLivreDetailDialog } from './GrandLivreDetailDialog';
+import { BookDetailDialog } from './BookDetailDialog';
 
-export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
+export default function ManuelMatchDialog({ releve }: { releve: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
@@ -149,7 +149,7 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
                       </div>
                     </div>
                     <div className="p-2">
-                      <ReleveDetailDialog
+                      <BankStatementDetailDialog
                         title={`Relevé : ${releve.id}`}
                         entity={releve}
                       />
@@ -258,7 +258,7 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
                           </div>
                         </div>
                         <div className="p-2">
-                          <GrandLivreDetailDialog title={`Grand Livre : ${item.id}`} entity={item} />
+                          <BookDetailDialog title={`Grand Livre : ${item.id}`} entity={item} />
                         </div>
                       </div>
                     </Card>

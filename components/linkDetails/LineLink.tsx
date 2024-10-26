@@ -5,11 +5,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Merge, Loader2, Info, Check, X, Split } from 'lucide-react';
 import { useValiderLigneRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useToast } from "@/hooks/use-toast"
-import { LignesRapprochementDetailDialog } from './LignesRapprochementDetailDialog'
+import { LineLinkDetailDialog } from './LineLinkDetailDialog'
 import { formatMontant } from '@/utils/formatters'
-import OptionMatchDialog from './OptionMatchDialog';
+import ManuelMatchDialog from './ManuelMatchDialog';
 
-interface LignesRapprochementProps {
+interface LineLinkProps {
   lignesRapprochement: any[];
   releveId: string;
   onMatchSuccess?: () => void;
@@ -20,7 +20,7 @@ interface LignesRapprochementProps {
   showDematchButton?: boolean;
 }
 
-export const LignesRapprochement: React.FC<LignesRapprochementProps> = ({ 
+export const LineLink: React.FC<LineLinkProps> = ({ 
   lignesRapprochement, 
   releveId, 
   onMatchSuccess, 
@@ -134,7 +134,7 @@ export const LignesRapprochement: React.FC<LignesRapprochementProps> = ({
               )}
             </div>
             <div className="p-4 h-full flex items-center">
-              <LignesRapprochementDetailDialog title={`Grand Livre : ${item.grand_livre.id}`} entity={item} />
+              <LineLinkDetailDialog title={`Grand Livre : ${item.grand_livre.id}`} entity={item} />
             </div>
           </div>
         </Card>
@@ -174,7 +174,7 @@ export const LignesRapprochement: React.FC<LignesRapprochementProps> = ({
                 </div>
               </DialogContent>
             </Dialog>
-            <OptionMatchDialog releve={releve} />
+            <ManuelMatchDialog releve={releve} />
           </>
         )}
         {showDematchButton && !isClotured && (

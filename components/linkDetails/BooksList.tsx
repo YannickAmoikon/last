@@ -1,22 +1,22 @@
 import React from 'react';
-import { GrandLivreCard } from './GrandLivre';
+import { Book } from './Book';
 import { Button } from "@/components/ui/button";
 import { RefreshCcw, Loader2 } from "lucide-react";
 
-interface GrandLivreListProps {
+interface BookListProps {
   isLoading: boolean;
   error: string | null;
-  filteredGrandLivres: any[];
+  filteredBooks: any[];
   selectedItem: string | null;
   onCheckboxChange: (id: string) => void;
   onDetailClick: (item: any) => void;
   onRetry: () => void;
 }
 
-export const GrandLivreList: React.FC<GrandLivreListProps> = ({
+export const BookList: React.FC<BookListProps> = ({
   isLoading,
   error,
-  filteredGrandLivres,
+  filteredBooks,
   selectedItem,
   onCheckboxChange,
   onDetailClick,
@@ -72,8 +72,8 @@ export const GrandLivreList: React.FC<GrandLivreListProps> = ({
 
   return (
     <div className="space-y-2">
-      {filteredGrandLivres.map((item: any) => (
-        <GrandLivreCard
+      {filteredBooks.map((item: any) => (
+        <Book
           key={item.id}
           item={item}
           isSelected={selectedItem === item.id.toString()}

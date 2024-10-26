@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DetailButton } from './DetailButton';
 import { formatMontant } from "@/utils/formatters";
 
-export const GrandLivreDetailDialog = ({ title, entity }: { title: string, entity: any }) => {
+export const BookDetailDialog = ({ title, entity }: { title: string, entity: any }) => {
   const formatValue = (value: any, isAmount: boolean = false, isDate: boolean = false) => {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
@@ -26,10 +26,10 @@ export const GrandLivreDetailDialog = ({ title, entity }: { title: string, entit
     return String(value);
   };
 
-  const renderGrandLivreDetails = (grandLivre: any) => {
-    if (!grandLivre) return null;
+  const renderBookDetails = (book: any) => {
+    if (!book) return null;
 
-    const grandLivreKeys = [
+    const bookKeys = [
       { key: 'id', label: 'ID' },
       { key: 'rapprochement_id', label: 'ID Rapprochement' },
       { key: 'numero_piece', label: 'Numéro de Pièce' },
@@ -45,10 +45,10 @@ export const GrandLivreDetailDialog = ({ title, entity }: { title: string, entit
 
     return (
       <div className="grid gap-2">
-        {grandLivreKeys.map(({ key, label, isAmount, isDate }) => (
+        {bookKeys.map(({ key, label, isAmount, isDate }) => (
           <div key={key} className="grid grid-cols-3 gap-2 items-center">
             <span className="text-sm font-medium text-gray-600">{label}:</span>
-            <span className="col-span-2 text-sm">{formatValue(grandLivre[key], isAmount, isDate)}</span>
+            <span className="col-span-2 text-sm">{formatValue(book[key], isAmount, isDate)}</span>
           </div>
         ))}
       </div>
@@ -65,7 +65,7 @@ export const GrandLivreDetailDialog = ({ title, entity }: { title: string, entit
           <DialogTitle className="text-xl font-bold mb-4">{title}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          {entity ? renderGrandLivreDetails(entity) : <p>Aucune donnée disponible</p>}
+          {entity ? renderBookDetails(entity) : <p>Aucune donnée disponible</p>}
         </div>
       </DialogContent>
     </Dialog>

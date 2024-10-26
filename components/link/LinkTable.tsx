@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { RapprochementRow } from '@/components/rapprochement/RapprochementRow';
+import { RapprochementRow } from '@/components/link/LinkRow';
 import { Rapprochement } from '@/types/rapprochements';
 
 interface RapprochementTableProps {

@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { DetailButton } from './DetailButton';
 
-export const LignesRapprochementDetailDialog = ({ title, entity }: { title: string, entity: any }) => {
+export const LineLinkDetailDialog = ({ title, entity }: { title: string, entity: any }) => {
   const formatValue = (value: any, isAmount: boolean = false, isDate: boolean = false) => {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
@@ -47,7 +47,7 @@ export const LignesRapprochementDetailDialog = ({ title, entity }: { title: stri
     </div>
   );
 
-  const ligneRapprochementKeys = [
+  const lineLinkKeys = [
     { key: 'id', label: 'ID' },
     { key: 'statut', label: 'Statut' },
     { key: 'type_match', label: 'Type de Match' },
@@ -56,7 +56,7 @@ export const LignesRapprochementDetailDialog = ({ title, entity }: { title: stri
     { key: 'flag', label: 'Flag' }
   ];
 
-  const grandLivreKeys = [
+  const bookKeys = [
     { key: 'id', label: 'ID' },
     { key: 'numero_piece', label: 'Numéro de Pièce' },
     { key: 'date_ecriture', label: 'Date Écriture', isDate: true },
@@ -79,8 +79,8 @@ export const LignesRapprochementDetailDialog = ({ title, entity }: { title: stri
           <DialogTitle className="text-xl font-bold mb-4">{title}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          {renderDetails("Informations de la ligne rapprochement", entity, ligneRapprochementKeys)}
-          {renderDetails("Détails du Grand Livre", entity.grand_livre, grandLivreKeys)}
+          {renderDetails("Informations de la ligne rapprochement", entity, lineLinkKeys)}
+          {renderDetails("Détails du Grand Livre", entity.grand_livre, bookKeys)}
         </div>
       </DialogContent>
     </Dialog>

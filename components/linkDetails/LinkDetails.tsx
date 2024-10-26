@@ -10,8 +10,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { StatCard } from './StatCard';
-import { Rapprochement } from './Rapprochement';
-import { HistoriqueRapprochement } from './HistoriqueRapprochement';
+import { PendingMatches } from './PendingMatches';
+import { MatchesFinished } from './MatchesFinished';
 import { getExportFileName, ExportType } from '@/utils/exportHelpers';
 import { Separator } from '../ui/separator';
 import { Input } from '../ui/input';
@@ -238,7 +238,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
 
     if (currentTab === "waiting") {
       return (
-        <Rapprochement 
+        <PendingMatches 
           items={filteredData}
           onMatchSuccess={() => {
             refetchRapprochement();
@@ -248,7 +248,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
       );
     } else {
       return (
-        <HistoriqueRapprochement 
+        <MatchesFinished 
           items={filteredData} 
           onDematch={handleDematch} 
           isClotured={isClotured}

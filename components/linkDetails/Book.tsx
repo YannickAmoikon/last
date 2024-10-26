@@ -3,14 +3,14 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { formatMontant } from '@/utils/formatters';
 import { DetailButton } from "./DetailButton";
 
-interface GrandLivreCardProps {
+interface BookCardProps {
   item: any;
   isSelected: boolean;
   onSelect: (id: string) => void;
   onDetailClick: (item: any) => void;
 }
 
-export const GrandLivreCard = React.memo(({ item, isSelected, onSelect, onDetailClick }: GrandLivreCardProps) => (
+export const Book = React.memo(({ item, isSelected, onSelect, onDetailClick }: BookCardProps) => (
   <Card className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
     <div className="flex items-center h-24">
       <div className="p-2 flex items-center">
