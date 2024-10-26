@@ -2,14 +2,34 @@ import React, { useState, useCallback } from 'react';
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
-import { Merge, Loader2, Info, Check, X } from 'lucide-react';
+import { Merge, Loader2, Info, Check, X, Split } from 'lucide-react';
 import { useValiderLigneRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useToast } from "@/hooks/use-toast"
-import { GrandLivreDetailDialog } from './GrandLivreDetailDialog'
+import { LignesRapprochementDetailDialog } from './LignesRapprochementDetailDialog'
 import { formatMontant } from '@/utils/formatters'
 import OptionMatchDialog from './OptionMatchDialog';
 
-export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: { grandLivres: any[], releveId: string, onMatchSuccess: () => void, releve: any }) => {
+interface LignesRapprochementProps {
+  lignesRapprochement: any[];
+  releveId: string;
+  onMatchSuccess?: () => void;
+  onDematch?: (rapprochementId: string, ligneId: number) => void;
+  releve: any;
+  isClotured?: boolean;
+  showMatchButtons?: boolean;
+  showDematchButton?: boolean;
+}
+
+export const LignesRapprochement: React.FC<LignesRapprochementProps> = ({ 
+  lignesRapprochement, 
+  releveId, 
+  onMatchSuccess, 
+  onDematch,
+  releve, 
+  isClotured,
+  showMatchButtons,
+  showDematchButton
+}) => {
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +41,7 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
   }, []);
 
   const handleMatchSelected = async () => {
+    if (!onMatchSuccess) return;
     setIsLoading(true);
     try {
       if (selectedItem) {
@@ -46,9 +67,34 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
     }
   };
 
+  const handleDematch = async () => {
+    if (!onDematch || isClotured) return;
+    setIsLoading(true);
+    try {
+      if (selectedItem) {
+        await onDematch(releveId, parseInt(selectedItem));
+        setSelectedItem(null);
+        toast({
+          title: "Dématchage réussi",
+          description: "L'élément a été dématché avec succès.",
+          className: "bg-green-600 text-white"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors du dématchage:", error);
+      toast({
+        title: "Erreur de dématchage",
+        description: "Une erreur est survenue lors du dématchage.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-2 relative">
-      {grandLivres.map((item, idx) => (
+      {lignesRapprochement.map((item, idx) => (
         <Card key={idx} className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
@@ -88,47 +134,60 @@ export const GrandLivres = ({ grandLivres, releveId, onMatchSuccess, releve }: {
               )}
             </div>
             <div className="p-4 h-full flex items-center">
-              <GrandLivreDetailDialog title={`Grand Livre : ${item.grand_livre.id}`} entity={item} />
+              <LignesRapprochementDetailDialog title={`Grand Livre : ${item.grand_livre.id}`} entity={item} />
             </div>
           </div>
         </Card>
       ))}
       
       <div className="flex items-center space-x-2 justify-end mt-4">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button 
-              size="sm" 
-              className="bg-blue-600 rounded-sm my-2 hover:bg-blue-600 text-white"
-              disabled={!selectedItem || isLoading}
-            >
-              <Merge className="mr-1" size={14} />
-              Matcher
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="bg-white">
-            <DialogHeader>
-              <DialogTitle>Faire un matching</DialogTitle>
-            </DialogHeader>
-            <DialogDescription className="text-gray-600">
-              Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{grandLivres[0].grand_livre.id}</span> au Relevé <span className="font-medium text-orange-600">{releveId}</span> ?
-            </DialogDescription>
-            <div className="flex justify-end space-x-2 mt-4">
-              <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
-                <X className="mr-1" size={14} />
-                Annuler
-              </Button>
-              <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleMatchSelected} disabled={isLoading}>
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                <Check className="mr-1" size={14} />
-                Oui
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-        <OptionMatchDialog 
-          releve={releve}
-        />
+        {showMatchButtons && (
+          <>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="sm" 
+                  className="bg-blue-600 rounded-sm my-2 hover:bg-blue-600 text-white"
+                  disabled={!selectedItem || isLoading}
+                >
+                  <Merge className="mr-1" size={14} />
+                  Matcher
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-white">
+                <DialogHeader>
+                  <DialogTitle>Faire un matching</DialogTitle>
+                </DialogHeader>
+                <DialogDescription className="text-gray-600">
+                  Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{lignesRapprochement[0]?.grand_livre.id}</span> au Relevé <span className="font-medium text-orange-600">{releveId}</span> ?
+                </DialogDescription>
+                <div className="flex justify-end space-x-2 mt-4">
+                  <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
+                    <X className="mr-1" size={14} />
+                    Annuler
+                  </Button>
+                  <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleMatchSelected} disabled={isLoading}>
+                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    <Check className="mr-1" size={14} />
+                    Oui
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <OptionMatchDialog releve={releve} />
+          </>
+        )}
+        {showDematchButton && !isClotured && (
+          <Button 
+            size="sm" 
+            className="bg-red-600 rounded-sm my-2 hover:bg-red-600 text-white"
+            onClick={() => setIsDialogOpen(true)}
+            disabled={!selectedItem || isLoading}
+          >
+            <Split className="mr-1" size={14} />
+            Dématcher
+          </Button>
+        )}
       </div>
       {(isDialogOpen || isLoading) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40" aria-hidden="true">

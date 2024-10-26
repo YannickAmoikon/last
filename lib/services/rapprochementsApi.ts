@@ -44,7 +44,7 @@ export const rapprochementsApiSlice = apiSlice.injectEndpoints({
           : [{ type: RAPPROCHEMENTS_TAG, id: "LIST" }],
     }),
 
-    addRapprochement: builder.mutation<Rapprochement, FormData>({
+    addRapprochement: builder.mutation<Rapprochement, CreateRapprochementRequest>({
       query: (body) => ({
         url: RAPPROCHEMENTS_URL,
         method: "POST",

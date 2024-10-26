@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { DetailDialog } from '@/components/rapprochementDetails/DetailDialog'
+import { DetailDialog } from '@/components/rapprochementDetails/ReleveDetailDialog'
 
 export const TransactionCard = ({ 
   title, 

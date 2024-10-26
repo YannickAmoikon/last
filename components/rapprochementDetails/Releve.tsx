@@ -1,5 +1,5 @@
 import { Card, CardTitle, CardDescription } from "@/components/ui/card"
-import { DetailDialog } from './DetailDialog'
+import { ReleveDetailDialog } from './ReleveDetailDialog'
 import { formatMontant } from '@/utils/formatters'
 
 export const Releve = ({ releve }: { releve: any }) => (
@@ -28,7 +28,7 @@ export const Releve = ({ releve }: { releve: any }) => (
         </div>
       </div>
       <div className="p-4 h-full flex items-center">
-        <DetailDialog title={`Relevé #${releve.id}`} entity={releve} />
+        <ReleveDetailDialog title={`Relevé #${releve.id}`} entity={releve} />
       </div>
     </div>
   </Card>

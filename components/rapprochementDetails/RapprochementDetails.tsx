@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX, ArrowLeft, BookCheck, LibraryBig, BookCopy, PercentCircle, Percent, ChartLine } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX, ArrowLeft, BookCheck, LibraryBig, BookCopy, ChartLine } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery, useCloturerRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
 import { toast} from "@/hooks/use-toast"
@@ -236,16 +236,15 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
       );
     }
 
-    // Votre logique de rendu principal reste inchangée
     if (currentTab === "rapprochements") {
       return (
-        <>
-          {filteredData.map((rapprochement, idx) => (
-            <div key={idx} className="flex justify-between items-center">
-              <Rapprochement rapprochement={rapprochement} />
-            </div>
-          ))}
-        </>
+        <Rapprochement 
+          items={filteredData}
+          onMatchSuccess={() => {
+            refetchRapprochement();
+            refetchHistory();
+          }}
+        />
       );
     } else {
       return (
