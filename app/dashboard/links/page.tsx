@@ -3,7 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetLinksQuery, useDeleteLinkMutation } from '@/lib/services/linkApi';
 import { useToast } from '@/hooks/use-toast';
-import CreateLinkDialog from "@/components/link/LinkDialog";
+import CreateLinkDialog from "@/components/link/CreateLinkDialog";
 import { Toaster } from '@/components/ui/toaster';
 import { LinkTable } from '@/components/link/LinkTable';
 import { Pagination } from '@/components/link/Pagination';

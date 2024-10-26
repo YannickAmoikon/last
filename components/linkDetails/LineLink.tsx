@@ -7,7 +7,7 @@ import { useValidateLineLinkMutation } from '@/lib/services/linkApi';
 import { useToast } from "@/hooks/use-toast"
 import { LineLinkDetailDialog } from './LineLinkDetailDialog'
 import { formatMontant } from '@/utils/formatters'
-import ManuelMatchDialog from './ManuelMatchDialog';
+import ManuelMatchDialog from './CreateManuelMatchDialog';
 
 interface LineLinkProps {
   linesLinks: any[];
