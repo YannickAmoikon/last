@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, Unlink, LocateOff, FileX, ArrowLeft, BookCheck, LibraryBig, BookCopy, ChartLine } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, LocateOff, FileX, ArrowLeft, BookCheck, LibraryBig, BookCopy, ChartLine } from 'lucide-react';
 import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery, useCloturerRapprochementMutation } from '@/lib/services/rapprochementsApi';
 import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
 import { toast} from "@/hooks/use-toast"
@@ -21,8 +21,8 @@ import { X, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const tabs = [
-  {label: "Matchs en attente", value: "rapprochements"},
-  {label: "Matchs terminés", value: "history"},
+  {label: "Matchs en attente", value: "waiting"},
+  {label: "Matchs terminés", value: "finished"},
 ]
 
 interface RapprochementDetailsProps {
@@ -33,7 +33,7 @@ interface RapprochementDetailsProps {
 export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: RapprochementDetailsProps) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentTab, setCurrentTab] = useState(() => localStorage.getItem(`currentTab_${rapprochementId}`) || "rapprochements");
+  const [currentTab, setCurrentTab] = useState(() => localStorage.getItem(`currentTab_${rapprochementId}`) || "waiting");
   const [totalNonRapproche, setTotalNonRapproche] = useState<number>(0);
   const [exportType, setExportType] = useState<ExportType>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -153,7 +153,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
   };
 
   useEffect(() => {
-    const data = currentTab === "rapprochements" ? rapprochementData?.items : historyData?.items;
+    const data = currentTab === "waiting" ? rapprochementData?.items : historyData?.items;
     if (data) setFilteredData(filterData(data));
   }, [currentTab, rapprochementData, historyData, searchTerm]);
 
@@ -170,9 +170,9 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
   }, [rapprochementStatus]);
 
   const renderContent = () => {
-    const isLoading = currentTab === "rapprochements" ? rapprochementLoading : historyLoading;
-    const error = currentTab === "rapprochements" ? rapprochementError : historyError;
-    const data = currentTab === "rapprochements" ? rapprochementData : historyData;
+    const isLoading = currentTab === "waiting" ? rapprochementLoading : historyLoading;
+    const error = currentTab === "waiting" ? rapprochementError : historyError;
+    const data = currentTab === "waiting" ? rapprochementData : historyData;
 
     if (isLoading) {
       return (
@@ -236,7 +236,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
       );
     }
 
-    if (currentTab === "rapprochements") {
+    if (currentTab === "waiting") {
       return (
         <Rapprochement 
           items={filteredData}
@@ -346,10 +346,10 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <TabsContent className="space-y-2" value="rapprochements">
+            <TabsContent className="space-y-2" value="waiting">
               {renderContent()}
             </TabsContent>
-            <TabsContent className="space-y-2" value="history">
+            <TabsContent className="space-y-2" value="finished">
               {renderContent()}
             </TabsContent>
           </Tabs>
@@ -367,13 +367,13 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
               Précédent
             </Button>
             <div className="text-xs text-gray-600">
-              Affichage {currentPage} sur {(currentTab === "rapprochements" ? rapprochementData : historyData)?.total_pages || 1}
+              Affichage {currentPage} sur {(currentTab === "waiting" ? rapprochementData : historyData)?.total_pages || 1}
             </div>
             <Button 
               size="sm" 
               variant="outline" 
-              onClick={() => setCurrentPage(prev => Math.min((currentTab === "rapprochements" ? rapprochementData : historyData)?.total_pages || 1, prev + 1))} 
-              disabled={currentPage === ((currentTab === "rapprochements" ? rapprochementData : historyData)?.total_pages || 1)} 
+              onClick={() => setCurrentPage(prev => Math.min((currentTab === "waiting" ? rapprochementData : historyData)?.total_pages || 1, prev + 1))} 
+              disabled={currentPage === ((currentTab === "waiting" ? rapprochementData : historyData)?.total_pages || 1)} 
               className="text-gray-600 border-gray-300 hover:bg-gray-100"
             >
               Suivant
