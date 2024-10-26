@@ -18,7 +18,7 @@ import { signOut } from "next-auth/react";
 
 const items = [
 	{title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard},
-	{title: "Rapprochements", url: "/dashboard/rapprochements", icon: FileSpreadsheet},
+	{title: "Rapprochements", url: "/dashboard/links", icon: FileSpreadsheet},
 	{title: "Banques", url: "/dashboard/banks", icon: Landmark},
 ];
 
