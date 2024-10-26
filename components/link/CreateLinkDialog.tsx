@@ -30,7 +30,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
-import {useGetBanksWithAccountsQuery} from "@/lib/services/banksApi"
+import {useGetBanksWithAccountsQuery} from "@/lib/services/bankApi"
 import {useCreateLinkMutation} from "@/lib/services/linkApi"
 import { Plus, Loader2, Save } from "lucide-react"
 
