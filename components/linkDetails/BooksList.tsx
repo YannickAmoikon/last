@@ -7,7 +7,7 @@ interface BookListProps {
   isLoading: boolean;
   error: string | null;
   filteredBooks: any[];
-  selectedItem: string | null;
+  selectedBook: string | null;
   onCheckboxChange: (id: string) => void;
   onDetailClick: (item: any) => void;
   onRetry: () => void;
@@ -17,7 +17,7 @@ export const BookList: React.FC<BookListProps> = ({
   isLoading,
   error,
   filteredBooks,
-  selectedItem,
+  selectedBook,
   onCheckboxChange,
   onDetailClick,
   onRetry
@@ -72,11 +72,11 @@ export const BookList: React.FC<BookListProps> = ({
 
   return (
     <div className="space-y-2">
-      {filteredBooks.map((item: any) => (
+      {filteredBooks.map((book: any) => (
         <Book
-          key={item.id}
-          item={item}
-          isSelected={selectedItem === item.id.toString()}
+          key={book.id}
+          book={book}
+          isSelected={selectedBook === book.id.toString()}
           onSelect={onCheckboxChange}
           onDetailClick={onDetailClick}
         />

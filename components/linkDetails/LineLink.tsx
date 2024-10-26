@@ -3,29 +3,29 @@ import { Card, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Merge, Loader2, Info, Check, X, Split } from 'lucide-react';
-import { useValiderLigneRapprochementMutation } from '@/lib/services/rapprochementsApi';
+import { useValidateLineLinkMutation } from '@/lib/services/linkApi';
 import { useToast } from "@/hooks/use-toast"
 import { LineLinkDetailDialog } from './LineLinkDetailDialog'
 import { formatMontant } from '@/utils/formatters'
 import ManuelMatchDialog from './ManuelMatchDialog';
 
 interface LineLinkProps {
-  lignesRapprochement: any[];
-  releveId: string;
+  linesLinks: any[];
+  bankStatementId: string;
   onMatchSuccess?: () => void;
-  onDematch?: (rapprochementId: string, ligneId: number) => void;
-  releve: any;
+  onDematch?: (bankStatementId: string, lineLinkId: number) => void;
+  bankStatement: any;
   isClotured?: boolean;
   showMatchButtons?: boolean;
   showDematchButton?: boolean;
 }
 
 export const LineLink: React.FC<LineLinkProps> = ({ 
-  lignesRapprochement, 
-  releveId, 
+  linesLinks, 
+  bankStatementId, 
   onMatchSuccess, 
   onDematch,
-  releve, 
+  bankStatement, 
   isClotured,
   showMatchButtons,
   showDematchButton
@@ -33,7 +33,7 @@ export const LineLink: React.FC<LineLinkProps> = ({
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [validerLigneRapprochement] = useValiderLigneRapprochementMutation();
+  const [validateLineLink] = useValidateLineLinkMutation();
   const { toast } = useToast()
 
   const handleCheckboxChange = useCallback((id: string) => {
@@ -45,7 +45,7 @@ export const LineLink: React.FC<LineLinkProps> = ({
     setIsLoading(true);
     try {
       if (selectedItem) {
-        await validerLigneRapprochement({ rapprochement_id: parseInt(releveId), ligne_id: parseInt(selectedItem) });
+        await validateLineLink({ rapprochement_id: parseInt(bankStatementId), ligne_id: parseInt(selectedItem) });
         setIsDialogOpen(false);
         setSelectedItem(null);
         onMatchSuccess();
@@ -72,7 +72,7 @@ export const LineLink: React.FC<LineLinkProps> = ({
     setIsLoading(true);
     try {
       if (selectedItem) {
-        await onDematch(releveId, parseInt(selectedItem));
+        await onDematch(bankStatementId, parseInt(selectedItem));
         setSelectedItem(null);
         toast({
           title: "Dématchage réussi",
@@ -94,47 +94,47 @@ export const LineLink: React.FC<LineLinkProps> = ({
 
   return (
     <div className="space-y-2 relative">
-      {lignesRapprochement.map((item, idx) => (
+      {linesLinks.map((lineLink, idx) => (
         <Card key={idx} className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
               <input
                 type="checkbox"
-                checked={selectedItem === item.id.toString()}
-                onChange={() => handleCheckboxChange(item.id.toString())}
+                checked={selectedItem === lineLink.id.toString()}
+                onChange={() => handleCheckboxChange(lineLink.id.toString())}
                 className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
               />
             </div>
             <div className="flex-grow h-full flex flex-col justify-center py-3">
-              <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${item.grand_livre.id}`}</CardTitle>
-              <CardDescription className="text-xs mt-1 text-gray-600">{item.grand_livre.libelle}</CardDescription>
+              <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${lineLink.grand_livre.id}`}</CardTitle>
+              <CardDescription className="text-xs mt-1 text-gray-600">{lineLink.grand_livre.libelle}</CardDescription>
               <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                 <div>
                   <span className="text-gray-600">Date: </span>
-                  <span className="font-medium text-gray-900">{new Date(item.grand_livre.date_ecriture).toLocaleDateString()}</span>
+                  <span className="font-medium text-gray-900">{new Date(lineLink.grand_livre.date_ecriture).toLocaleDateString()}</span>
                 </div>
                 <div>
                   <span className="text-gray-600">Montant: </span>
                   <span className="font-medium text-gray-900">
-                    {item.grand_livre.debit ? 
-                      `-${formatMontant(item.grand_livre.debit)}` : 
-                      formatMontant(item.grand_livre.credit)}
+                    {lineLink.grand_livre.debit ? 
+                      `-${formatMontant(lineLink.grand_livre.debit)}` : 
+                      formatMontant(lineLink.grand_livre.credit)}
                   </span>
                 </div>
                 <div>
                   <span className="text-gray-600">Statut: </span>
-                  <span className="font-medium text-gray-900">{item.statut}</span>
+                  <span className="font-medium text-gray-900">{lineLink.statut}</span>
                 </div>
               </div>
-              {item.commentaire && (
+              {lineLink.commentaire && (
                 <div className="mt-2 flex items-center text-xs text-gray-600">
                   <Info size={14} className="mr-1 text-blue-500" />
-                  <span>{item.commentaire}</span>
+                  <span>{lineLink.commentaire}</span>
                 </div>
               )}
             </div>
             <div className="p-4 h-full flex items-center">
-              <LineLinkDetailDialog title={`Grand Livre : ${item.grand_livre.id}`} entity={item} />
+              <LineLinkDetailDialog title={`Grand Livre : ${lineLink.grand_livre.id}`} entity={lineLink} />
             </div>
           </div>
         </Card>
@@ -159,7 +159,7 @@ export const LineLink: React.FC<LineLinkProps> = ({
                   <DialogTitle>Faire un matching</DialogTitle>
                 </DialogHeader>
                 <DialogDescription className="text-gray-600">
-                  Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{lignesRapprochement[0]?.grand_livre.id}</span> au Relevé <span className="font-medium text-orange-600">{releveId}</span> ?
+                  Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{linesLinks[0]?.grand_livre.id}</span> au Relevé <span className="font-medium text-orange-600">{bankStatementId}</span> ?
                 </DialogDescription>
                 <div className="flex justify-end space-x-2 mt-4">
                   <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
@@ -174,7 +174,7 @@ export const LineLink: React.FC<LineLinkProps> = ({
                 </div>
               </DialogContent>
             </Dialog>
-            <ManuelMatchDialog releve={releve} />
+            <ManuelMatchDialog bankStatement={bankStatement} />
           </>
         )}
         {showDematchButton && !isClotured && (

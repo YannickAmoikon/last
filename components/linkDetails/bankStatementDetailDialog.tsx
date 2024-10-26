@@ -33,8 +33,8 @@ export const BankStatementDetailDialog = ({ title, entity }: { title: string, en
     return String(value);
   };
 
-  const renderReleveDetails = (releve: any) => {
-    const releveKeys = [
+  const renderBankStatementDetails = (releve: any) => {
+    const bankStatementKeys = [
       { key: 'id', label: 'ID' },
       { key: 'date_operation', label: 'Date Opération', isDate: true },
       { key: 'numero_compte', label: 'Numéro de Compte' },
@@ -49,7 +49,7 @@ export const BankStatementDetailDialog = ({ title, entity }: { title: string, en
 
     return (
       <div className="grid gap-2">
-        {releveKeys.map(({ key, label, isAmount, isDate }) => (
+        {bankStatementKeys.map(({ key, label, isAmount, isDate }) => (
           <div key={key} className="grid grid-cols-3 gap-2 items-center">
             <span className="text-sm font-medium text-gray-600">{label}:</span>
             <span className="col-span-2 text-sm">{formatValue(releve[key], isAmount, isDate)}</span>
@@ -69,7 +69,7 @@ export const BankStatementDetailDialog = ({ title, entity }: { title: string, en
           <DialogTitle className="text-xl font-bold mb-4">{title}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          {renderReleveDetails(entity)}
+          {renderBankStatementDetails(entity)}
         </div>
       </DialogContent>
     </Dialog>

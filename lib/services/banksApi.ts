@@ -1,10 +1,10 @@
 import {apiSlice} from './api';
-import {Compte, Banque} from '@/types/banks'
+import {Bank} from '@/types/bank'
 
 
 // Types pour les requêtes
-type BanqueCreateInput = Omit<Banque, 'id' | 'comptes'>;
-type BanqueUpdateInput = Partial<BanqueCreateInput>;
+type BankCreateInput = Omit<Bank, 'id' | 'comptes'>;
+type BankUpdateInput = Partial<BankCreateInput>;
 
 // Constantes
 const BANKS_URL = '/banks';
@@ -13,7 +13,7 @@ const BANKS_TAG = 'Banques';
 // Slice API
 export const banquesApiSlice = apiSlice.injectEndpoints({
 	endpoints: (builder) => ({
-		getBanquesWithComptes: builder.query<Banque[], void>({
+		getBanksWithAccounts: builder.query<Bank[], void>({
 			query: () => ({
 				url: `${BANKS_URL}/with-comptes`,
 				method: 'GET',
@@ -28,7 +28,7 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 					: [{type: BANKS_TAG, id: 'LIST'}],
 		}),
 
-		addBanque: builder.mutation<Banque, BanqueCreateInput>({
+		createBank: builder.mutation<Bank, BankCreateInput>({
 			query: (body) => ({
 				url: BANKS_URL,
 				method: 'POST',
@@ -38,7 +38,7 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 			invalidatesTags: [{type: BANKS_TAG, id: 'LIST'}],
 		}),
 
-		updateBanque: builder.mutation<Banque, { id: number; body: BanqueUpdateInput }>({
+		updateBank: builder.mutation<Bank, { id: number; body: BankUpdateInput }>({
 			query: ({id, body}) => ({
 				url: `${BANKS_URL}/${id}`,
 				method: 'PUT',
@@ -48,7 +48,7 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 			invalidatesTags: (result, error, {id}) => [{type: BANKS_TAG, id}],
 		}),
 
-		deleteBanque: builder.mutation<void, number>({
+		deleteBank: builder.mutation<void, number>({
 			query: (id) => ({
 				url: `${BANKS_URL}/${id}`,
 				method: 'DELETE',
@@ -61,8 +61,8 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 
 // Hooks exportés
 export const {
-	useGetBanquesWithComptesQuery,
-	useAddBanqueMutation,
-	useUpdateBanqueMutation,
-	useDeleteBanqueMutation,
+	useGetBanksWithAccountsQuery,
+	useCreateBankMutation,
+	useUpdateBankMutation,
+	useDeleteBankMutation,
 } = banquesApiSlice;

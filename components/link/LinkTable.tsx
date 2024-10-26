@@ -1,17 +1,17 @@
 import React from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { RapprochementRow } from '@/components/link/LinkRow';
-import { Rapprochement } from '@/types/rapprochements';
+import { LinkRow } from '@/components/link/LinkRow';
+import { Link as LinkType } from '@/types/link';
 
-interface RapprochementTableProps {
-  rapprochements: Rapprochement[];
+interface LinkTableProps {
+  links: LinkType[];
   onDelete: (id: string) => void;
   formatDate: (date: string) => string;
   triggerRefresh: (action: string) => void;
 }
 
-export const RapprochementTable: React.FC<RapprochementTableProps> = ({
-  rapprochements,
+export const LinkTable: React.FC<LinkTableProps> = ({
+  links,
   onDelete,
   formatDate,
   triggerRefresh,
@@ -30,10 +30,10 @@ export const RapprochementTable: React.FC<RapprochementTableProps> = ({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {rapprochements.map((rapprochement) => (
-          <RapprochementRow
-            key={rapprochement.id}
-            rapprochement={rapprochement}
+        {links.map((link) => (
+          <LinkRow
+            key={link.id}
+            link={link}
             onDelete={onDelete}
             formatDate={formatDate}
             triggerRefresh={triggerRefresh}

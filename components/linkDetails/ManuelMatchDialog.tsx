@@ -21,32 +21,32 @@ import {
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { BankStatementDetailDialog } from "./bankStatementDetailDialog";
 import { formatMontant } from "@/utils/formatters";
-import { useCreerLigneRapprochementMutation } from "@/lib/services/rapprochementsApi";
-import { useGetNonRapprochesGrandLivresQuery } from "@/lib/services/grandsLivresApi";
+import { useCreateLineLinkMutation } from "@/lib/services/linkApi";
+import { useGetNotMatchedBooksQuery } from "@/lib/services/BookApi";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { BookDetailDialog } from './BookDetailDialog';
 
-export default function ManuelMatchDialog({ releve }: { releve: any }) {
+export default function ManuelMatchDialog({ bankStatement }: { bankStatement: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [bookSelectedItem, setBookSelectedItem] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
-  const [creerLigneRapprochement] = useCreerLigneRapprochementMutation();
+  const [createLineLink] = useCreateLineLinkMutation();
   const [isCreating, setIsCreating] = useState(false);
 
-  const { data: nonRapprochesGrandLivres, isLoading, error, refetch } = useGetNonRapprochesGrandLivresQuery(
-    releve.rapprochement_id,
+  const { data: notMatchedBooks, isLoading, error, refetch } = useGetNotMatchedBooksQuery(
+    bankStatement.rapprochement_id,
     { skip: !isOpen }
   );
 
   const handleCheckboxChange = useCallback((id: string) => {
-    setSelectedItem(prev => prev === id ? null : id);
+    setBookSelectedItem(prev => prev === id ? null : id);
   }, []);
 
   const handleMatch = async () => {
-    if (!selectedItem) {
+    if (!bookSelectedItem) {
       toast({
         title: "Erreur",
         description: "Veuillez sélectionner un grand livre à matcher.",
@@ -57,12 +57,12 @@ export default function ManuelMatchDialog({ releve }: { releve: any }) {
 
     try {
       setIsCreating(true);
-      const result = await creerLigneRapprochement({
-        rapprochement_id: releve.rapprochement_id,
+      const result = await createLineLink({
+        rapprochement_id: bankStatement.rapprochement_id,
         body: {
-          releve_bancaire_id: releve.id.toString(),
-          grand_livre_id: selectedItem,
-          commentaire: "Rapprochement manuel",
+          releve_bancaire_id: bankStatement.id.toString(),
+          grand_livre_id: bookSelectedItem,
+          commentaire: "",
         },
       }).unwrap();
 
@@ -74,7 +74,7 @@ export default function ManuelMatchDialog({ releve }: { releve: any }) {
       });
       setIsOpen(false);
       setIsConfirmDialogOpen(false);
-      setSelectedItem(null);
+      setBookSelectedItem(null);
     } catch (error) {
       console.error("Erreur lors de la création de la ligne:", error);
       toast({
@@ -88,17 +88,17 @@ export default function ManuelMatchDialog({ releve }: { releve: any }) {
   };
 
   const filteredGrandLivres = useMemo(() => {
-    return nonRapprochesGrandLivres?.filter(
+    return notMatchedBooks?.filter(
       (item: any) =>
         (item?.libelle?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
         (item?.id?.toString().includes(searchTerm) ?? false)
     ) || [];
-  }, [nonRapprochesGrandLivres, searchTerm]);
+  }, [notMatchedBooks, searchTerm]);
 
   const handleDialogOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      setSelectedItem(null);
+      setBookSelectedItem(null);
       setSearchTerm("");
     }
   }, []);
@@ -117,41 +117,41 @@ export default function ManuelMatchDialog({ releve }: { releve: any }) {
         <DialogContent className="sm:max-w-[1100px] h-[750px] flex flex-col">
           <div className="flex flex-col h-full pt-5">
             <div className="flex-none mb-4">
-              {releve && (
+              {bankStatement && (
                 <Card className="w-full bg-orange-100 rounded-sm shadow-sm border-l-4 border-l-orange-500">
                   <div className="flex items-center h-24">
                     <div className="flex-grow ml-9 flex flex-col justify-center py-2 px-4">
-                      <CardTitle className="text-sm font-semibold text-orange-700">{`ID: ${releve.id}`}</CardTitle>
-                      <CardDescription className="text-xs mt-1 text-gray-600">{`Compte: ${releve.numero_compte}`}</CardDescription>
+                      <CardTitle className="text-sm font-semibold text-orange-700">{`ID: ${bankStatement.id}`}</CardTitle>
+                      <CardDescription className="text-xs mt-1 text-gray-600">{`Compte: ${bankStatement.numero_compte}`}</CardDescription>
                       <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                         <div>
                           <span className="text-gray-600">Date: </span>
                           <span className="font-medium text-gray-900">
-                            {new Date(releve.date_operation).toLocaleDateString()}
+                            {new Date(bankStatement.date_operation).toLocaleDateString()}
                           </span>
                         </div>
                         <div>
                           <span className="text-gray-600">Montant: </span>
                           <span className="font-medium text-gray-900">
-                            {releve.debit
-                              ? `-${formatMontant(releve.debit)}`
-                              : releve.credit
-                              ? formatMontant(releve.credit)
+                            {bankStatement.debit
+                              ? `-${formatMontant(bankStatement.debit)}`
+                              : bankStatement.credit
+                              ? formatMontant(bankStatement.credit)
                               : formatMontant(0)}
                           </span>
                         </div>
                         <div>
                           <span className="text-gray-600">Description: </span>
                           <span className="font-medium text-gray-900">
-                            {releve.description}
+                            {bankStatement.description}
                           </span>
                         </div>
                       </div>
                     </div>
                     <div className="p-2">
                       <BankStatementDetailDialog
-                        title={`Relevé : ${releve.id}`}
-                        entity={releve}
+                        title={`Relevé : ${bankStatement.id}`}
+                        entity={bankStatement}
                       />
                     </div>
                   </div>
@@ -224,7 +224,7 @@ export default function ManuelMatchDialog({ releve }: { releve: any }) {
                         <div className="p-2 flex items-center">
                           <input
                             type="checkbox"
-                            checked={selectedItem === item.id.toString()}
+                            checked={bookSelectedItem === item.id.toString()}
                             onChange={() => handleCheckboxChange(item.id.toString())}
                             className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
@@ -272,7 +272,7 @@ export default function ManuelMatchDialog({ releve }: { releve: any }) {
                 className="bg-blue-600 rounded-sm hover:bg-blue-600 text-white"
                 size="sm"
                 onClick={() => setIsConfirmDialogOpen(true)}
-                disabled={!selectedItem}
+                disabled={!bookSelectedItem}
               >
                 <Merge size={14} className="mr-1" />
                 Matcher
@@ -289,9 +289,9 @@ export default function ManuelMatchDialog({ releve }: { releve: any }) {
           </DialogHeader>
           <DialogDescription className="text-gray-600">
             Êtes-vous sûr de vouloir matcher le grand livre{" "}
-            <span className="font-medium text-blue-600">{selectedItem}</span> au
+            <span className="font-medium text-blue-600">{bookSelectedItem}</span> au
             Relevé{" "}
-            <span className="font-medium text-orange-600">{releve.id}</span> ?
+            <span className="font-medium text-orange-600">{bankStatement.id}</span> ?
           </DialogDescription>
           <div className="flex justify-end space-x-2 mt-4">
             <Button

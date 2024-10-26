@@ -17,19 +17,19 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import Link from "next/link";
-import { Rapprochement } from "@/types/rapprochements";
+import { Link as LinkType } from "@/types/link";
 import { StatusBadge } from "@/components/link/StatusBadge";
 import { convertirTempsTraitement } from "@/utils/timeUtils";
 
-interface RapprochementRowProps {
-	rapprochement: Rapprochement;
+interface LinkRowProps {
+	link: LinkType;
 	onDelete: (id: string) => void;
 	formatDate: (date: string) => string;
 	triggerRefresh: (action: string) => void;
 }
 
-export const RapprochementRow: React.FC<RapprochementRowProps> = ({
-	rapprochement,
+export const LinkRow: React.FC<LinkRowProps> = ({
+	link,
 	onDelete,
 	formatDate,
 	triggerRefresh,
@@ -37,24 +37,24 @@ export const RapprochementRow: React.FC<RapprochementRowProps> = ({
 	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
 	const handleDelete = () => {
-		onDelete(rapprochement.id);
+		onDelete(link.id);
 		triggerRefresh('delete');
 	};
 	return (
 		<TableRow>
-			<TableCell className="w-1/12 text-left">{rapprochement.id}</TableCell>
+			<TableCell className="w-1/12 text-left">{link.id}</TableCell>
 			<TableCell className="w-2/12 text-center">
-					{formatDate(rapprochement.date)}
+					{formatDate(link.date)}
 			</TableCell>
 			<TableCell className="w-2/12 text-center">
-					{rapprochement.banque.nom}
+					{link.banque.nom}
 			</TableCell>
 			<TableCell className="w-2/12 text-center">
-					<StatusBadge status={rapprochement.statut} />
+					<StatusBadge status={link.statut} />
 			</TableCell>
-			<TableCell className="w-2/12 text-center">{rapprochement.etape_actuelle}</TableCell>
+			<TableCell className="w-2/12 text-center">{link.etape_actuelle}</TableCell>
 			<TableCell className="w-2/12 text-center">
-					{convertirTempsTraitement(Number(rapprochement.temps_traitement))}
+					{convertirTempsTraitement(Number(link.temps_traitement))}
 			</TableCell>
 			<TableCell className="w-2/12 text-right">
 					<DropdownMenu>
@@ -65,7 +65,7 @@ export const RapprochementRow: React.FC<RapprochementRowProps> = ({
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
 									<DropdownMenuItem asChild>
-											<Link href={`/dashboard/rapprochements/${rapprochement.id}?status=${rapprochement.statut}`}>
+											<Link href={`/dashboard/rapprochements/${link.id}?status=${link.statut}`}>
 													<ListCollapse className="mr-1" size={14} />
 													Details
 											</Link>

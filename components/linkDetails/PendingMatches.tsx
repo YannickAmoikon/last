@@ -3,21 +3,21 @@ import { BankStatement } from './bankStatement'
 import { LineLink } from './LineLink'
 
 interface PendingMatchesProps {
-  items: any[];
+  matchesPending: any[];
   onMatchSuccess: () => void;
 }
 
-export const PendingMatches: React.FC<PendingMatchesProps> = ({ items, onMatchSuccess }) => (
+export const PendingMatches: React.FC<PendingMatchesProps> = ({ matchesPending, onMatchSuccess }) => (
   <div className="space-y-2">
-    {items.map((rapprochement, idx) => (
+    {matchesPending.map((matchPending, idx) => (
       <div key={idx} className="border-2 border-gray-200 p-4 rounded-sm w-full">
-        <span className="text-gray-600 text-xs">{`#${rapprochement.id}`}</span>
-        <BankStatement releve={rapprochement} />
+        <span className="text-gray-600 text-xs">{`#${matchPending.id}`}</span>
+        <BankStatement bankStatement={matchPending} />
         <LineLink
-          lignesRapprochement={rapprochement.lignes_rapprochement}
-          releveId={rapprochement.id}
+          linesLinks={matchPending.lignes_rapprochement}
+          bankStatementId={matchPending.id}
           onMatchSuccess={onMatchSuccess}
-          releve={rapprochement}
+          bankStatement={matchPending}
           showMatchButtons={true}
         />
       </div>

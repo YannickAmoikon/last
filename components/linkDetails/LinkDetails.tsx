@@ -3,8 +3,8 @@ import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, LocateOff, FileX, ArrowLeft, BookCheck, LibraryBig, BookCopy, ChartLine } from 'lucide-react';
-import { useGetRapprochementLignesQuery, useGetRapprochementRapportQuery, useCloturerRapprochementMutation } from '@/lib/services/rapprochementsApi';
-import { useDematcherLigneMutation } from '@/lib/services/lignesRapprochementsApi';
+import { useGetMatchesQuery, useGetLinkRapportQuery, useCloseLinkMutation } from '@/lib/services/linkApi';
+import { useDematchLineLinkMutation } from '@/lib/services/lineLinkApi';
 import { toast} from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -25,15 +25,15 @@ const tabs = [
   {label: "Matchs terminés", value: "finished"},
 ]
 
-interface RapprochementDetailsProps {
-  rapprochementId: number;
-  rapprochementStatus: string;
+interface LinkDetailsProps {
+  linkId: number;
+  linkStatus: string;
 }
 
-export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: RapprochementDetailsProps) => {
+export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentTab, setCurrentTab] = useState(() => localStorage.getItem(`currentTab_${rapprochementId}`) || "waiting");
+  const [currentTab, setCurrentTab] = useState(() => localStorage.getItem(`currentTab_${linkId}`) || "waiting");
   const [totalNonRapproche, setTotalNonRapproche] = useState<number>(0);
   const [exportType, setExportType] = useState<ExportType>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -43,27 +43,27 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
   const pageSize = 25;
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
-  const [dematcherLigne] = useDematcherLigneMutation();
-  const [cloturerRapprochement] = useCloturerRapprochementMutation();
+  const [dematchLineLink] = useDematchLineLinkMutation();
+  const [closeLink] = useCloseLinkMutation();
 
-  const { data: rapprochementData, error: rapprochementError, isLoading: rapprochementLoading, refetch: refetchRapprochement } = useGetRapprochementLignesQuery({
+  const { data: linkData, error: linkError, isLoading: linkLoading, refetch: refetchLink } = useGetMatchesQuery({
     statut: "Pas_rapproche",
-    rapprochement_id: rapprochementId,
+    rapprochement_id: linkId,
     page: currentPage,
     page_size: pageSize
   });
 
-  console.log(rapprochementId, rapprochementStatus)
+  console.log(linkId, linkStatus)
 
-  const { data: historyData, error: historyError, isLoading: historyLoading, refetch: refetchHistory } = useGetRapprochementLignesQuery({
+  const { data: historyData, error: historyError, isLoading: historyLoading, refetch: refetchHistory } = useGetMatchesQuery({
     statut: "Rapprochement_Match",
-    rapprochement_id: rapprochementId,
+    rapprochement_id: linkId,
     page: currentPage,
     page_size: pageSize
   });
 
-  const { data: rapportData, isFetching: isExporting, error: rapportError } = useGetRapprochementRapportQuery(
-    { rapprochement_id: rapprochementId, statut: exportType || '' },
+  const { data: rapportData, isFetching: isExporting, error: rapportError } = useGetLinkRapportQuery(
+    { rapprochement_id: linkId, statut: exportType || '' },
     { skip: !exportType }
   );
 
@@ -93,7 +93,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
     }
 
     try {
-      await dematcherLigne({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
+      await dematchLineLink({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
       toast({ 
         title: "Dématchage réussi", 
         description: "L'élément a été dématché avec succès.", 
@@ -121,7 +121,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
     }
     setIsCloturing(true);
     try {
-      await cloturerRapprochement({ rapprochement_id: rapprochementId }).unwrap();
+      await closeLink({ rapprochement_id: linkId }).unwrap();
       setIsClotured(true);
       toast({
         title: "Rapprochement clôturé",
@@ -153,26 +153,26 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
   };
 
   useEffect(() => {
-    const data = currentTab === "waiting" ? rapprochementData?.items : historyData?.items;
+    const data = currentTab === "waiting" ? linkData?.items : historyData?.items;
     if (data) setFilteredData(filterData(data));
-  }, [currentTab, rapprochementData, historyData, searchTerm]);
+  }, [currentTab, linkData, historyData, searchTerm]);
 
   useEffect(() => {
-    localStorage.setItem(`currentTab_${rapprochementId}`, currentTab);
-  }, [currentTab, rapprochementId]);
+    localStorage.setItem(`currentTab_${linkId}`, currentTab);
+  }, [currentTab, linkId]);
 
   useEffect(() => {
-    if (rapprochementData) setTotalNonRapproche(rapprochementData.total);
-  }, [rapprochementData]);
+    if (linkData) setTotalNonRapproche(linkData.total);
+  }, [linkData]);
 
   useEffect(() => {
-    setIsClotured(rapprochementStatus === "Clôturé");
-  }, [rapprochementStatus]);
+    setIsClotured(linkStatus === "Clôturé");
+  }, [linkStatus]);
 
   const renderContent = () => {
-    const isLoading = currentTab === "waiting" ? rapprochementLoading : historyLoading;
-    const error = currentTab === "waiting" ? rapprochementError : historyError;
-    const data = currentTab === "waiting" ? rapprochementData : historyData;
+    const isLoading = currentTab === "waiting" ? linkLoading : historyLoading;
+    const error = currentTab === "waiting" ? linkError : historyError;
+    const data = currentTab === "waiting" ? linkData : historyData;
 
     if (isLoading) {
       return (
@@ -239,9 +239,9 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
     if (currentTab === "waiting") {
       return (
         <PendingMatches 
-          items={filteredData}
+          matchesPending={filteredData}
           onMatchSuccess={() => {
-            refetchRapprochement();
+            refetchLink();
             refetchHistory();
           }}
         />
@@ -249,7 +249,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
     } else {
       return (
         <MatchesFinished 
-          items={filteredData} 
+          matchesFinished={filteredData} 
           onDematch={handleDematch} 
           isClotured={isClotured}
         />
@@ -257,7 +257,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
     }
   };
 
-  const [isClotured, setIsClotured] = useState(rapprochementStatus === "Clôturé");
+  const [isClotured, setIsClotured] = useState(linkStatus === "Clôturé");
 
   function onBack() {
     router.back();
@@ -269,7 +269,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
       <Card className="flex-1 rounded-none shadow-none border-0">
         <CardHeader className="border-b flex flex-row items-center justify-between">
           <div className="flex flex-col space-y-1.5">
-            <CardTitle className="uppercase">Détails du Rapprochement #{rapprochementId}</CardTitle>
+            <CardTitle className="uppercase">Détails du Rapprochement #{linkId}</CardTitle>
             <CardDescription>Informations générales et statistiques</CardDescription>
           </div>
           <div className="flex items-center space-x-2">
@@ -307,12 +307,12 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
         </CardHeader>
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-2">
-            <StatCard title="Total de lignes" value={rapprochementData?.total_ligne?.toString() || "0"} icon={<LibraryBig size={24} />} />
+            <StatCard title="Total de lignes" value={linkData?.total_ligne?.toString() || "0"} icon={<LibraryBig size={24} />} />
             <StatCard title="Total en attente de validation" value={totalNonRapproche.toString()} icon={<BookCopy size={24} />} />
-            <StatCard title="Total de matchs terminés" value={rapprochementData?.total_match?.toString() || "0"} icon={<BookCheck size={24} />} />
+            <StatCard title="Total de matchs terminés" value={linkData?.total_match?.toString() || "0"} icon={<BookCheck size={24} />} />
             <StatCard 
               title="Taux de progression"
-              value={`${(((rapprochementData?.total_match || 0) / (rapprochementData?.total_ligne || 1)) * 100).toFixed(1)} %`} 
+              value={`${(((linkData?.total_match || 0) / (linkData?.total_ligne || 1)) * 100).toFixed(1)} %`} 
               icon={<ChartLine size={24} />}
             />
           </div>
@@ -367,13 +367,13 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
               Précédent
             </Button>
             <div className="text-xs text-gray-600">
-              Affichage {currentPage} sur {(currentTab === "waiting" ? rapprochementData : historyData)?.total_pages || 1}
+              Affichage {currentPage} sur {(currentTab === "waiting" ? linkData : historyData)?.total_pages || 1}
             </div>
             <Button 
               size="sm" 
               variant="outline" 
-              onClick={() => setCurrentPage(prev => Math.min((currentTab === "waiting" ? rapprochementData : historyData)?.total_pages || 1, prev + 1))} 
-              disabled={currentPage === ((currentTab === "waiting" ? rapprochementData : historyData)?.total_pages || 1)} 
+              onClick={() => setCurrentPage(prev => Math.min((currentTab === "waiting" ? linkData : historyData)?.total_pages || 1, prev + 1))} 
+              disabled={currentPage === ((currentTab === "waiting" ? linkData : historyData)?.total_pages || 1)} 
               className="text-gray-600 border-gray-300 hover:bg-gray-100"
             >
               Suivant
@@ -389,7 +389,7 @@ export const RapprochementDetails = ({ rapprochementId, rapprochementStatus }: R
             <DialogTitle>Clôturer le rapprochement</DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-gray-600">
-            Êtes-vous sûr de vouloir clôturer le rapprochement <span className="font-medium text-blue-600">#{rapprochementId}</span> ?
+            Êtes-vous sûr de vouloir clôturer le rapprochement <span className="font-medium text-blue-600">#{linkId}</span> ?
           </DialogDescription>
           <div className="flex justify-end space-x-2 mt-4">
             <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsConfirmDialogOpen(false)} disabled={isCloturing}>

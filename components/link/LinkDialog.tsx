@@ -30,8 +30,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
-import {useGetBanquesWithComptesQuery} from "@/lib/services/banksApi"
-import {useAddRapprochementMutation} from "@/lib/services/rapprochementsApi"
+import {useGetBanksWithAccountsQuery} from "@/lib/services/banksApi"
+import {useCreateLinkMutation} from "@/lib/services/linkApi"
 import { Plus, Loader2, Save } from "lucide-react"
 
 const formSchema = z.object({
@@ -44,16 +44,16 @@ const formSchema = z.object({
 	edr: z.instanceof(File, {message: "L'EDR est requis"}),
 })
 
-interface CreateRapprochementDialogProps {
-	onRapprochementCreated?: (success: boolean, message: string) => void;
+interface CreateLinkDialogProps {
+	onLinkCreated?: (success: boolean, message: string) => void;
 }
 
-export default function CreateRapprochementDialog({onRapprochementCreated}: CreateRapprochementDialogProps) {
+export default function CreateLinkDialog({onLinkCreated}: CreateLinkDialogProps) {
 	const [open, setOpen] = useState(false)
-	const {data: banques, isLoading: isBanquesLoading} = useGetBanquesWithComptesQuery()
+	const {data: banks, isLoading: isBanksLoading} = useGetBanksWithAccountsQuery()
 	// @ts-ignore
-	const [selectedBanque, setSelectedBanque] = useState<typeof banques[number] | null>(null)
-	const [addRapprochement, { isLoading: isCreating }] = useAddRapprochementMutation()
+	const [selectedBank, setSelectedBank] = useState<typeof banques[number] | null>(null)
+	const [createLink, { isLoading: isCreating }] = useCreateLinkMutation()
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -79,7 +79,7 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 			balance: undefined,
 			edr: undefined,
 		});
-		setSelectedBanque(null);
+		setSelectedBank(null);
 	};
 
 	// Gérer l'ouverture/fermeture de la modal
@@ -91,10 +91,10 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 	};
 
 	useEffect(() => {
-		if (selectedBanque) {
+		if (selectedBank) {
 			form.setValue('compte_id', '')
 		}
-	}, [selectedBanque, form])
+	}, [selectedBank, form])
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		const formData = new FormData();
@@ -118,9 +118,10 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 		}
 
 		try {
-			await addRapprochement(formData).unwrap();
-			if (onRapprochementCreated) {
-				onRapprochementCreated(true, "Le rapprochement a été créé avec succès.");
+			//@ts-ignore
+			await createLink(formData).unwrap();
+			if (onLinkCreated) {
+				onLinkCreated(true, "Le rapprochement a été créé avec succès.");
 			}
 			handleOpenChange(false);
 		} catch (error: any) {
@@ -128,8 +129,8 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 			if (error.data) {
 				console.error("Données d'erreur:", error.data);
 			}
-			if (onRapprochementCreated) {
-				onRapprochementCreated(false, error.data?.detail || "Une erreur est survenue lors de la création du rapprochement.");
+			if (onLinkCreated) {
+				onLinkCreated(false, error.data?.detail || "Une erreur est survenue lors de la création du rapprochement.");
 			}
 		}
 	}
@@ -161,8 +162,8 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 										<Select
 											onValueChange={(value) => {
 												field.onChange(value)
-												const selected = banques?.find(b => b.id.toString() === value)
-												setSelectedBanque(selected || null)
+												const selected = banks?.find(b => b.id.toString() === value)
+												setSelectedBank(selected || null)
 											}}
 											defaultValue={field.value}
 										>
@@ -172,10 +173,10 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												{isBanquesLoading && <SelectItem value="">Chargement...</SelectItem>}
-												{banques?.map((banque) => (
-													<SelectItem key={banque.id} value={banque.id.toString()}>
-														{banque.nom}
+												{isBanksLoading && <SelectItem value="">Chargement...</SelectItem>}
+												{banks?.map((bank) => (
+													<SelectItem key={bank.id} value={bank.id.toString()}>
+														{bank.nom}
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -193,7 +194,7 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 										<Select
 											onValueChange={field.onChange}
 											defaultValue={field.value}
-											disabled={!selectedBanque}
+											disabled={!selectedBank}
 										>
 											<FormControl>
 												<SelectTrigger>
@@ -202,7 +203,7 @@ export default function CreateRapprochementDialog({onRapprochementCreated}: Crea
 											</FormControl>
 											<SelectContent>
 												{/* @ts-ignore */}
-												{selectedBanque?.comptes.map((compte) => (
+												{selectedBank?.comptes.map((compte) => (
 													<SelectItem key={compte.id} value={compte.id.toString()}>
 														{compte.numero_compte}
 													</SelectItem>

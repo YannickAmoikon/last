@@ -1,4 +1,4 @@
-export interface GrandLivre {
+export interface Book {
   id: string;
   libelle: string;
   date_ecriture: string;

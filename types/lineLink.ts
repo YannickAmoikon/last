@@ -1,6 +1,6 @@
-import {GrandLivre} from "./grandLivre"
+import { Book } from "./book";
 
-export interface LigneRapprochement {
+export interface LineLink {
     id: number;
     rapprochement_id: number;
     statut: string;
@@ -8,5 +8,5 @@ export interface LigneRapprochement {
     commentaire: string;
     decision: string;
     flag: string;
-    grand_livre: GrandLivre;
+    grand_livre: Book;
   }

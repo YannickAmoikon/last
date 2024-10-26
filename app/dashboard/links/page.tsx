@@ -1,18 +1,18 @@
 "use client"
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetRapprochementsQuery, useDeleteRapprochementMutation } from '@/lib/services/rapprochementsApi';
+import { useGetLinksQuery, useDeleteLinkMutation } from '@/lib/services/linkApi';
 import { useToast } from '@/hooks/use-toast';
-import CreateRapprochementDialog from "@/components/link/LinkDialog";
+import CreateLinkDialog from "@/components/link/LinkDialog";
 import { Toaster } from '@/components/ui/toaster';
-import { RapprochementTable } from '@/components/link/LinkTable';
+import { LinkTable } from '@/components/link/LinkTable';
 import { Pagination } from '@/components/link/Pagination';
 import { SearchInput } from '@/components/link/SearchInput';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCcw } from 'lucide-react';
 import { useRefresh } from '@/components/contexts/RefreshContext';
 
-export default function Rapprochements() {
+export default function LinksPage() {
 	const [page, setPage] = useState(1);
 	const [pageSize] = useState(10);
 	const [searchTerm, setSearchTerm] = useState('');
@@ -20,27 +20,27 @@ export default function Rapprochements() {
 	const { triggerRefresh } = useRefresh();
 
 	const {
-		data: rapprochements,
+		data: links,
 		isLoading,
 		error,
 		refetch
-	} = useGetRapprochementsQuery({
+	} = useGetLinksQuery({
 		page,
 		page_size: pageSize,
 	}, { refetchOnMountOrArgChange: true });
 
-	const [deleteRapprochement] = useDeleteRapprochementMutation();
+	const [deleteLink] = useDeleteLinkMutation();
 
-	const filteredRapprochements = useMemo(() => {
-		if (!rapprochements) return [];
-		return rapprochements.items
-			.filter(rapprochement =>
-				rapprochement.banque.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				rapprochement.statut.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				rapprochement.etape_actuelle.toLowerCase().includes(searchTerm.toLowerCase())
+	const filteredLinks = useMemo(() => {
+		if (!links) return [];
+		return links.items
+			.filter(link =>
+				link.banque.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				link.statut.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				link.etape_actuelle.toLowerCase().includes(searchTerm.toLowerCase())
 			)
 			.sort((a, b) => Number(a.id) - Number(b.id)); // Tri par ID
-	}, [rapprochements, searchTerm]);
+	}, [links, searchTerm]);
 
 	useEffect(() => {
 		refetch();
@@ -48,7 +48,7 @@ export default function Rapprochements() {
 
 	const handleDelete = async (id: string) => {
 		try {
-			await deleteRapprochement(id).unwrap();
+			await deleteLink(id).unwrap();
 			toast({
 				title: "Suppression réussie",
 				description: `Le rapprochement ${id} a été supprimé avec succès.`,
@@ -64,7 +64,7 @@ export default function Rapprochements() {
 	};
 
 	const handleNextPage = () => {
-		if (rapprochements && page < rapprochements.total_pages) {
+		if (links && page < links.total_pages) {
 			setPage(page + 1);
 		}
 	};
@@ -83,7 +83,7 @@ export default function Rapprochements() {
 		});
 	};
 
-	const handleRapprochementCreated = (success: boolean, message: string) => {
+	const handleLinkCreated = (success: boolean, message: string) => {
 		if (success) {
 			toast({
 				title: "Rapprochement créé avec succès",
@@ -146,10 +146,10 @@ export default function Rapprochements() {
 				<CardContent className="p-6">
 					<div className="flex items-center justify-between mb-4">
 						<SearchInput value={searchTerm} onChange={setSearchTerm} />
-						<CreateRapprochementDialog onRapprochementCreated={handleRapprochementCreated}/>
+						<CreateLinkDialog onLinkCreated={handleLinkCreated}/>
 					</div>
-					<RapprochementTable
-						rapprochements={filteredRapprochements}
+					<LinkTable
+						links={filteredLinks}
 						onDelete={handleDelete}
 						formatDate={formatDate}
 						triggerRefresh={triggerRefresh}
@@ -157,11 +157,11 @@ export default function Rapprochements() {
 				</CardContent>
 				<CardFooter className="flex justify-between items-center border-t py-4">
 					<div className="text-sm text-muted-foreground">
-						{rapprochements && `Affichage ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRapprochements.length)} sur ${rapprochements.total_items || rapprochements.items.length} rapprochements`}
+						{links && `Affichage ${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredLinks.length)} sur ${links.total_items || links.items.length} rapprochements`}
 					</div>
 					<Pagination
 						currentPage={page}
-						totalPages={rapprochements?.total_pages || 1}
+						totalPages={links?.total_pages || 1}
 						onPreviousPage={handlePreviousPage}
 						onNextPage={handleNextPage}
 					/>

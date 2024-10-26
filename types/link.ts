@@ -1,11 +1,11 @@
 // types/rapprochements.ts
 
-export interface Banque {
+export interface Bank {
     id: string;
     nom: string;
   }
   
-  export interface Rapprochement {
+  export interface Link {
     user_id: string;
     banque_id: string;
     date: string;
@@ -14,24 +14,24 @@ export interface Banque {
     etape_actuelle: string;
     commentaire: string;
     temps_traitement: string;
-    banque: Banque;
+    banque: Bank;
   }
   
-  export interface RapprochementsResponse {
+  export interface LinksResponse {
 	total_items: number;
-    items: Rapprochement[];
+    items: Link[];
     total: number;
     page: number;
     page_size: number;
     total_pages: number;
   }
   
-  export type GetRapprochementsParams = {
+  export type GetLinksParams = {
     page?: number;
     page_size?: number;
   };
   
-  export type CreateRapprochementRequest = {
+  export type CreateLinkRequest = {
     banque_id: number;
     compte_id: number;
     date: string;
@@ -41,8 +41,8 @@ export interface Banque {
     edr: File;
   };
   
-  export interface RapprochementLignesResponse {
-    items: RapprochementLigne[];
+  export interface MatchResponse {
+    items: Match[];
     total: number;
     page: number;
     page_size: number;
@@ -51,7 +51,7 @@ export interface Banque {
     total_match: number;
   }
   
-  export interface RapprochementLigne {
+  export interface Match {
     rapprochement_id: number;
     date_operation: string;
     numero_compte: string;
@@ -63,10 +63,10 @@ export interface Banque {
     credit: number;
     solde_courant: number;
     id: string;
-    lignes_rapprochement: LigneRapprochement[];
+    lignes_rapprochement: LineLink[];
   }
   
-  export interface GrandLivre {
+  export interface Book {
     rapprochement_id: number;
     numero_piece: string;
     date_ecriture: string;
@@ -80,7 +80,7 @@ export interface Banque {
     id: string;
   }
   
-  export interface LigneRapprochement {
+  export interface LineLink {
     id: number;
     rapprochement_id: number;
     statut: string;
@@ -88,5 +88,5 @@ export interface Banque {
     commentaire: string;
     decision: string;
     flag: string;
-    grand_livre: GrandLivre;
+    grand_livre: Book;
   }

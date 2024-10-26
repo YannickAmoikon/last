@@ -1,9 +1,9 @@
 import {apiSlice} from './api';
-import { GrandLivre } from '@/types/grandLivre';
+import { Book } from '@/types/book';
 
-export const grandsLivresApi = apiSlice.injectEndpoints({
+export const booksApi = apiSlice.injectEndpoints({
     endpoints: (build) => ({
-        getNonRapprochesGrandLivres: build.query<GrandLivre[], number>({
+        getNotMatchedBooks: build.query<Book[], number>({
             query: (rapprochementId) => ({
                 url: `/grand_livre/${rapprochementId}/non_rapproches`,
                 method: 'GET',
@@ -17,5 +17,5 @@ export const grandsLivresApi = apiSlice.injectEndpoints({
 })
 
 export const {
-    useGetNonRapprochesGrandLivresQuery,
-} = grandsLivresApi;
+    useGetNotMatchedBooksQuery,
+} = booksApi;
