@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect, useCallback, useMemo, useReducer } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,167 +25,28 @@ import { useCreerLigneRapprochementMutation } from "@/lib/services/rapprochement
 import { useGetNonRapprochesGrandLivresQuery } from "@/lib/services/grandsLivresApi";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { DetailButton } from "./DetailButton";
-
-// Définition du reducer
-const initialState = {
-  isOpen: false,
-  isConfirmDialogOpen: false,
-  nonRapprochesGrandLivres: [],
-  isLoading: false,
-  error: null,
-  selectedItem: null,
-  searchTerm: "",
-  detailItem: null,
-};
-
-function reducer(state: typeof initialState, action: any) {
-  switch (action.type) {
-    case 'SET_OPEN':
-      return { ...state, isOpen: action.payload };
-    case 'SET_CONFIRM_DIALOG_OPEN':
-      return { ...state, isConfirmDialogOpen: action.payload };
-    case 'SET_NON_RAPPROCHES_GRAND_LIVRES':
-      return { ...state, nonRapprochesGrandLivres: action.payload };
-    case 'SET_LOADING':
-      return { ...state, isLoading: action.payload };
-    case 'SET_ERROR':
-      return { ...state, error: action.payload };
-    case 'SET_SELECTED_ITEM':
-      return { ...state, selectedItem: action.payload };
-    case 'SET_SEARCH_TERM':
-      return { ...state, searchTerm: action.payload };
-    case 'SET_DETAIL_ITEM':
-      return { ...state, detailItem: action.payload };
-    default:
-      return state;
-  }
-}
-
-// Composants extraits
-const ReleveCard = React.memo(({ releve }: { releve: any }) => (
-  <Card className="w-full bg-orange-100 rounded-sm shadow-sm border-l-4 border-l-orange-500">
-    <div className="flex items-center h-24">
-      <div className="flex-grow ml-9 flex flex-col justify-center py-2 px-4">
-        <CardTitle className="text-sm font-semibold text-orange-700">{`ID: ${releve.id}`}</CardTitle>
-        <CardDescription className="text-xs mt-1 text-gray-600">{`Compte: ${releve.numero_compte}`}</CardDescription>
-        <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
-          <div>
-            <span className="text-gray-600">Date: </span>
-            <span className="font-medium text-gray-900">
-              {new Date(releve.date_operation).toLocaleDateString()}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-600">Montant: </span>
-            <span className="font-medium text-gray-900">
-              {releve.debit
-                ? `-${formatMontant(releve.debit)}`
-                : releve.credit
-                ? formatMontant(releve.credit)
-                : formatMontant(0)}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-600">Description: </span>
-            <span className="font-medium text-gray-900">
-              {releve.description}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="p-2">
-        <ReleveDetailDialog
-          title={`Relevé : ${releve.id}`}
-          entity={releve}
-        />
-      </div>
-    </div>
-  </Card>
-));
-
-const GrandLivreCard = React.memo(({ item, isSelected, onSelect, onDetailClick }: { item: any, isSelected: boolean, onSelect: (id: string) => void, onDetailClick: (item: any) => void }) => (
-  <Card
-    className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200"
-  >
-    <div className="flex items-center h-24">
-      <div className="p-2 flex items-center">
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={() => onSelect(item.id.toString())}
-          className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
-        />
-      </div>
-      <div className="flex-grow flex flex-col justify-center py-2 px-4">
-        <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${item.id}`}</CardTitle>
-        <CardDescription className="text-xs mt-1 text-gray-600">
-          Compte: {item.compte || item.cpte_alt || "N/A"}
-        </CardDescription>
-        <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
-          <div>
-            <span className="text-gray-600">Date: </span>
-            <span className="font-medium text-gray-900">
-              {new Date(item.date_ecriture).toLocaleDateString()}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-600">Montant: </span>
-            <span className="font-medium text-gray-900">
-              {item.debit
-                ? `-${formatMontant(item.debit)}`
-                : formatMontant(item.credit)}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-600">Libellé: </span>
-            <span className="font-medium text-gray-900">
-              {item.libelle}
-            </span>
-          </div>
-        </div>
-      </div>
-      <div className="p-2">
-        <DetailButton onClick={() => onDetailClick(item)} />
-      </div>
-    </div>
-  </Card>
-));
+import { GrandLivreDetailDialog } from './GrandLivreDetailDialog';
 
 export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const [creerLigneRapprochement] = useCreerLigneRapprochementMutation();
+  const [isCreating, setIsCreating] = useState(false);
 
-  const { refetch } = useGetNonRapprochesGrandLivresQuery(
+  const { data: nonRapprochesGrandLivres, isLoading, error, refetch } = useGetNonRapprochesGrandLivresQuery(
     releve.rapprochement_id,
+    { skip: !isOpen }
   );
 
-  const fetchGrandLivres = useCallback(() => {
-    dispatch({ type: 'SET_LOADING', payload: true });
-    refetch()
-      .then((result) => {
-        if (result.data) {
-          dispatch({ type: 'SET_NON_RAPPROCHES_GRAND_LIVRES', payload: result.data });
-        } else if (result.error) {
-          dispatch({ type: 'SET_ERROR', payload: "Une erreur est survenue lors du chargement des grands livres." });
-        }
-      })
-      .finally(() => dispatch({ type: 'SET_LOADING', payload: false }));
-  }, [refetch]);
-
-  useEffect(() => {
-    if (state.isOpen) {
-      fetchGrandLivres();
-    }
-  }, [state.isOpen, fetchGrandLivres]);
-
   const handleCheckboxChange = useCallback((id: string) => {
-    dispatch({ type: 'SET_SELECTED_ITEM', payload: state.selectedItem === id ? null : id });
-  }, [state.selectedItem]);
+    setSelectedItem(prev => prev === id ? null : id);
+  }, []);
 
-  const handleMatch = useCallback(async () => {
-    if (!state.selectedItem) {
+  const handleMatch = async () => {
+    if (!selectedItem) {
       toast({
         title: "Erreur",
         description: "Veuillez sélectionner un grand livre à matcher.",
@@ -195,12 +56,12 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
     }
 
     try {
-      dispatch({ type: 'SET_LOADING', payload: true });
+      setIsCreating(true);
       const result = await creerLigneRapprochement({
         rapprochement_id: releve.rapprochement_id,
         body: {
           releve_bancaire_id: releve.id.toString(),
-          grand_livre_id: state.selectedItem,
+          grand_livre_id: selectedItem,
           commentaire: "Rapprochement manuel",
         },
       }).unwrap();
@@ -211,10 +72,9 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
         description: `La ligne ID: ${result.ligne_id} de rapprochement a été créée avec succès. `,
         className: "bg-green-600 text-white",
       });
-      dispatch({ type: 'SET_OPEN', payload: false });
-      dispatch({ type: 'SET_CONFIRM_DIALOG_OPEN', payload: false });
-      dispatch({ type: 'SET_SELECTED_ITEM', payload: null });
-      fetchGrandLivres();
+      setIsOpen(false);
+      setIsConfirmDialogOpen(false);
+      setSelectedItem(null);
     } catch (error) {
       console.error("Erreur lors de la création de la ligne:", error);
       toast({
@@ -223,29 +83,29 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
         variant: "destructive",
       });
     } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
+      setIsCreating(false);
     }
-  }, [state.selectedItem, releve, creerLigneRapprochement, toast, fetchGrandLivres]);
+  };
 
   const filteredGrandLivres = useMemo(() => {
-    return state.nonRapprochesGrandLivres.filter(
+    return nonRapprochesGrandLivres?.filter(
       (item: any) =>
-        (item?.libelle?.toLowerCase().includes(state.searchTerm.toLowerCase()) ?? false) ||
-        (item?.id?.toString().includes(state.searchTerm) ?? false)
-    );
-  }, [state.nonRapprochesGrandLivres, state.searchTerm]);
+        (item?.libelle?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+        (item?.id?.toString().includes(searchTerm) ?? false)
+    ) || [];
+  }, [nonRapprochesGrandLivres, searchTerm]);
 
   const handleDialogOpenChange = useCallback((open: boolean) => {
-    dispatch({ type: 'SET_OPEN', payload: open });
+    setIsOpen(open);
     if (!open) {
-      dispatch({ type: 'SET_SELECTED_ITEM', payload: null });
-      dispatch({ type: 'SET_SEARCH_TERM', payload: "" });
+      setSelectedItem(null);
+      setSearchTerm("");
     }
   }, []);
 
   return (
     <>
-      <Dialog open={state.isOpen} onOpenChange={handleDialogOpenChange}>
+      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
         <DialogTrigger asChild>
           <Button
             size="sm"
@@ -257,7 +117,46 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
         <DialogContent className="sm:max-w-[1100px] h-[750px] flex flex-col">
           <div className="flex flex-col h-full pt-5">
             <div className="flex-none mb-4">
-              {releve && <ReleveCard releve={releve} />}
+              {releve && (
+                <Card className="w-full bg-orange-100 rounded-sm shadow-sm border-l-4 border-l-orange-500">
+                  <div className="flex items-center h-24">
+                    <div className="flex-grow ml-9 flex flex-col justify-center py-2 px-4">
+                      <CardTitle className="text-sm font-semibold text-orange-700">{`ID: ${releve.id}`}</CardTitle>
+                      <CardDescription className="text-xs mt-1 text-gray-600">{`Compte: ${releve.numero_compte}`}</CardDescription>
+                      <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
+                        <div>
+                          <span className="text-gray-600">Date: </span>
+                          <span className="font-medium text-gray-900">
+                            {new Date(releve.date_operation).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Montant: </span>
+                          <span className="font-medium text-gray-900">
+                            {releve.debit
+                              ? `-${formatMontant(releve.debit)}`
+                              : releve.credit
+                              ? formatMontant(releve.credit)
+                              : formatMontant(0)}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Description: </span>
+                          <span className="font-medium text-gray-900">
+                            {releve.description}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      <ReleveDetailDialog
+                        title={`Relevé : ${releve.id}`}
+                        entity={releve}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              )}
             </div>
 
             <div className="flex-none mb-4 flex justify-end">
@@ -266,20 +165,20 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
                   type="text"
                   placeholder="Faire une recherche précise pour matcher..."
                   className="py-2 rounded-sm w-full"
-                  value={state.searchTerm}
-                  onChange={(e) => dispatch({ type: 'SET_SEARCH_TERM', payload: e.target.value })}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              {state.isLoading ? (
+              {isLoading ? (
                 <div className="flex-1 flex min-h-screen mt-60">
                   <div className="relative flex-1 h-full w-full bg-gray-200 animate-pulse">
                     <Loader2 className="absolute inset-0 m-auto h-12 w-12 text-gray-900 animate-spin" />
                   </div>
                 </div>
-              ) : state.error ? (
+              ) : error ? (
                 <div className="flex justify-center min-h-screen flex-1 bg-gray-50">
                   <div className="text-center mt-40">
                     <svg
@@ -305,7 +204,7 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
                     </p>
                     <div className="mt-6">
                       <Button
-                        onClick={fetchGrandLivres}
+                        onClick={() => refetch()}
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
                       >
                         <RefreshCcw className="mr-1" size={14} />
@@ -317,13 +216,52 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
               ) : (
                 <div className="space-y-2">
                   {filteredGrandLivres.map((item: any) => (
-                    <GrandLivreCard
+                    <Card
                       key={item.id}
-                      item={item}
-                      isSelected={state.selectedItem === item.id.toString()}
-                      onSelect={handleCheckboxChange}
-                      onDetailClick={(item) => dispatch({ type: 'SET_DETAIL_ITEM', payload: item })}
-                    />
+                      className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200"
+                    >
+                      <div className="flex items-center h-24">
+                        <div className="p-2 flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedItem === item.id.toString()}
+                            onChange={() => handleCheckboxChange(item.id.toString())}
+                            className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                        </div>
+                        <div className="flex-grow flex flex-col justify-center py-2 px-4">
+                          <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${item.id}`}</CardTitle>
+                          <CardDescription className="text-xs mt-1 text-gray-600">
+                            Compte: {item.compte || item.cpte_alt || "N/A"}
+                          </CardDescription>
+                          <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
+                            <div>
+                              <span className="text-gray-600">Date: </span>
+                              <span className="font-medium text-gray-900">
+                                {new Date(item.date_ecriture).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Montant: </span>
+                              <span className="font-medium text-gray-900">
+                                {item.debit
+                                  ? `-${formatMontant(item.debit)}`
+                                  : formatMontant(item.credit)}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Libellé: </span>
+                              <span className="font-medium text-gray-900">
+                                {item.libelle}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="p-2">
+                          <GrandLivreDetailDialog title={`Grand Livre : ${item.id}`} entity={item} />
+                        </div>
+                      </div>
+                    </Card>
                   ))}
                 </div>
               )}
@@ -333,8 +271,8 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
               <Button
                 className="bg-blue-600 rounded-sm hover:bg-blue-600 text-white"
                 size="sm"
-                onClick={() => dispatch({ type: 'SET_CONFIRM_DIALOG_OPEN', payload: true })}
-                disabled={!state.selectedItem}
+                onClick={() => setIsConfirmDialogOpen(true)}
+                disabled={!selectedItem}
               >
                 <Merge size={14} className="mr-1" />
                 Matcher
@@ -344,14 +282,14 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={state.isConfirmDialogOpen} onOpenChange={(open) => dispatch({ type: 'SET_CONFIRM_DIALOG_OPEN', payload: open })}>
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent className="bg-white">
           <DialogHeader>
             <DialogTitle>Faire un matching</DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-gray-600">
             Êtes-vous sûr de vouloir matcher le grand livre{" "}
-            <span className="font-medium text-blue-600">{state.selectedItem}</span> au
+            <span className="font-medium text-blue-600">{selectedItem}</span> au
             Relevé{" "}
             <span className="font-medium text-orange-600">{releve.id}</span> ?
           </DialogDescription>
@@ -360,8 +298,8 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
               size="sm"
               className="rounded-sm"
               variant="outline"
-              onClick={() => dispatch({ type: 'SET_CONFIRM_DIALOG_OPEN', payload: false })}
-              disabled={state.isLoading}
+              onClick={() => setIsConfirmDialogOpen(false)}
+              disabled={isCreating}
             >
               <X className="mr-1 rounded-sm" size={14} />
               Annuler
@@ -370,46 +308,16 @@ export default function CreateOptionMatchDialog({ releve }: { releve: any }) {
               size="sm"
               className="bg-green-600 rounded-sm hover:bg-green-600 text-white"
               onClick={handleMatch}
-              disabled={state.isLoading}
+              disabled={isCreating}
             >
-              {state.isLoading ? (
+              {isCreating ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
-              <Check className="mr-1" size={14} />
+              ) : (
+                <Check className="mr-1" size={14} />
+              )}
               Oui
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!state.detailItem} onOpenChange={() => dispatch({ type: 'SET_DETAIL_ITEM', payload: null })}>
-        <DialogContent className="sm:max-w-[425px] bg-blue-50">
-          <DialogTitle>Grand Livre : {state.detailItem?.id}</DialogTitle>
-          <DialogDescription>
-            <div className="space-y-4">
-              <div>
-                <span className="font-semibold">ID:</span> {state.detailItem?.id}
-              </div>
-              <div>
-                <span className="font-semibold">Libellé:</span>{" "}
-                {state.detailItem?.libelle}
-              </div>
-              <div>
-                <span className="font-semibold">Date d'écriture:</span>{" "}
-                {new Date(state.detailItem?.date_ecriture).toLocaleDateString()}
-              </div>
-              <div>
-                <span className="font-semibold">Montant:</span>{" "}
-                {state.detailItem?.debit
-                  ? `-${formatMontant(state.detailItem.debit)}`
-                  : formatMontant(state.detailItem?.credit)}
-              </div>
-              <div>
-                <span className="font-semibold">Compte:</span>{" "}
-                {state.detailItem?.compte || state.detailItem?.cpte_alt || "N/A"}
-              </div>
-            </div>
-          </DialogDescription>
         </DialogContent>
       </Dialog>
     </>
