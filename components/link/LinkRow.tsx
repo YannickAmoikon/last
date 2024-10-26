@@ -65,7 +65,7 @@ export const LinkRow: React.FC<LinkRowProps> = ({
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
 									<DropdownMenuItem asChild>
-											<Link href={`/dashboard/rapprochements/${link.id}?status=${link.statut}`}>
+											<Link href={`/dashboard/links/${link.id}?status=${link.statut}`}>
 													<ListCollapse className="mr-1" size={14} />
 													Details
 											</Link>
