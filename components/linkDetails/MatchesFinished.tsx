@@ -4,11 +4,10 @@ import { LineLink } from './LineLink';
 
 interface MatchesFinishedProps {
   matchesFinished: any[];
-  onDematch: (rapprochementId: string, ligneId: number) => void;
   isClotured: boolean;
 }
 
-export const MatchesFinished: React.FC<MatchesFinishedProps> = ({ matchesFinished, onDematch, isClotured }) => {
+export const MatchesFinished: React.FC<MatchesFinishedProps> = ({ matchesFinished, isClotured }) => {
   return (
     <div className="space-y-2 w-full">
       {matchesFinished.map((matchFinished, idx) => (
@@ -18,7 +17,6 @@ export const MatchesFinished: React.FC<MatchesFinishedProps> = ({ matchesFinishe
           <LineLink 
             linesLinks={matchFinished.lignes_rapprochement} 
             bankStatementId={matchFinished.id}
-            onDematch={onDematch}
             bankStatement={matchFinished}
             isClotured={isClotured}
             showDematchButton={true}

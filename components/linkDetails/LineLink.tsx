@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Merge, Loader2, Info, Check, X, Split } from 'lucide-react';
 import { useValidateLineLinkMutation } from '@/lib/services/linkApi';
+import { useDematchLineLinkMutation } from '@/lib/services/lineLinkApi';
 import { useToast } from "@/hooks/use-toast"
 import { LineLinkDetailDialog } from './LineLinkDetailDialog'
 import { formatMontant } from '@/utils/formatters'
@@ -13,7 +14,6 @@ interface LineLinkProps {
   linesLinks: any[];
   bankStatementId: string;
   onMatchSuccess?: () => void;
-  onDematch?: (bankStatementId: string, lineLinkId: number) => void;
   bankStatement: any;
   isClotured?: boolean;
   showMatchButtons?: boolean;
@@ -23,8 +23,7 @@ interface LineLinkProps {
 export const LineLink: React.FC<LineLinkProps> = ({ 
   linesLinks, 
   bankStatementId, 
-  onMatchSuccess, 
-  onDematch,
+  onMatchSuccess,
   bankStatement, 
   isClotured,
   showMatchButtons,
@@ -34,6 +33,7 @@ export const LineLink: React.FC<LineLinkProps> = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validateLineLink] = useValidateLineLinkMutation();
+  const [dematchLineLink] = useDematchLineLinkMutation();
   const { toast } = useToast()
 
   const handleCheckboxChange = useCallback((id: string) => {
@@ -62,6 +62,37 @@ export const LineLink: React.FC<LineLinkProps> = ({
         description: "Une erreur est survenue lors du match.",
         variant: "destructive",
       })
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDematch = async (rapprochementId: string, ligneId: number) => {
+    if (isClotured) {
+      toast({ 
+        title: "Action non autorisée", 
+        description: "Le dématchage n'est pas possible sur un rapprochement clôturé.", 
+        variant: "destructive" 
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await dematchLineLink({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
+      toast({ 
+        title: "Dématchage réussi", 
+        description: "L'élément a été dématché avec succès.", 
+        className: "bg-green-600 text-white" 
+      });
+      if (onMatchSuccess) onMatchSuccess();
+    } catch (error) {
+      console.error("Erreur lors du dématchage:", error);
+      toast({ 
+        title: "Erreur de dématchage", 
+        description: "Une erreur est survenue lors du dématchage de l'élément.", 
+        variant: "destructive" 
+      });
     } finally {
       setIsLoading(false);
     }
@@ -153,15 +184,42 @@ export const LineLink: React.FC<LineLinkProps> = ({
           </>
         )}
         {showDematchButton && !isClotured && (
-          <Button 
-            size="sm" 
-            className="bg-red-600 rounded-sm my-2 hover:bg-red-600 text-white"
-            onClick={() => setIsDialogOpen(true)}
-            disabled={!selectedItem || isLoading}
-          >
-            <Split className="mr-1" size={14} />
-            Dématcher
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button 
+                size="sm" 
+                className="bg-red-600 rounded-sm my-2 hover:bg-red-600 text-white"
+                disabled={!selectedItem || isLoading}
+              >
+                <Split className="mr-1" size={14} />
+                Dématcher
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-white">
+              <DialogHeader>
+                <DialogTitle>Confirmer le dématchage</DialogTitle>
+              </DialogHeader>
+              <DialogDescription className="text-gray-600">
+                Êtes-vous sûr de vouloir dématcher cet élément ?
+              </DialogDescription>
+              <div className="flex justify-end space-x-2 mt-4">
+                <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
+                  <X className="mr-1" size={14} />
+                  Annuler
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="bg-red-600 rounded-sm hover:bg-red-600 text-white" 
+                  onClick={() => handleDematch(bankStatementId, parseInt(selectedItem!))} 
+                  disabled={isLoading}
+                >
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  <Check className="mr-1" size={14} />
+                  Confirmer le dématchage
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         )}
       </div>
       {(isDialogOpen || isLoading) && (

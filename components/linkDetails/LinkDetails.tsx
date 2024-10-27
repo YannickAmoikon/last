@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChevronLeft, ChevronRight, Loader2, RefreshCcw, FileSpreadsheet, Ellipsis, ThumbsUp, LocateOff, FileX, ArrowLeft, BookCheck, LibraryBig, BookCopy, ChartLine } from 'lucide-react';
 import { useGetMatchesQuery, useGetLinkRapportQuery, useCloseLinkMutation } from '@/lib/services/linkApi';
-import { useDematchLineLinkMutation } from '@/lib/services/lineLinkApi';
 import { toast} from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -43,7 +42,6 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
   const pageSize = 25;
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
-  const [dematchLineLink] = useDematchLineLinkMutation();
   const [closeLink] = useCloseLinkMutation();
 
   const { data: linkData, error: linkError, isLoading: linkLoading, refetch: refetchLink } = useGetMatchesQuery({
@@ -81,34 +79,6 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
       toast({ title: "Erreur d'export", description: "Une erreur est survenue lors de l'export des données.", variant: "destructive" });
     }
   }, [rapportError]);
-
-  const handleDematch = async (rapprochementId: string, ligneId: number) => {
-    if (isClotured) {
-      toast({ 
-        title: "Action non autorisée", 
-        description: "Le dématchage n'est pas possible sur un rapprochement clôturé.", 
-        variant: "destructive" 
-      });
-      return;
-    }
-
-    try {
-      await dematchLineLink({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
-      toast({ 
-        title: "Dématchage réussi", 
-        description: "L'élément a été dématché avec succès.", 
-        className: "bg-green-600 text-white" 
-      });
-      triggerRefresh('dematch');
-    } catch (error) {
-      console.error("Erreur lors du dématchage:", error);
-      toast({ 
-        title: "Erreur de dématchage", 
-        description: "Une erreur est survenue lors du dématchage de l'élément.", 
-        variant: "destructive" 
-      });
-    }
-  };
 
   const handleClose = async () => {
     if (isClotured) {
@@ -250,7 +220,6 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
       return (
         <MatchesFinished 
           matchesFinished={filteredData} 
-          onDematch={handleDematch} 
           isClotured={isClotured}
         />
       );
