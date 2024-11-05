@@ -17,6 +17,7 @@ import {
   Check,
   X,
   RefreshCcw,
+  Info,
 } from "lucide-react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { BankStatementDetailDialog } from "./BankStatementDetailDialog";
@@ -27,11 +28,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { BookDetailDialog } from './BookDetailDialog';
 
+interface EcartCalculation {
+  totalGrandLivre: number;
+  totalReleve: number;
+  ecart: number;
+}
+
 export default function ManuelMatchDialog({ bankStatement }: { bankStatement: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [ecartCalculation, setEcartCalculation] = useState<EcartCalculation | null>(null);
   const { toast } = useToast();
   const [createLineLink] = useCreateLineLinkMutation();
   const [isCreating, setIsCreating] = useState(false);
@@ -41,16 +49,52 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
     { skip: !isOpen }
   );
 
+  const filteredGrandLivres = useMemo(() => {
+    return notMatchedBooks?.filter(
+      (item: any) =>
+        (item?.libelle?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
+        (item?.id?.toString().includes(searchTerm) ?? false)
+    ) || [];
+  }, [notMatchedBooks, searchTerm]);
+
+  const calculateEcart = useCallback((selectedIds: string[]) => {
+    const selectedGrandLivres = filteredGrandLivres.filter(item => 
+      selectedIds.includes(item.id.toString())
+    );
+
+    const totalGrandLivre = selectedGrandLivres.reduce((sum, item) => {
+      const montant = item.credit || -item.debit || 0;
+      return sum + montant;
+    }, 0);
+
+    const montantReleve = bankStatement.credit || -bankStatement.debit || 0;
+    
+    const ecart = totalGrandLivre + montantReleve;
+    
+    setEcartCalculation({
+      totalGrandLivre,
+      totalReleve: montantReleve,
+      ecart: Math.abs(ecart)
+    });
+
+    return Math.abs(ecart);
+  }, [filteredGrandLivres, bankStatement]);
+
   const handleCheckboxChange = useCallback((id: string) => {
     setSelectedBooks(prev => {
-      const isSelected = prev.includes(id);
-      if (isSelected) {
-        return prev.filter(bookId => bookId !== id);
+      const newSelection = prev.includes(id) 
+        ? prev.filter(bookId => bookId !== id)
+        : [...prev, id];
+      
+      if (newSelection.length > 0) {
+        calculateEcart(newSelection);
       } else {
-        return [...prev, id];
+        setEcartCalculation(null);
       }
+      
+      return newSelection;
     });
-  }, []);
+  }, [calculateEcart]);
 
   const handleMatch = async () => {
     if (selectedBooks.length === 0) {
@@ -58,6 +102,17 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
         title: "Erreur",
         description: "Veuillez sélectionner au moins un grand livre à matcher.",
         variant: "destructive",
+      });
+      return;
+    }
+
+    const ecart = calculateEcart(selectedBooks);
+    
+    if (ecart > 1000 && !ecartCalculation?.ecart) {
+      setEcartCalculation({
+        totalGrandLivre: ecart,
+        totalReleve: bankStatement.credit || -bankStatement.debit || 0,
+        ecart: Math.abs(ecart)
       });
       return;
     }
@@ -70,6 +125,8 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
           releve_bancaire_id: bankStatement.id.toString(),
           grand_livre_ids: selectedBooks,
           commentaire: "",
+          // @ts-ignore
+          ecart_accepte: ecart > 1000
         },
       }).unwrap();
 
@@ -92,14 +149,6 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
       setIsCreating(false);
     }
   };
-
-  const filteredGrandLivres = useMemo(() => {
-    return notMatchedBooks?.filter(
-      (item: any) =>
-        (item?.libelle?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false) ||
-        (item?.id?.toString().includes(searchTerm) ?? false)
-    ) || [];
-  }, [notMatchedBooks, searchTerm]);
 
   const handleDialogOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
@@ -301,20 +350,49 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
             <DialogTitle>Faire un matching</DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-gray-600">
-            Êtes-vous sûr de vouloir matcher les grands livres{" "}
-            <span className="font-medium text-blue-600">{selectedBooks.join(", ")}</span> au
-            Relevé{" "}
-            <span className="font-medium text-orange-600">{bankStatement.id}</span> ?
+            <div className="space-y-4">
+              <p>
+                Êtes-vous sûr de vouloir matcher les grands livres{" "}
+                <span className="font-medium text-blue-600">{selectedBooks.join(", ")}</span> au
+                Relevé{" "}
+                <span className="font-medium text-orange-600">{bankStatement.id}</span> ?
+              </p>
+              
+              {ecartCalculation && ecartCalculation.ecart > 0 && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0">
+                      <Info className="h-5 w-5 text-yellow-400" />
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700">
+                        {ecartCalculation.ecart > 1000 ? 
+                          "Attention : Un écart important a été détecté" : 
+                          "Un écart a été détecté"}
+                      </p>
+                      <ul className="mt-2 text-sm text-yellow-700">
+                        <li>Total Grand Livre : {formatMontant(ecartCalculation.totalGrandLivre)} XOF</li>
+                        <li>Total Relevé : {formatMontant(ecartCalculation.totalReleve)} XOF</li>
+                        <li>Écart : {formatMontant(ecartCalculation.ecart)} XOF</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </DialogDescription>
           <div className="flex justify-end space-x-2 mt-4">
             <Button
               size="sm"
               className="rounded-sm"
               variant="outline"
-              onClick={() => setIsConfirmDialogOpen(false)}
+              onClick={() => {
+                setIsConfirmDialogOpen(false);
+                setEcartCalculation(null);
+              }}
               disabled={isCreating}
             >
-              <X className="mr-1 rounded-sm" size={14} />
+              <X className="mr-1" size={14} />
               Annuler
             </Button>
             <Button
@@ -328,7 +406,8 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
               ) : (
                 <Check className="mr-1" size={14} />
               )}
-              Oui
+              {/* @ts-ignore */}
+              {ecartCalculation?.ecart > 1000 ? "Confirmer malgré l'écart" : "Confirmer"}
             </Button>
           </div>
         </DialogContent>
