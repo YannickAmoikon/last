@@ -90,3 +90,12 @@ export interface Bank {
     ecart: number | null;
     grands_livres: Book[];
   }
+  
+  export interface CreateLineLinkRequest {
+    rapprochement_id: number;
+    body: {
+      releve_bancaire_id: string;
+      grand_livre_ids: string[];
+      commentaire: string;
+    };
+  }

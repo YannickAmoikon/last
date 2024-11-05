@@ -30,7 +30,7 @@ import { BookDetailDialog } from './BookDetailDialog';
 export default function ManuelMatchDialog({ bankStatement }: { bankStatement: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [bookSelectedItem, setBookSelectedItem] = useState<string | null>(null);
+  const [selectedBooks, setSelectedBooks] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const [createLineLink] = useCreateLineLinkMutation();
@@ -42,14 +42,21 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
   );
 
   const handleCheckboxChange = useCallback((id: string) => {
-    setBookSelectedItem(prev => prev === id ? null : id);
+    setSelectedBooks(prev => {
+      const isSelected = prev.includes(id);
+      if (isSelected) {
+        return prev.filter(bookId => bookId !== id);
+      } else {
+        return [...prev, id];
+      }
+    });
   }, []);
 
   const handleMatch = async () => {
-    if (!bookSelectedItem) {
+    if (selectedBooks.length === 0) {
       toast({
         title: "Erreur",
-        description: "Veuillez sélectionner un grand livre à matcher.",
+        description: "Veuillez sélectionner au moins un grand livre à matcher.",
         variant: "destructive",
       });
       return;
@@ -61,20 +68,19 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
         rapprochement_id: bankStatement.rapprochement_id,
         body: {
           releve_bancaire_id: bankStatement.id.toString(),
-          grand_livre_id: bookSelectedItem,
+          grand_livre_ids: selectedBooks,
           commentaire: "",
         },
       }).unwrap();
 
-      console.log("Résultat de la création de ligne:", result);
       toast({
         title: "Match réussi",
-        description: `La ligne ID: ${result.ligne_id} de rapprochement a été créée avec succès. `,
+        description: `La ligne ID: ${result.ligne_id} de rapprochement a été créée avec succès.`,
         className: "bg-green-600 text-white",
       });
       setIsOpen(false);
       setIsConfirmDialogOpen(false);
-      setBookSelectedItem(null);
+      setSelectedBooks([]);
     } catch (error) {
       console.error("Erreur lors de la création de la ligne:", error);
       toast({
@@ -98,7 +104,7 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
   const handleDialogOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      setBookSelectedItem(null);
+      setSelectedBooks([]);
       setSearchTerm("");
     }
   }, []);
@@ -218,13 +224,17 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
                   {filteredGrandLivres.map((item: any) => (
                     <Card
                       key={item.id}
-                      className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200"
+                      className={`w-full rounded-sm mb-2 shadow-sm ${
+                        selectedBooks.includes(item.id.toString())
+                          ? 'bg-blue-200 border-l-4 border-l-blue-600'
+                          : 'bg-blue-100 border-l-4 border-l-blue-500'
+                      } hover:shadow-md cursor-pointer transition-shadow duration-200`}
                     >
                       <div className="flex items-center h-24">
                         <div className="p-2 flex items-center">
                           <input
                             type="checkbox"
-                            checked={bookSelectedItem === item.id.toString()}
+                            checked={selectedBooks.includes(item.id.toString())}
                             onChange={() => handleCheckboxChange(item.id.toString())}
                             className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
@@ -267,15 +277,18 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
               )}
             </div>
 
-            <div className="flex-none mt-8 flex justify-end">
+            <div className="flex justify-between items-center mt-4">
+              <span className="text-sm text-gray-600">
+                {selectedBooks.length} élément(s) sélectionné(s)
+              </span>
               <Button
                 className="bg-blue-600 rounded-sm hover:bg-blue-600 text-white"
                 size="sm"
                 onClick={() => setIsConfirmDialogOpen(true)}
-                disabled={!bookSelectedItem}
+                disabled={selectedBooks.length === 0}
               >
                 <Merge size={14} className="mr-1" />
-                Matcher
+                Matcher ({selectedBooks.length})
               </Button>
             </div>
           </div>
@@ -288,8 +301,8 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
             <DialogTitle>Faire un matching</DialogTitle>
           </DialogHeader>
           <DialogDescription className="text-gray-600">
-            Êtes-vous sûr de vouloir matcher le grand livre{" "}
-            <span className="font-medium text-blue-600">{bookSelectedItem}</span> au
+            Êtes-vous sûr de vouloir matcher les grands livres{" "}
+            <span className="font-medium text-blue-600">{selectedBooks.join(", ")}</span> au
             Relevé{" "}
             <span className="font-medium text-orange-600">{bankStatement.id}</span> ?
           </DialogDescription>

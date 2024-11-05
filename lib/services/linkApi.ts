@@ -145,7 +145,7 @@ export const LinkApi = apiSlice.injectEndpoints({
         rapprochement_id: number;
         body: {
           releve_bancaire_id: string;
-          grand_livre_id: string;
+          grand_livre_ids: string[];
           commentaire: string;
         };
       }
@@ -153,9 +153,13 @@ export const LinkApi = apiSlice.injectEndpoints({
       query: ({ rapprochement_id, body }) => ({
         url: `${LINKS_URL}/${rapprochement_id}/lignes/creer`,
         method: "POST",
-        body,
+        body: {
+          releve_bancaire_id: body.releve_bancaire_id,
+          grand_livre_ids: body.grand_livre_ids,
+          commentaire: body.commentaire
+        },
       }),
-      // @ts-ignore
+      // @ts-expect-error
       invalidatesTags: (result, error, { rapprochement_id }) => [
         { type: LINKS_TAG, id: `LIST_${rapprochement_id}` },
       ],
