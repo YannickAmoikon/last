@@ -59,34 +59,34 @@ export interface Bank {
     reference: string;
     date_valeur: string;
     devise: string;
-    debit: number;
-    credit: number;
+    debit: number | null;
+    credit: number | null;
     solde_courant: number;
+    banque: string;
     id: string;
     lignes_rapprochement: LineLink[];
   }
   
   export interface Book {
+    id: string;
     rapprochement_id: number;
     numero_piece: string;
     date_ecriture: string;
     libelle: string;
-    debit: number;
-    credit: number;
-    cpte_alt: string;
-    exercice: string;
-    compte: string;
-    cpte_gen: string;
-    id: string;
+    debit: number | null;
+    credit: number | null;
+    cpte_alt: number;
+    exercice: string | null;
+    compte: string | null;
+    cpte_gen: string | null;
   }
   
   export interface LineLink {
     id: number;
-    rapprochement_id: number;
     statut: string;
     type_match: string;
     commentaire: string;
     decision: string;
-    flag: string;
-    grand_livre: Book;
+    ecart: number | null;
+    grands_livres: Book[];
   }

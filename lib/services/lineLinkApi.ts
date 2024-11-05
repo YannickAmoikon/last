@@ -7,6 +7,7 @@ const LINE_LINK_TAG = 'LineLink';
 
 export const lineLinkApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+
     dematchLineLink: builder.mutation<LineLink, { rapprochement_id: number; ligne_id: number }>({
       query: ({ rapprochement_id, ligne_id }) => ({
         url: `${LINE_LINK_URL}/${rapprochement_id}/${ligne_id}/dematcher`,
@@ -21,4 +22,6 @@ export const lineLinkApi = apiSlice.injectEndpoints({
   }),
 })
 
-export const { useDematchLineLinkMutation } = lineLinkApi
+export const { 
+  useDematchLineLinkMutation, 
+} = lineLinkApi

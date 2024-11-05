@@ -5,7 +5,7 @@ export interface Account {
 }
 
 export interface Bank {
-	id: number;
+	id: string;
 	nom: string;
 	comptes: Account[];
 }

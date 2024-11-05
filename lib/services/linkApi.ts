@@ -91,7 +91,7 @@ export const LinkApi = apiSlice.injectEndpoints({
       }
     >({
       query: ({ rapprochement_id, statut, page = 1, page_size = 10 }) => ({
-        url: `${LINKS_URL}/${rapprochement_id}/lignes`,
+        url: `/ligne_rapprochement/${rapprochement_id}/releves`,
         method: "GET",
         params: { statut, page, page_size },
       }),
@@ -108,13 +108,18 @@ export const LinkApi = apiSlice.injectEndpoints({
           : [{ type: LINKS_TAG, id: `LIST_${arg.rapprochement_id}` }],
     }),
 
-    validateLineLink: builder.mutation<
-      { message: string; ligne_id: number },
-      { rapprochement_id: number; ligne_id: number }
-    >({
-      query: ({ rapprochement_id, ligne_id }) => ({
-        url: `${LINKS_URL}/${rapprochement_id}/lignes/${ligne_id}/valider`,
-        method: "POST",
+    validateLineLink: builder.mutation<any, { 
+      rapprochement_id: number;
+      ligne_ids: number[];
+      ecart_accepte: boolean;
+    }>({
+      query: ({ rapprochement_id, ligne_ids, ecart_accepte }) => ({
+        url: `/ligne_rapprochement/${rapprochement_id}/valider`,
+        method: 'POST',
+        body: {
+          ligne_ids,
+          ecart_accepte
+        }
       }),
       // @ts-ignore
       invalidatesTags: (result, error, { rapprochement_id }) => [

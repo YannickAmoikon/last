@@ -1,7 +1,14 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { DetailButton } from './DetailButton';
+import { LineLink } from '@/types/lineLink';
+import { Book } from "@/types/book";
 
-export const LineLinkDetailDialog = ({ title, entity }: { title: string, entity: any }) => {
+interface LineLinkDetailDialogProps {
+  title: string;
+  entity: LineLink;
+}
+
+export const LineLinkDetailDialog = ({ title, entity }: LineLinkDetailDialogProps) => {
   const formatValue = (value: any, isAmount: boolean = false, isDate: boolean = false) => {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
@@ -40,7 +47,7 @@ export const LineLinkDetailDialog = ({ title, entity }: { title: string, entity:
         {keys.map(({ key, label, isAmount, isDate }) => (
           <div key={key} className="grid grid-cols-2 gap-2">
             <span className="text-sm font-medium text-gray-600">{label}:</span>
-            <span className="text-sm">{formatValue(data[key], isAmount, isDate)}</span>
+            <span className="text-sm">{formatValue(data?.[key], isAmount, isDate)}</span>
           </div>
         ))}
       </div>
@@ -53,7 +60,7 @@ export const LineLinkDetailDialog = ({ title, entity }: { title: string, entity:
     { key: 'type_match', label: 'Type de Match' },
     { key: 'commentaire', label: 'Commentaire' },
     { key: 'decision', label: 'Décision' },
-    { key: 'flag', label: 'Flag' }
+    { key: 'ecart', label: 'Écart', isAmount: true }
   ];
 
   const bookKeys = [
@@ -63,7 +70,7 @@ export const LineLinkDetailDialog = ({ title, entity }: { title: string, entity:
     { key: 'libelle', label: 'Libellé' },
     { key: 'debit', label: 'Débit', isAmount: true },
     { key: 'credit', label: 'Crédit', isAmount: true },
-    { key: 'cpte_alt', label: 'Compte Alternatif', isAmount: true },
+    { key: 'cpte_alt', label: 'Compte Alternatif' },
     { key: 'exercice', label: 'Exercice' },
     { key: 'compte', label: 'Compte' },
     { key: 'cpte_gen', label: 'Compte Général' }
@@ -80,7 +87,26 @@ export const LineLinkDetailDialog = ({ title, entity }: { title: string, entity:
         </DialogHeader>
         <div className="space-y-6">
           {renderDetails("Informations de la ligne rapprochement", entity, lineLinkKeys)}
-          {renderDetails("Détails du Grand Livre", entity.grand_livre, bookKeys)}
+          
+          {/* Affichage des grands livres */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-3">Détails des Grands Livres</h3>
+            {entity.grands_livres.map((book, index) => (
+              <div key={book.id} className="mb-4 p-4 bg-blue-50 rounded-lg">
+                <h4 className="text-md font-medium mb-2">
+                  Grand Livre #{index + 1}
+                </h4>
+                <div className="grid gap-2">
+                  {bookKeys.map(({ key, label, isAmount, isDate }) => (
+                    <div key={key} className="grid grid-cols-2 gap-2">
+                      <span className="text-sm font-medium text-gray-600">{label}:</span>
+                      <span className="text-sm">{formatValue(book[key as keyof Book], isAmount, isDate)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

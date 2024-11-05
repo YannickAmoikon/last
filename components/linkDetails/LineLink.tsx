@@ -9,15 +9,22 @@ import { useToast } from "@/hooks/use-toast"
 import { LineLinkDetailDialog } from './LineLinkDetailDialog'
 import { formatMontant } from '@/utils/formatters'
 import ManuelMatchDialog from './CreateManuelMatchDialog';
+import { LineLink as LineLinkType } from '@/types/lineLink';
 
 interface LineLinkProps {
-  linesLinks: any[];
+  linesLinks: LineLinkType[];
   bankStatementId: string;
   onMatchSuccess?: () => void;
-  bankStatement: any;
+  bankStatement: any; // À typer selon vos besoins
   isClotured?: boolean;
   showMatchButtons?: boolean;
   showDematchButton?: boolean;
+}
+
+interface EcartCalculation {
+  totalGrandLivre: number;
+  totalReleve: number;
+  ecart: number;
 }
 
 export const LineLink: React.FC<LineLinkProps> = ({ 
@@ -29,39 +36,105 @@ export const LineLink: React.FC<LineLinkProps> = ({
   showMatchButtons,
   showDematchButton
 }) => {
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [validateLineLink] = useValidateLineLinkMutation();
   const [dematchLineLink] = useDematchLineLinkMutation();
   const { toast } = useToast()
+  const [ecartCalculation, setEcartCalculation] = useState<EcartCalculation | null>(null);
+  const [isDematchDialogOpen, setIsDematchDialogOpen] = useState(false);
+
+  const calculateEcart = useCallback((selectedIds: string[]) => {
+    const selectedLines = linesLinks.filter(line => 
+      selectedIds.includes(line.id.toString())
+    );
+
+    const totalGrandLivre = selectedLines.reduce((sum, line) => {
+      const montant = line.grands_livres[0]?.credit || -line.grands_livres[0]?.debit || 0;
+      return sum + montant;
+    }, 0);
+
+    const montantReleve = bankStatement.credit || -bankStatement.debit || 0;
+    
+    const ecart = totalGrandLivre + montantReleve;
+    
+    setEcartCalculation({
+      totalGrandLivre,
+      totalReleve: montantReleve,
+      ecart: Math.abs(ecart)
+    });
+
+    return Math.abs(ecart);
+  }, [linesLinks, bankStatement]);
+
+  const handleSelectAll = useCallback(() => {
+    if (selectedItems.length === linesLinks.length) {
+      setSelectedItems([]);
+      setEcartCalculation(null);
+    } else {
+      const allIds = linesLinks.map(link => link.id.toString());
+      setSelectedItems(allIds);
+      calculateEcart(allIds);
+    }
+  }, [linesLinks, selectedItems.length, calculateEcart]);
 
   const handleCheckboxChange = useCallback((id: string) => {
-    setSelectedItem(prev => prev === id ? null : id);
-  }, []);
+    setSelectedItems(prev => {
+      const newSelection = prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id];
+      
+      if (newSelection.length > 0) {
+        calculateEcart(newSelection);
+      } else {
+        setEcartCalculation(null);
+      }
+      
+      return newSelection;
+    });
+  }, [calculateEcart]);
 
   const handleMatchSelected = async () => {
     if (!onMatchSuccess) return;
+    
+    const ecart = calculateEcart(selectedItems);
+    
+    if (ecart > 1000 && !ecartCalculation) {
+      setEcartCalculation({
+        totalGrandLivre: ecart,
+        totalReleve: bankStatement.credit || -bankStatement.debit || 0,
+        ecart: Math.abs(ecart)
+      });
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      if (selectedItem) {
-        await validateLineLink({ rapprochement_id: parseInt(bankStatementId), ligne_id: parseInt(selectedItem) });
-        setIsDialogOpen(false);
-        setSelectedItem(null);
-        onMatchSuccess();
-        toast({
-          title: "Match réussi",
-          description: "L'élément a été matché avec succès.",
-          className: "bg-green-600 text-white"
-        })
-      }
+      await validateLineLink({ 
+        rapprochement_id: parseInt(bankStatementId),
+        ligne_ids: selectedItems.map(id => parseInt(id)),
+        ecart_accepte: ecart > 1000
+      }).unwrap();
+      
+      setIsDialogOpen(false);
+      setSelectedItems([]);
+      setEcartCalculation(null);
+      
+      onMatchSuccess();
+
+      toast({
+        title: "Match réussi",
+        description: "Les éléments ont été matchés avec succès.",
+        className: "bg-green-600 text-white"
+      });
     } catch (error) {
       console.error("Erreur lors du match:", error);
       toast({
         title: "Erreur de match",
         description: "Une erreur est survenue lors du match.",
         variant: "destructive",
-      })
+      });
     } finally {
       setIsLoading(false);
     }
@@ -79,13 +152,25 @@ export const LineLink: React.FC<LineLinkProps> = ({
 
     setIsLoading(true);
     try {
-      await dematchLineLink({ rapprochement_id: parseInt(rapprochementId), ligne_id: ligneId }).unwrap();
+      await dematchLineLink({ 
+        rapprochement_id: parseInt(rapprochementId), 
+        ligne_id: ligneId 
+      }).unwrap();
+
+      setIsDematchDialogOpen(false);
+      setSelectedItems([]);
+
+      setTimeout(() => {
+        if (onMatchSuccess) {
+          onMatchSuccess();
+        }
+      }, 500);
+
       toast({ 
         title: "Dématchage réussi", 
         description: "L'élément a été dématché avec succès.", 
         className: "bg-green-600 text-white" 
       });
-      if (onMatchSuccess) onMatchSuccess();
     } catch (error) {
       console.error("Erreur lors du dématchage:", error);
       toast({ 
@@ -100,31 +185,64 @@ export const LineLink: React.FC<LineLinkProps> = ({
 
   return (
     <div className="space-y-2 relative">
-      {linesLinks.map((lineLink, idx) => (
-        <Card key={idx} className="w-full rounded-sm mb-2 shadow-sm bg-blue-100 border-l-4 border-l-blue-500 hover:shadow-md cursor-pointer transition-shadow duration-200">
+      <div className="flex justify-between items-center mb-4">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleSelectAll}
+          className="text-xs"
+        >
+          {selectedItems.length === linesLinks.length ? "Tout désélectionner" : "Tout sélectionner"}
+        </Button>
+        <span className="text-sm text-gray-600">
+          {selectedItems.length} élément(s) sélectionné(s)
+        </span>
+      </div>
+
+      {linesLinks.map((lineLink) => (
+        <Card 
+          key={lineLink.id} 
+          className={`w-full rounded-sm mb-2 shadow-sm hover:shadow-md transition-shadow duration-200 ${
+            selectedItems.includes(lineLink.id.toString()) 
+              ? 'bg-blue-200 border-l-4 border-l-blue-600' 
+              : 'bg-blue-100 border-l-4 border-l-blue-500'
+          }`}
+        >
           <div className="flex items-center h-28">
             <div className="p-4 h-full flex items-center">
               <input
                 type="checkbox"
-                checked={selectedItem === lineLink.id.toString()}
-                onChange={() => handleCheckboxChange(lineLink.id.toString())}
+                checked={selectedItems.includes(lineLink.id.toString())}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  handleCheckboxChange(lineLink.id.toString());
+                }}
                 className="h-5 w-5 rounded-sm border-gray-300 text-blue-600 focus:ring-blue-500"
               />
             </div>
-            <div className="flex-grow h-full flex flex-col justify-center py-3">
-              <CardTitle className="text-sm font-semibold text-blue-700">{`ID: ${lineLink.grand_livre.id}`}</CardTitle>
-              <CardDescription className="text-xs mt-1 text-gray-600">{lineLink.grand_livre.libelle}</CardDescription>
+            <div 
+              className="flex-grow h-full flex flex-col justify-center py-3 cursor-pointer"
+              onClick={() => handleCheckboxChange(lineLink.id.toString())}
+            >
+              <CardTitle className="text-sm font-semibold text-blue-700">
+                {`ID: ${lineLink.grands_livres[0]?.id}`}
+              </CardTitle>
+              <CardDescription className="text-xs mt-1 text-gray-600">
+                {lineLink.grands_livres[0]?.libelle}
+              </CardDescription>
               <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                 <div>
                   <span className="text-gray-600">Date: </span>
-                  <span className="font-medium text-gray-900">{new Date(lineLink.grand_livre.date_ecriture).toLocaleDateString()}</span>
+                  <span className="font-medium text-gray-900">
+                    {new Date(lineLink.grands_livres[0]?.date_ecriture).toLocaleDateString()}
+                  </span>
                 </div>
                 <div>
                   <span className="text-gray-600">Montant: </span>
                   <span className="font-medium text-gray-900">
-                    {lineLink.grand_livre.debit ? 
-                      `-${formatMontant(lineLink.grand_livre.debit)}` : 
-                      formatMontant(lineLink.grand_livre.credit)}
+                    {lineLink.grands_livres[0]?.debit ? 
+                      `-${formatMontant(lineLink.grands_livres[0].debit)}` : 
+                      formatMontant(lineLink.grands_livres[0]?.credit)}
                   </span>
                 </div>
                 <div>
@@ -140,7 +258,10 @@ export const LineLink: React.FC<LineLinkProps> = ({
               )}
             </div>
             <div className="p-4 h-full flex items-center">
-              <LineLinkDetailDialog title={`Grand Livre : ${lineLink.grand_livre.id}`} entity={lineLink} />
+              <LineLinkDetailDialog 
+                title={`Grand Livre : ${lineLink.grands_livres[0]?.id}`} 
+                entity={lineLink} 
+              />
             </div>
           </div>
         </Card>
@@ -154,28 +275,69 @@ export const LineLink: React.FC<LineLinkProps> = ({
                 <Button 
                   size="sm" 
                   className="bg-blue-600 rounded-sm my-2 hover:bg-blue-600 text-white"
-                  disabled={!selectedItem || isLoading}
+                  disabled={selectedItems.length === 0 || isLoading}
                 >
                   <Merge className="mr-1" size={14} />
-                  Matcher
+                  Matcher ({selectedItems.length})
                 </Button>
               </DialogTrigger>
               <DialogContent className="bg-white">
                 <DialogHeader>
-                  <DialogTitle>Faire un matching</DialogTitle>
+                  <DialogTitle>Faire un matching multiple</DialogTitle>
                 </DialogHeader>
                 <DialogDescription className="text-gray-600">
-                  Êtes-vous sûr de vouloir matcher le grand livre <span className="font-medium text-blue-600">{linesLinks[0]?.grand_livre.id}</span> au Relevé <span className="font-medium text-orange-600">{bankStatementId}</span> ?
+                  <div className="space-y-4">
+                    <p>
+                      Êtes-vous sûr de vouloir matcher {selectedItems.length} élément(s) au Relevé <span className="font-medium text-orange-600">{bankStatementId}</span> ?
+                    </p>
+                    
+                    {ecartCalculation && ecartCalculation.ecart > 0 && (
+                      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0">
+                            <Info className="h-5 w-5 text-yellow-400" />
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm text-yellow-700">
+                              {ecartCalculation.ecart > 1000 ? 
+                                "Attention : Un écart important a été détecté" : 
+                                "Un écart a été détecté"}
+                            </p>
+                            <ul className="mt-2 text-sm text-yellow-700">
+                              <li>Total Grand Livre : {formatMontant(ecartCalculation.totalGrandLivre)} XOF</li>
+                              <li>Total Relevé : {formatMontant(ecartCalculation.totalReleve)} XOF</li>
+                              <li>Écart : {formatMontant(ecartCalculation.ecart)} XOF</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </DialogDescription>
                 <div className="flex justify-end space-x-2 mt-4">
-                  <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
+                  <Button 
+                    size="sm" 
+                    className="rounded-sm" 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsDialogOpen(false);
+                      setEcartCalculation(null);
+                    }} 
+                    disabled={isLoading}
+                  >
                     <X className="mr-1" size={14} />
                     Annuler
                   </Button>
-                  <Button size="sm" className="bg-green-600 rounded-sm hover:bg-green-600 text-white" onClick={handleMatchSelected} disabled={isLoading}>
+                  <Button 
+                    size="sm" 
+                    className="bg-green-600 rounded-sm hover:bg-green-600 text-white" 
+                    onClick={handleMatchSelected} 
+                    disabled={isLoading}
+                  >
                     {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                     <Check className="mr-1" size={14} />
-                    Oui
+                    {/* @ts-ignore */}
+                    {ecartCalculation?.ecart > 1000 ? "Confirmer malgré l'écart" : "Confirmer"}
                   </Button>
                 </div>
               </DialogContent>
@@ -183,34 +345,40 @@ export const LineLink: React.FC<LineLinkProps> = ({
             <ManuelMatchDialog bankStatement={bankStatement} />
           </>
         )}
-        {showDematchButton && !isClotured && (
-          <Dialog>
+        {showDematchButton && !isClotured && selectedItems.length > 0 && (
+          <Dialog open={isDematchDialogOpen} onOpenChange={setIsDematchDialogOpen}>
             <DialogTrigger asChild>
               <Button 
                 size="sm" 
                 className="bg-red-600 rounded-sm my-2 hover:bg-red-600 text-white"
-                disabled={!selectedItem || isLoading}
+                disabled={isLoading}
               >
                 <Split className="mr-1" size={14} />
-                Dématcher
+                Dématcher ({selectedItems.length})
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-white">
               <DialogHeader>
-                <DialogTitle>Confirmer le dématchage</DialogTitle>
+                <DialogTitle>Confirmer le dématchage multiple</DialogTitle>
               </DialogHeader>
               <DialogDescription className="text-gray-600">
-                Êtes-vous sûr de vouloir dématcher cet élément ?
+                Êtes-vous sûr de vouloir dématcher {selectedItems.length} élément(s) ?
               </DialogDescription>
               <div className="flex justify-end space-x-2 mt-4">
-                <Button size="sm" className="rounded-sm" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isLoading}>
+                <Button 
+                  size="sm" 
+                  className="rounded-sm" 
+                  variant="outline" 
+                  onClick={() => setIsDematchDialogOpen(false)} 
+                  disabled={isLoading}
+                >
                   <X className="mr-1" size={14} />
                   Annuler
                 </Button>
                 <Button 
                   size="sm" 
                   className="bg-red-600 rounded-sm hover:bg-red-600 text-white" 
-                  onClick={() => handleDematch(bankStatementId, parseInt(selectedItem!))} 
+                  onClick={() => handleDematch(bankStatementId, parseInt(selectedItems[0]!))} 
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}

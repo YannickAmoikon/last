@@ -39,7 +39,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
   const [filteredData, setFilteredData] = useState<any[]>([]);
   const [isClosing, setIsClosing] = useState(false);
   const { triggerRefresh } = useRefresh();
-  const pageSize = 25;
+  const pageSize = 50;
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const [closeLink] = useCloseLinkMutation();
@@ -132,7 +132,9 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
   }, [currentTab, linkId]);
 
   useEffect(() => {
-    if (linkData) setTotalUnmatched(linkData.total);
+    if (linkData) {
+      setTotalUnmatched(linkData.total);
+    }
   }, [linkData]);
 
   useEffect(() => {
@@ -276,9 +278,21 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
         </CardHeader>
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-2">
-            <StatCard title="Total de lignes" value={linkData?.total_ligne?.toString() || "0"} icon={<LibraryBig size={24} />} />
-            <StatCard title="Total en attente de validation" value={totalUnmatched.toString()} icon={<BookCopy size={24} />} />
-            <StatCard title="Total de matchs terminés" value={linkData?.total_match?.toString() || "0"} icon={<BookCheck size={24} />} />
+            <StatCard 
+              title="Total de lignes" 
+              value={linkData?.total_ligne?.toString() || "0"} 
+              icon={<LibraryBig size={24} />} 
+            />
+            <StatCard 
+              title="Total en attente de validation" 
+              value={totalUnmatched.toString()} 
+              icon={<BookCopy size={24} />} 
+            />
+            <StatCard 
+              title="Total de matchs terminés" 
+              value={linkData?.total_match?.toString() || "0"} 
+              icon={<BookCheck size={24} />} 
+            />
             <StatCard 
               title="Taux de progression"
               value={`${(((linkData?.total_match || 0) / (linkData?.total_ligne || 1)) * 100).toFixed(1)} %`} 
@@ -336,7 +350,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
               Précédent
             </Button>
             <div className="text-xs text-gray-600">
-              Affichage {currentPage} sur {(currentTab === "waiting" ? linkData : historyData)?.total_pages || 1}
+              Page {currentPage} sur {(currentTab === "waiting" ? linkData : historyData)?.total_pages || 1}
             </div>
             <Button 
               size="sm" 

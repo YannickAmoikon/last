@@ -7,7 +7,7 @@ export default function HelpPage() {
             <CardHeader className="border-b">
                 <CardTitle className="uppercase text-lg">Aide</CardTitle>
                 <CardDescription>
-                    Documentation sur l'application
+                    {"Documentation sur l'application"}
                 </CardDescription>
             </CardHeader>
         </Card>
