@@ -39,7 +39,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
   const [filteredData, setFilteredData] = useState<any[]>([]);
   const [isClosing, setIsClosing] = useState(false);
   const { triggerRefresh } = useRefresh();
-  const pageSize = 50;
+  const pageSize = 25;
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const [closeLink] = useCloseLinkMutation();

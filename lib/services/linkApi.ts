@@ -135,6 +135,7 @@ export const LinkApi = apiSlice.injectEndpoints({
         url: `${LINKS_URL}/${rapprochement_id}/lignes/rapport`,
         method: "GET",
         params: { statut },
+        //@ts-ignore
         responseHandler: (response) => response.blob(),
       }),
     }),

@@ -307,7 +307,7 @@ export default function CreateLinkDialog({onLinkCreated}: CreateLinkDialogProps)
 								{isCreating ? (
 									<>
 										<Loader2 className="mr-1 h-4 w-4 animate-spin" />
-										Création en cours...
+										Enregistrement en cours...
 									</>
 								) : (
 									"Enregistrer"

@@ -190,11 +190,11 @@ export const LineLink: React.FC<LineLinkProps> = ({
           size="sm"
           variant="outline"
           onClick={handleSelectAll}
-          className="text-xs"
+          className="text-xs rounded-sm"
         >
           {selectedItems.length === linesLinks.length ? "Tout désélectionner" : "Tout sélectionner"}
         </Button>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-gray-600 ">
           {selectedItems.length} élément(s) sélectionné(s)
         </span>
       </div>
@@ -283,7 +283,7 @@ export const LineLink: React.FC<LineLinkProps> = ({
               </DialogTrigger>
               <DialogContent className="bg-white">
                 <DialogHeader>
-                  <DialogTitle>Faire un matching multiple</DialogTitle>
+                  <DialogTitle>Faire un matching</DialogTitle>
                 </DialogHeader>
                 <DialogDescription className="text-gray-600">
                   <div className="space-y-4">

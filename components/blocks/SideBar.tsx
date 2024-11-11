@@ -9,12 +9,10 @@ import {
   LogOut,
   FileSpreadsheet,
   Landmark,
-  AtSign,
-  ArrowLeftRight,
-  ArrowUp01,
   ArrowDown10,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useToast } from "@/hooks/use-toast";
 
 const items = [
   { title: "Tableau de bord", url: "/dashboard", icon: LayoutDashboard },
@@ -25,6 +23,7 @@ const items = [
 export default function SideBar({ className = "" }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { toast } = useToast();
 
   const isActive = (url: string) => {
     if (url === "/dashboard") {
@@ -33,7 +32,27 @@ export default function SideBar({ className = "" }: { className?: string }) {
     return pathname.startsWith(url);
   };
 
-  const handleLogout = async () => {};
+  const handleLogout = async () => {
+    try {
+      // 1. Construire l'URL de déconnexion Keycloak avec les bons paramètres
+      const keycloakUrl = "https://iam.sanlamconnect.com";
+      const realm = "e-sama";
+      const clientId = "rapprochement-bancaire-dev";
+      const redirectUri = `${window.location.origin}/login`;
+
+      // 2. Déconnexion de NextAuth
+      await signOut({ redirect: false });
+
+      // 3. Construire l'URL complète de déconnexion
+      const logoutUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/logout?client_id=${clientId}&post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+      // 4. Redirection vers Keycloak
+      window.location.replace(logoutUrl);
+
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+    }
+  };
 
   const LinkItem = ({ item }: { item: (typeof items)[0] }) => (
     <Link
