@@ -4,8 +4,13 @@ export interface Account {
 	description: string;
 }
 
-export interface Bank {
-	id: string;
+export interface BankWithAccounts {
+	id: number;
 	nom: string;
 	comptes: Account[];
+}
+
+export interface Bank {
+	id: number;
+	nom: string;
 }

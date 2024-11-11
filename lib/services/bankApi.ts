@@ -3,7 +3,7 @@ import {Bank} from '@/types/bank'
 
 
 // Types pour les requêtes
-type BankCreateInput = Omit<Bank, 'id' | 'comptes'>;
+type BankCreateInput = Omit<Bank, 'id'>;
 type BankUpdateInput = Partial<BankCreateInput>;
 
 // Constantes
@@ -16,6 +16,21 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 		getBanksWithAccounts: builder.query<Bank[], void>({
 			query: () => ({
 				url: `${BANKS_URL}/with-comptes`,
+				method: 'GET',
+			}),
+			//@ts-ignore
+			providesTags: (result) =>
+				result
+					? [
+						...result.map(({id}) => ({type: BANKS_TAG, id})),
+						{type: BANKS_TAG, id: 'LIST'},
+					]
+					: [{type: BANKS_TAG, id: 'LIST'}],
+		}),
+
+		getBanks: builder.query<Bank[], void>({
+			query: () => ({
+				url: BANKS_URL,
 				method: 'GET',
 			}),
 			//@ts-ignore
@@ -62,6 +77,7 @@ export const banquesApiSlice = apiSlice.injectEndpoints({
 // Hooks exportés
 export const {
 	useGetBanksWithAccountsQuery,
+	useGetBanksQuery,
 	useCreateBankMutation,
 	useUpdateBankMutation,
 	useDeleteBankMutation,

@@ -82,11 +82,21 @@ const config: Config = {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+        'marquee': {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(-100%)' }
+        },
+        'slow-pulse': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' }
+        }
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+        'marquee': 'marquee 20s linear infinite',
+        'slow-pulse': 'slow-pulse 20s cubic-bezier(0.4, 0, 0.6, 1) infinite'
   		},
   		fontFamily: {
   			sans: ['GeistVF', 'sans-serif'],

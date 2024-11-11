@@ -3,7 +3,7 @@ import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 import {getSession, signOut} from 'next-auth/react';
 
 const baseQuery = fetchBaseQuery({
-	baseUrl: 'http://69.197.168.215:8000/api/v1',
+	baseUrl: 'https://api-sacirba.sanlamconnect.com/api/v1',
 	prepareHeaders: async (headers) => {
 		const session = await getSession();
 

@@ -6,9 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useCreateBankMutation } from "@/lib/services/bankApi";
+import { useUpdateBankMutation } from "@/lib/services/bankApi";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Save, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Save, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +16,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -26,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "../ui/textarea";
+import { Bank } from "@/types/bank";
 
 // Schéma de validation Zod
 const formSchema = z.object({
@@ -36,66 +35,72 @@ const formSchema = z.object({
 // Types
 type FormValues = z.infer<typeof formSchema>;
 
-interface CreateBankDialogProps {
-  onBankCreated?: (success: boolean, message: string) => void;
+interface UpdateBankDialogProps {
+  bank: Bank;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onBankEdited?: (success: boolean, message: string) => void;
 }
 
-export default function CreateBankDialog({ onBankCreated }: CreateBankDialogProps) {
-  // États
-  const [open, setOpen] = useState(false);
-  const [createBank, { isLoading: isCreating }] = useCreateBankMutation();
+export default function UpdateBankDialog({ 
+  bank, 
+  open, 
+  onOpenChange, 
+  onBankEdited 
+}: UpdateBankDialogProps) {
+  const [updateBank, { isLoading: isUpdating }] = useUpdateBankMutation();
   const { toast } = useToast();
 
   // Configuration du formulaire
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nom: "",
+      nom: bank.nom,
     },
   });
 
   // Gestionnaires d'événements
   const resetForm = () => {
     form.reset({
-      nom: "",
+      nom: bank.nom,
     });
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
+    onOpenChange(newOpen);
     if (!newOpen) {
       resetForm();
     }
   };
 
-
   // Soumission du formulaire
   const onSubmit = async (values: FormValues) => {
     try {
-      const result = await createBank({
-        nom: values.nom,
+      await updateBank({
+        id: bank.id,
+        body: values
       }).unwrap();
 
       toast({
         title: "Succès",
-        description: "La banque a été créée avec succès",
+        description: "La banque a été modifiée avec succès",
       });
 
-      if (onBankCreated) {
-        onBankCreated(true, "La banque a été créée avec succès");
+      if (onBankEdited) {
+        onBankEdited(true, "La banque a été modifiée avec succès");
       }
 
       handleOpenChange(false);
     } catch (error) {
-      console.error("Erreur lors de la création de la banque:", error);
+      console.error("Erreur lors de la modification de la banque:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Une erreur est survenue lors de la création de la banque",
+        description: "Une erreur est survenue lors de la modification de la banque",
       });
 
-      if (onBankCreated) {
-        onBankCreated(false, "Erreur lors de la création de la banque");
+      if (onBankEdited) {
+        onBankEdited(false, "Erreur lors de la modification de la banque");
       }
     }
   };
@@ -103,18 +108,11 @@ export default function CreateBankDialog({ onBankCreated }: CreateBankDialogProp
   // Rendu
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button size="sm" className="bg-gray-800 text-white rounded-sm hover:text-white hover:bg-gray-900">
-          <Plus className="mr-1" size={14} />
-          Nouvelle Banque
-        </Button>
-      </DialogTrigger>
-
       <DialogContent className="sm:max-w-[500px] w-full">
         <DialogHeader>
-          <DialogTitle>Créer une nouvelle banque</DialogTitle>
+          <DialogTitle>Modifier la banque</DialogTitle>
           <DialogDescription>
-            Remplissez les informations pour créer une nouvelle banque
+            Modifiez les informations de la banque
           </DialogDescription>
         </DialogHeader>
 
@@ -142,17 +140,17 @@ export default function CreateBankDialog({ onBankCreated }: CreateBankDialogProp
               <Button 
                 type="submit"
                 size="sm"
-                disabled={isCreating}
+                disabled={isUpdating}
                 className="bg-green-600 text-white hover:bg-green-600"
               >
-                <Save className="mr-1" size={14} />
-                {isCreating ? (
+                <Pencil className="mr-1" size={14} />
+                {isUpdating ? (
                   <>
                     <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                    Enregistrement en cours...
+                    Modification en cours...
                   </>
                 ) : (
-                  "Enregistrer"
+                  "Modifier"
                 )}
               </Button>
             </DialogFooter>

@@ -1,7 +1,7 @@
 "use client"
 
 import React, {useState, useMemo, useEffect} from "react"
-import { useGetBanksWithAccountsQuery, useDeleteBankMutation } from "@/lib/services/bankApi";
+import { useGetBanksQuery, useDeleteBankMutation} from "@/lib/services/bankApi";
 import {useToast} from "@/hooks/use-toast";
 import CreateBankDialog from "@/components/bank/CreateBankDialog";
 import {Toaster} from "@/components/ui/toaster"
@@ -10,6 +10,8 @@ import {Loader2, RefreshCcw} from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import {useRefresh} from "@/components/contexts/RefreshContext";
 import { SearchInput } from "@/components/link/SearchInput";
+import { BankTable } from "@/components/bank/BankTable";
+import { Bank } from "@/types/bank";
 
 export default function BanksPage() {
 	const [page, setPage] = useState(1);
@@ -23,25 +25,27 @@ export default function BanksPage() {
 		isLoading,
 		error,
 		refetch
-	} = useGetBanksWithAccountsQuery();
+	} = useGetBanksQuery();
 
 	const [deleteBank] = useDeleteBankMutation();
 
 	const filteredBanks = useMemo(() => {
 		if (!banks) return [];
-		return banks.filter(bank => bank.nom.toLowerCase().includes(searchTerm.toLowerCase()));
+		return banks.filter((bank: Bank) => bank.nom.toLowerCase().includes(searchTerm.toLowerCase()));
 	}, [banks, searchTerm]);
 
 	useEffect(() => {
 		refetch();
 	}, [triggerRefresh, refetch]);
 
-	const handleDelete = async (id: number) => {
+	const handleDelete = async (id: string) => {
 		try {
+			//@ts-ignore
 			await deleteBank(id).unwrap();
 			toast({
 				title: "Succès",
-				description: `La banque a été supprimée avec succès`
+				description: `La banque a été supprimée avec succès`,
+				className: "bg-green-600"
 			})
 			refetch();
 		}
@@ -101,7 +105,7 @@ export default function BanksPage() {
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
 					</svg>
 					<h2 className="mt-2 text-lg font-semibold text-gray-900">Erreur de chargement</h2>
-					<p className="mt-2 text-sm text-gray-500">Impossible de charger les rapprochements. Veuillez réessayer.</p>
+					<p className="mt-2 text-sm text-gray-500">Impossible de charger les banques. Veuillez réessayer.</p>
 					<div className="mt-6">
 						<Button
 							onClick={() => window.location.reload()}
@@ -131,6 +135,7 @@ export default function BanksPage() {
 						<SearchInput value={searchTerm} onChange={setSearchterm} />
 						<CreateBankDialog onBankCreated={handleBankCreated} />
 					</div>
+					<BankTable banks={filteredBanks} onDelete={handleDelete} triggerRefresh={triggerRefresh} />
 				</CardContent>
 			</Card>
 		</main>
