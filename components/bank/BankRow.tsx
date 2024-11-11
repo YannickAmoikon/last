@@ -54,7 +54,7 @@ export const BankRow: React.FC<BankRowProps> = ({ bank, onDelete, triggerRefresh
 		<TableRow>
 			<TableCell className="w-1/12 text-left">{bank.id}</TableCell>
 			<TableCell className="w-2/12 text-center">{bank.nom}</TableCell>
-			<TableCell className="w-2/12 text-right">
+			<TableCell className="w-9/12 text-right">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="ghost" className="h-8 w-8 p-0">

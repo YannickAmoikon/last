@@ -16,7 +16,7 @@ export const BankTable: React.FC<BankTableProps> = ({ banks, onDelete, triggerRe
         <TableRow>
           <TableHead className="w-1/12 text-left">ID</TableHead>
           <TableHead className="w-2/12 text-center">Nom</TableHead>
-          <TableHead className="w-2/12 text-right">Actions</TableHead>
+          <TableHead className="w-9/12 text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>

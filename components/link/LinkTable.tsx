@@ -20,7 +20,7 @@ export const LinkTable: React.FC<LinkTableProps> = ({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-1/12 text-left">ID</TableHead>
+          <TableHead className="w-2/12 text-left">ID</TableHead>
           <TableHead className="w-2/12 text-center">Date</TableHead>
           <TableHead className="w-2/12 text-center">Banque</TableHead>
           <TableHead className="w-2/12 text-center">Statut</TableHead>

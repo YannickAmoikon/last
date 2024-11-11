@@ -61,9 +61,9 @@ export default function LoginPage() {
 					{/* Left Column */}
 					<div className="space-y-8 text-center lg:text-left animate-fade-in-up">
 						<h1 className="text-2xl lg:text-4xl font-bold text-gray-800 leading-tight">
-							Gestion des<br />
+							Rapprochements Bancaires<br />
 							<span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-600">
-								Rapprochements Bancaires
+								Automatisés
 							</span>
 						</h1>
 						
