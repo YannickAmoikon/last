@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect } from 'react';
 import { saveAs } from 'file-saver';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -51,7 +51,6 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
     page_size: pageSize
   });
 
-  console.log(linkId, linkStatus)
 
   const { data: historyData, error: historyError, isLoading: historyLoading, refetch: refetchHistory } = useGetMatchesQuery({
     statut: "Rapprochement_Match",
@@ -243,7 +242,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
             <CardTitle className="uppercase">Détails du Rapprochement #{linkId}</CardTitle>
             <CardDescription>Informations générales et statistiques</CardDescription>
           </div>
-          <div className="flex items-center space-x-2">
+         <div className="flex items-center space-x-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="secondary" className="border rounded-sm" disabled={isExporting || isClosing}>
@@ -274,7 +273,7 @@ export const LinkDetails = ({ linkId, linkStatus }: LinkDetailsProps) => {
             <ArrowLeft className="mr-1" size={14} />
               Retour
             </Button>
-          </div>
+          </div> 
         </CardHeader>
         <CardContent className="space-y-4 p-6">
           <div className="grid grid-cols-4 gap-2">

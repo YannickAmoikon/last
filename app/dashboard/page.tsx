@@ -9,17 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { 
-	Users, 
-	ArrowUpRight, 
-	ArrowDownRight, 
-	DollarSign, 
-	FileText, 
-	TrendingUp,
-	Filter
-} from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Button } from "@/components/ui/button";
+
 
 // Données factices pour le graphique
 const chartData = [

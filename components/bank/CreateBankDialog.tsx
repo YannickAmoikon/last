@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCreateBankMutation } from "@/lib/services/bankApi";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Save, Trash2 } from "lucide-react";
+import { Plus, Loader2, Save} from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "../ui/textarea";
 
 // Schéma de validation Zod
 const formSchema = z.object({
