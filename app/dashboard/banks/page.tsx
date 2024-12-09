@@ -7,9 +7,9 @@ import CreateBankDialog from "@/components/bank/CreateBankDialog";
 import {Toaster} from "@/components/ui/toaster"
 import {Button} from "@/components/ui/button"
 import {Loader2, RefreshCcw} from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {useRefresh} from "@/components/contexts/RefreshContext";
-import { SearchInput } from "@/components/link/SearchInput";
+import { SearchInput } from "@/components/blocks/SearchInput";
 import { BankTable } from "@/components/bank/BankTable";
 import { Bank } from "@/types/bank";
 

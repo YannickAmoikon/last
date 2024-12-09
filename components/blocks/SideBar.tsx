@@ -77,7 +77,7 @@ export default function SideBar({ className = "" }: { className?: string }) {
         <span className="flex items-center gap-2 font-semibold">
           <ArrowDown10 className="h-6 w-6 mr-1" />
           <span className="uppercase text-lg uppercase">
-            S A C I {"-"} R A P B
+          S A C I R B A
           </span>
         </span>
       </div>
