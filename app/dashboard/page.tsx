@@ -9,7 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserCircle, TrendingUp, Wallet, Percent, BookCheck, ChartLine } from "lucide-react";
+import { UserCircle, TrendingUp, Wallet, Percent, BookCheck, ChartLine, Loader2 } from "lucide-react";
 import {useGetBanksQuery} from "@/lib/services/bankApi";
 
 // Graphique	
@@ -111,7 +111,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-lg flex items-center justify-between font-bold text-gray-600">
-									<span>10%</span>
+									<span><Loader2 className="w-6 h-6 animate-spin" /></span>
 									<TrendingUp className="w-6 h-6" />
 								</div>
 							</CardContent>
@@ -125,7 +125,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-lg flex items-center justify-between font-bold text-gray-600">
-									<span>12.5%</span>
+									<span><Loader2 className="w-6 h-6 animate-spin" /></span>
 									<ChartLine className="w-6 h-6" />
 								</div>
 							</CardContent>
@@ -139,7 +139,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-lg flex items-center justify-between font-bold text-gray-600">
-									<span>174</span>
+									<span><Loader2 className="w-6 h-6 animate-spin" /></span>
 									<BookCheck className="w-6 h-6" />
 								</div>
 							</CardContent>
@@ -152,7 +152,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-lg flex items-center justify-between font-bold text-gray-600">
-									<span>1 000 000</span>
+									<span><Loader2 className="w-6 h-6 animate-spin" /></span>
 									<Wallet className="w-6 h-6" />
 								</div>
 							</CardContent>
