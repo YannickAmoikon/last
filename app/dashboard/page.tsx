@@ -8,15 +8,17 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import {useGetStatPerBankQuery} from "@/lib/services/dashboardApi";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserCircle, TrendingUp, Wallet, Percent, BookCheck, ChartLine, Loader2 } from "lucide-react";
+import { TrendingUp, Wallet, BookCheck, ChartLine, Loader2 } from "lucide-react";
 import {useGetBanksQuery} from "@/lib/services/bankApi";
 
 // Graphique	
-import React from 'react';
+import React, {useState} from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {formatMontant} from "@/utils/formatters";
 
 
 const data = [
@@ -75,7 +77,11 @@ const DashboardChart = () => {
 export default function DashboardPage() {
 	const { data: session } = useSession();
 	const {data: banks} = useGetBanksQuery();
+	// @ts-ignore
 	const dataBanks = banks;
+	const [selectedBankId, setSelectedBankId] = useState(banks && banks.length > 0 ? banks[0].id.toString() : '')
+	const {data: stats} = useGetStatPerBankQuery(selectedBankId,{skip: !selectedBankId});
+
 
 	return (
 		<main className="flex flex-1 w-full h-full">
@@ -89,7 +95,7 @@ export default function DashboardPage() {
 				<CardContent className="p-4 w-full flex flex-col">
 					<div className="flex justify-end">
 						<div className="flex justify-end w-full max-w-[200px]">
-							<Select defaultValue={dataBanks?.[0].id.toString()}>
+							<Select value={selectedBankId} onValueChange={(value) => setSelectedBankId(value)}>
 								<SelectTrigger>
 									<SelectValue placeholder="Toutes les banques" />
 								</SelectTrigger>
@@ -111,7 +117,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-lg flex items-center justify-between font-bold text-gray-600">
-									<span><Loader2 className="w-6 h-6 animate-spin" /></span>
+									<span>{stats ? `${(stats.taux_de_match).toFixed(2)} %` : <Loader2 className="w-6 h-6 animate-spin" />}</span>
 									<TrendingUp className="w-6 h-6" />
 								</div>
 							</CardContent>
@@ -125,7 +131,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-lg flex items-center justify-between font-bold text-gray-600">
-									<span><Loader2 className="w-6 h-6 animate-spin" /></span>
+									<span>{stats ? `${(stats.taux_de_match_manuel).toFixed(2)} %`: <Loader2 className="w-6 h-6 animate-spin"/>}</span>
 									<ChartLine className="w-6 h-6" />
 								</div>
 							</CardContent>
@@ -139,7 +145,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-lg flex items-center justify-between font-bold text-gray-600">
-									<span><Loader2 className="w-6 h-6 animate-spin" /></span>
+									<span>{stats ? `${(stats.nombre_total_de_matchs)}` : <Loader2 className="w-6 h-6 animate-spin"/>}</span>
 									<BookCheck className="w-6 h-6" />
 								</div>
 							</CardContent>
@@ -152,7 +158,7 @@ export default function DashboardPage() {
 							</CardHeader>
 							<CardContent>
 								<div className="text-lg flex items-center justify-between font-bold text-gray-600">
-									<span><Loader2 className="w-6 h-6 animate-spin" /></span>
+									<span>{stats ? `${formatMontant(stats.volume_total)}` : <Loader2 className="w-6 h-6 animate-spin"/>}</span>
 									<Wallet className="w-6 h-6" />
 								</div>
 							</CardContent>
