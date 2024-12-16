@@ -73,5 +73,5 @@ export function BankStatementDetailDialog({ title, entity }: { title: string, en
         </div>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
