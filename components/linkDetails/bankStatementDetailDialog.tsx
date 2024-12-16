@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { DetailButton } from './DetailButton';
 
-export const BankStatementDetailDialog = ({ title, entity }: { title: string, entity: any }) => {
+export default function BankStatementDetailDialog({ title, entity }: { title: string, entity: any }) {
   const formatValue = (value: any, isAmount: boolean = false, isDate: boolean = false) => {
     if (value === null || value === undefined) return "N/A";
     if (typeof value === "boolean") return value ? "Oui" : "Non";
