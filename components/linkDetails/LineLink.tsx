@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog"
 import { Merge, Loader2, Info, Check, X, Split } from 'lucide-react';
 import { useValidateLineLinkMutation } from '@/lib/services/linkApi';
-import { useDematchLineLinkMutation } from '@/lib/services/lineLinkApi';
+import { useDematchLineLinkMutation } from '@/lib/services/linkApi';
 import { useToast } from "@/hooks/use-toast"
 import { LineLinkDetailDialog } from './LineLinkDetailDialog'
 import { formatMontant } from '@/utils/formatters'
@@ -94,6 +94,50 @@ export const LineLink: React.FC<LineLinkProps> = ({
       return newSelection;
     });
   }, [calculateEcart]);
+
+  const handleDematch = async (rapprochementId: string, ligneId: number) => {
+    if (isClotured) {
+      toast({
+        title: "Action non autorisée",
+        description: "Le dématchage n'est pas possible sur un rapprochement clôturé.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await dematchLineLink({
+        rapprochement_id: parseInt(rapprochementId),
+        ligne_id: ligneId
+      }).unwrap();
+
+      setIsDematchDialogOpen(false);
+      setSelectedItems([]);
+
+      setTimeout(() => {
+        if (onMatchSuccess) {
+          onMatchSuccess();
+        }
+      }, 500);
+
+      toast({
+        title: "Dématchage réussi",
+        description: "L'élément a été dématché avec succès.",
+        className: "bg-green-600 text-white"
+      });
+    } catch (error) {
+      console.error("Erreur lors du dématchage:", error);
+      toast({
+        title: "Erreur de dématchage",
+        description: "Une erreur est survenue lors du dématchage de l'élément.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const handleMatchSelected = async () => {
     if (!onMatchSuccess) return;
@@ -326,8 +370,7 @@ export const LineLink: React.FC<LineLinkProps> = ({
                 <Button 
                   size="sm" 
                   className="bg-red-600 rounded-sm hover:bg-red-600 text-white"
-                  //@ts-ignore
-                  onClick={() => handleDematch(bankStatementId, parseInt(selectedItems[0]!))} 
+                  onClick={() => handleDematch(bankStatementId, parseInt(selectedItems[0]!))}
                   disabled={isLoading}
                 >
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}

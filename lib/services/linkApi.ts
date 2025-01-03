@@ -15,8 +15,8 @@ const LINKS_TAG = "Links";
 export const LinkApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getLinks: builder.query<
-      LinksResponse,
-      GetLinksParams | void
+        LinksResponse,
+        GetLinksParams | void
     >({
       // @ts-ignore
       query: (params = { page: 1, page_size: 10 }) => ({
@@ -33,15 +33,15 @@ export const LinkApi = apiSlice.injectEndpoints({
       }),
       // @ts-ignore
       providesTags: (result) =>
-        result
-          ? [
-              ...result.items.map(({ id }) => ({
-                type: LINKS_TAG,
-                id,
-              })),
-              { type: LINKS_TAG, id: "LIST" },
-            ]
-          : [{ type: LINKS_TAG, id: "LIST" }],
+          result
+              ? [
+                ...result.items.map(({ id }) => ({
+                  type: LINKS_TAG,
+                  id,
+                })),
+                { type: LINKS_TAG, id: "LIST" },
+              ]
+              : [{ type: LINKS_TAG, id: "LIST" }],
     }),
 
     createLink: builder.mutation<Link, CreateLinkRequest>({
@@ -56,8 +56,8 @@ export const LinkApi = apiSlice.injectEndpoints({
     }),
 
     updateLink: builder.mutation<
-      Link,
-      { id: string; body: Partial<Link> }
+        Link,
+        { id: string; body: Partial<Link> }
     >({
       query: ({ id, body }) => ({
         url: `${LINKS_URL}/${id}`,
@@ -82,13 +82,13 @@ export const LinkApi = apiSlice.injectEndpoints({
     }),
 
     getMatches: builder.query<
-      MatchResponse,
-      {
-        rapprochement_id: number;
-        statut?: string;
-        page?: number;
-        page_size?: number;
-      }
+        MatchResponse,
+        {
+          rapprochement_id: number;
+          statut?: string;
+          page?: number;
+          page_size?: number;
+        }
     >({
       query: ({ rapprochement_id, statut, page = 1, page_size = 10 }) => ({
         url: `/ligne_rapprochement/${rapprochement_id}/releves`,
@@ -97,18 +97,18 @@ export const LinkApi = apiSlice.injectEndpoints({
       }),
       // @ts-ignore
       providesTags: (result, error, arg) =>
-        result
-          ? [
-              ...result.items.map(({ id }) => ({
-                type: LINKS_TAG,
-                id,
-              })),
-              { type: LINKS_TAG, id: `LIST_${arg.rapprochement_id}` },
-            ]
-          : [{ type: LINKS_TAG, id: `LIST_${arg.rapprochement_id}` }],
+          result
+              ? [
+                ...result.items.map(({ id }) => ({
+                  type: LINKS_TAG,
+                  id,
+                })),
+                { type: LINKS_TAG, id: `LIST_${arg.rapprochement_id}` },
+              ]
+              : [{ type: LINKS_TAG, id: `LIST_${arg.rapprochement_id}` }],
     }),
 
-    validateLineLink: builder.mutation<any, { 
+    validateLineLink: builder.mutation<any, {
       rapprochement_id: number;
       ligne_ids: number[];
       ecart_accepte: boolean;
@@ -128,8 +128,8 @@ export const LinkApi = apiSlice.injectEndpoints({
     }),
 
     getLinkRapport: builder.query<
-      Blob,
-      { rapprochement_id: number; statut: string }
+        Blob,
+        { rapprochement_id: number; statut: string }
     >({
       query: ({ rapprochement_id, statut }) => ({
         url: `${LINKS_URL}/${rapprochement_id}/lignes/rapport`,
@@ -141,15 +141,15 @@ export const LinkApi = apiSlice.injectEndpoints({
     }),
 
     createLineLink: builder.mutation<
-      { message: string; ligne_id: number },
-      {
-        rapprochement_id: number;
-        body: {
-          releve_bancaire_id: string;
-          grand_livre_ids: string[];
-          commentaire: string;
-        };
-      }
+        { message: string; ligne_id: number },
+        {
+          rapprochement_id: number;
+          body: {
+            releve_bancaire_id: string;
+            grand_livre_ids: string[];
+            commentaire: string;
+          };
+        }
     >({
       query: ({ rapprochement_id, body }) => ({
         url: `${LINKS_URL}/${rapprochement_id}/lignes/creer`,
@@ -167,8 +167,8 @@ export const LinkApi = apiSlice.injectEndpoints({
     }),
 
     closeLink: builder.mutation<
-      { message: string },
-      { rapprochement_id: number }
+        { message: string },
+        { rapprochement_id: number }
     >({
       query: ({ rapprochement_id }) => ({
         url: `${LINKS_URL}/${rapprochement_id}/cloturer`,
@@ -178,6 +178,28 @@ export const LinkApi = apiSlice.injectEndpoints({
       invalidatesTags: (result, error, { rapprochement_id }) => [
         { type: LINKS_TAG, id: `LIST_${rapprochement_id}` },
       ],
+    }),
+
+    dematchLineLink: builder.mutation<
+        { message: string },
+        { rapprochement_id: number; ligne_id: number }
+    >({
+      query: ({ rapprochement_id, ligne_id }) => ({
+        url: `/ligne_rapprochement/${rapprochement_id}/${ligne_id}/dematcher`,
+        method: "POST",
+      }),
+      // @ts-ignore
+      invalidatesTags: (result, error, { rapprochement_id }) => [
+        { type: LINKS_TAG, id: `LIST_${rapprochement_id}` },
+      ],
+      async onQueryStarted({ rapprochement_id }, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // La requête est réussie, les tags sont invalidés automatiquement
+        } catch {
+          // En cas d'erreur, l'état du cache reste inchangé
+        }
+      },
     }),
   }),
 });
@@ -193,4 +215,5 @@ export const {
   useGetLinkRapportQuery,
   useCreateLineLinkMutation,
   useCloseLinkMutation,
+  useDematchLineLinkMutation,
 } = LinkApi;
