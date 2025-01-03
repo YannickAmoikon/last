@@ -126,7 +126,7 @@ export default function ManuelMatchDialog({ bankStatement }: { bankStatement: an
           grand_livre_ids: selectedBooks,
           commentaire: "",
           // @ts-ignore
-          ecart_accepte: ecart > 1000
+          ecart_accepte: true
         },
       }).unwrap();
 
